@@ -22,7 +22,8 @@ import AdminLayout from './layouts/AdminLayout'
 // ── Páginas listas ───────────────────────────────────────────────────────────
 import Dashboard     from './pages/Dashboard/Dashboard'
 import Administrador from './pages/Administrador/Administrador'
-
+import Roles from './pages/ROLES/Roles'
+import MiPerfil from './pages/Perfi/Miperfil'
 // ── Páginas por implementar (descomentar cuando estén listas) ────────────────
 // import Perfil     from './pages/Perfil/Perfil'
 // import Experto    from './pages/Experto/Experto'
@@ -33,7 +34,8 @@ import Administrador from './pages/Administrador/Administrador'
 const PAGES = {
   dashboard:     <Dashboard />,
   administrador: <Administrador />,
-  // perfil:     <Perfil />,
+  perfil:     <MiPerfil />,
+  roles:      <Roles />
   // experto:    <Experto />,
   // campesino:  <Campesino />,
   // categorias: <Categorias />,
