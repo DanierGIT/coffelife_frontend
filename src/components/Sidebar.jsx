@@ -14,7 +14,6 @@
 import React from 'react'
 import { useAuth } from '../context/AuthContext'
 import './Sidebar.css'
-
 const NAV_ITEMS = [
   {
     key: 'dashboard',
@@ -46,7 +45,20 @@ const NAV_ITEMS = [
         <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
       </svg>
     ),
-    ready: false,
+    ready: true,
+  },
+   {
+    key: 'roles', // Nuevo item: Roles
+    label: 'roles',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+    ),
+    ready: true, // Puedes cambiarlo a 'true' cuando la funcionalidad esté lista
   },
   {
     key: 'experto',
