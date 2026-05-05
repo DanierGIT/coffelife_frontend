@@ -1,0 +1,293 @@
+/* ========================= */
+/* FORMULARIO CREAR */
+/* ========================= */
+
+.formulario {
+
+  display: grid;
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 12px;
+
+  align-items: center;
+
+}
+
+
+/* INPUTS */
+
+.formulario input,
+.formulario select,
+.formulario textarea {
+
+  padding: 12px 14px;
+
+  border: 1px solid #d8d8d8;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  background: #f9f9f9;
+
+  outline: none;
+
+  transition: 0.2s;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+}
+
+
+.formulario input:focus,
+.formulario select:focus,
+.formulario textarea:focus {
+
+  border-color: #658c21;
+
+  background: white;
+
+}
+
+
+/* TEXTAREA */
+
+.formulario textarea {
+
+  grid-column: span 5;
+
+  min-height: 90px;
+
+  resize: none;
+
+}
+
+
+/* SELECT */
+
+.formulario select {
+
+  height: 45px;
+
+}
+
+
+/* BOTON */
+
+.formulario button {
+
+  background: #658c21;
+
+  color: white;
+
+  border: none;
+
+  height: 45px;
+
+  padding: 0 20px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  transition: 0.2s;
+
+}
+
+
+.formulario button:hover {
+
+  background: #54751b;
+
+}
+
+
+/* ========================= */
+/* MODAL */
+/* ========================= */
+
+.modal-overlay {
+
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  background: rgba(0,0,0,0.45);
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  z-index: 9999;
+
+  backdrop-filter: blur(3px);
+
+}
+
+
+/* VENTANA */
+
+.modal {
+
+  background: white;
+
+  width: 550px;
+
+  max-width: 95%;
+
+  padding: 30px;
+
+  border-radius: 18px;
+
+  position: relative;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+
+  animation: aparecer 0.25s ease;
+
+}
+
+
+/* TITULO */
+
+.modal h2 {
+
+  margin-top: 0;
+
+  margin-bottom: 25px;
+
+  color: #1f5c3f;
+
+  font-size: 24px;
+
+}
+
+
+/* FORMULARIO MODAL */
+
+.modal .formulario {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 15px;
+
+}
+
+
+.modal .formulario textarea {
+
+  width: 100%;
+
+  min-height: 100px;
+
+}
+
+
+.modal .formulario button {
+
+  width: 100%;
+
+}
+
+
+/* BOTON CERRAR */
+
+.cerrar-modal {
+
+  position: absolute;
+
+  top: 15px;
+
+  right: 15px;
+
+  width: 35px;
+
+  height: 35px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #e74c3c;
+
+  color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  font-size: 16px;
+
+}
+
+
+/* ANIMACION */
+
+@keyframes aparecer {
+
+  from {
+
+    opacity: 0;
+
+    transform: scale(0.9);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform: scale(1);
+
+  }
+
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+
+  .formulario {
+
+    grid-template-columns: repeat(2, 1fr);
+
+  }
+
+  .formulario textarea {
+
+    grid-column: span 2;
+
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .formulario {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .formulario textarea {
+
+    grid-column: span 1;
+
+  }
+
+}

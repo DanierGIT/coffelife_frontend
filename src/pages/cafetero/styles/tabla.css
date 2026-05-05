@@ -1,0 +1,195 @@
+.tabla {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: white;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  margin-top: 15px;
+
+}
+
+
+/* HEADER */
+
+.tabla thead {
+
+  background: #d9c8a5;
+
+}
+
+
+.tabla th {
+
+  padding: 14px;
+
+  text-align: left;
+
+  color: #4d5b1f;
+
+  font-size: 13px;
+
+  font-weight: bold;
+
+}
+
+
+/* CELDAS */
+
+.tabla td {
+
+  padding: 14px;
+
+  border-bottom: 1px solid #f0f0f0;
+
+  font-size: 14px;
+
+  color: #444;
+
+}
+
+
+/* FILAS */
+
+.tabla tbody tr {
+
+  transition: 0.2s;
+
+}
+
+
+.tabla tbody tr:hover {
+
+  background: #fafafa;
+
+}
+
+
+/* ACCIONES */
+
+.acciones {
+
+  display: flex;
+
+  gap: 8px;
+
+}
+
+
+/* BOTON EDITAR */
+
+.editar {
+
+  background: #dcdcdc;
+
+  color: #333;
+
+  border: none;
+
+  padding: 7px 14px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+}
+
+
+.editar:hover {
+
+  background: #c7c7c7;
+
+}
+
+
+/* BOTON ELIMINAR */
+
+.eliminar {
+
+  background: #d9534f;
+
+  color: white;
+
+  border: none;
+
+  padding: 7px 14px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+}
+
+
+.eliminar:hover {
+
+  background: #c9302c;
+
+}
+
+
+/* ESTADO */
+
+.estado {
+
+  padding: 6px 12px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  display: inline-block;
+
+}
+
+
+.activo {
+
+  background: #dff5e1;
+
+  color: #2e7d32;
+
+}
+
+
+.inactivo {
+
+  background: #ffe1e1;
+
+  color: #c62828;
+
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+  .tabla {
+
+    display: block;
+
+    overflow-x: auto;
+
+  }
+
+}

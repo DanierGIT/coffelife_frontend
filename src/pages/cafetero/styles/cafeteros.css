@@ -1,0 +1,232 @@
+body {
+
+  margin: 0;
+
+  padding: 0;
+
+  background: #f7f4ef;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+}
+
+
+/* ========================= */
+/* LAYOUT */
+/* ========================= */
+
+.layout {
+
+  display: flex;
+
+}
+
+
+/* ========================= */
+/* CONTENIDO PRINCIPAL */
+/* ========================= */
+
+.contenedor {
+
+  margin-left: 280px;
+
+  width: calc(100% - 280px);
+
+  min-height: 100vh;
+
+  padding: 45px;
+
+  box-sizing: border-box;
+
+}
+
+
+/* ========================= */
+/* ENCABEZADO */
+/* ========================= */
+
+.encabezado {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 40px;
+
+  background: white;
+
+  padding: 30px;
+
+  border-radius: 24px;
+
+  box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+
+  border: 1px solid #efedec;
+
+}
+
+
+.encabezado h1 {
+
+  margin: 0;
+
+  color: #1f5c3f;
+
+  font-size: 38px;
+
+  font-weight: bold;
+
+}
+
+
+.encabezado p {
+
+  margin-top: 10px;
+
+  color: #777;
+
+  font-size: 17px;
+
+}
+
+
+/* ========================= */
+/* ESTADO SISTEMA */
+/* ========================= */
+
+.estado-sistema {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  background: #eef8ef;
+
+  color: #2f5b2c;
+
+  padding: 14px 20px;
+
+  border-radius: 14px;
+
+  font-weight: bold;
+
+  border: 1px solid #dcefd9;
+
+}
+
+
+.estado-dot {
+
+  width: 12px;
+
+  height: 12px;
+
+  background: #4caf50;
+
+  border-radius: 50%;
+
+}
+
+
+/* ========================= */
+/* PANELES */
+/* ========================= */
+
+.panel {
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 35px;
+
+  margin-bottom: 35px;
+
+  box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+
+  border: 1px solid #efedec;
+
+}
+
+
+/* ========================= */
+/* HEADER PANEL */
+/* ========================= */
+
+.panel-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 30px;
+
+}
+
+
+.panel-header h2 {
+
+  margin: 0;
+
+  color: #1f5c3f;
+
+  font-size: 28px;
+
+}
+
+
+.contador {
+
+  background: #efdec0;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  color: #2f5b2c;
+
+  font-weight: bold;
+
+}
+
+
+.contador strong {
+
+  margin-left: 8px;
+
+}
+
+
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+
+@media (max-width: 900px) {
+
+  .contenedor {
+
+    margin-left: 0;
+
+    width: 100%;
+
+    padding: 20px;
+
+  }
+
+  .encabezado {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 20px;
+
+  }
+
+}

@@ -68,7 +68,7 @@ const NAV_ITEMS = [
         <path d="M2 12h20" />
       </svg>
     ),
-    ready: false,
+    ready: true,
   },
   {
     key: 'categorias',
