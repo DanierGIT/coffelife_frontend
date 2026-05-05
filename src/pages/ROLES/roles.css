@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  background: #fff;
+  min-height: 100vh;
+}
+
+/* ── Contenedor ── */
+.rl-container {
+  width: 100%;
+  margin: 40px 0;
+  padding: 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Título de página ── */
+.rl-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2e2e2e;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ── Tarjeta — fondo blanco, borde arena ── */
+.rl-card {
+  background: #fff;
+  border: 0.5px solid #d6cbbf;
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+
+/* ── Etiqueta de sección ── */
+.rl-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7a8c72;
+  margin-bottom: 14px;
+}
+
+/* ── Grid del formulario ── */
+.rl-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 480px) {
+  .rl-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Campo individual ── */
+.rl-field label {
+  display: block;
+  font-size: 13px;
+  color: #5a4e36;
+  margin-bottom: 5px;
+  font-family: 'Lato', sans-serif;
+}
+
+.rl-field input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d6cbbf;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  background: #fdf9f4;
+  color: #2e2e2e;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.rl-field input:focus {
+  border-color: #4a7c3f;
+  background: #fff;
+}
+
+/* ── Fila de botones ── */
+.rl-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ── Botón principal ── */
+.rl-btn {
+  background: #4a7c3f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  transition: background 0.15s;
+}
+
+.rl-btn:hover {
+  background: #3a6230;
+}
+
+.rl-btn:disabled {
+  background: #a0b89a;
+  cursor: not-allowed;
+}
+
+/* ── Botón cancelar ── */
+.rl-btn-cancel {
+  background: #fff;
+  color: #5a4e36;
+  border: 1px solid #d6cbbf;
+  border-radius: 6px;
+  padding: 9px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  transition: background 0.15s;
+}
+
+.rl-btn-cancel:hover {
+  background: #f0e9de;
+}
+
+/* ── Mensaje de error ── */
+.rl-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #a0522d;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ── Tabla — cabecera beige, filas blancas ── */
+.rl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+}
+
+.rl-table thead tr {
+  background: #f0e9de;
+}
+
+.rl-table th {
+  text-align: left;
+  padding: 10px 14px;
+  color: #4a3f2e;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #d6cbbf;
+}
+
+.rl-table td {
+  padding: 11px 14px;
+  color: #2e2e2e;
+  border-bottom: 0.5px solid #ece5da;
+  background: #fff;
+}
+
+.rl-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rl-table tr:hover td {
+  background: #fdf9f4;
+}
+
+.rl-empty {
+  text-align: center;
+  color: #b0a898;
+  padding: 24px 14px !important;
+}
+
+/* ── Botones de acción en tabla ── */
+.rl-icon-btn {
+  background: none;
+  border: 0.5px solid #d6cbbf;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 4px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.rl-icon-btn:hover {
+  background: #f0e9de;
+  border-color: #b0a898;
+}
+
+.rl-icon-btn--danger:hover {
+  background: #fdf0ec;
+  border-color: #d6a090;
+}

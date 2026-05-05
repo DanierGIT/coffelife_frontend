@@ -1,40 +1,91 @@
 /**
  * AuthContext.jsx
- * ----------------
- * Contexto de sesión del administrador.
+ * ─────────────────────────────────────────────
+ * Contexto de sesión con modo MOCK para desarrollo.
  *
- * Por ahora el usuario está hardcodeado para desarrollo.
- * Cuando el backend esté listo, reemplaza el objeto `mockUser`
- * por una llamada real a la API de autenticación.
+ * Para activar el modo mock (sin backend):
+ *   Cambia MOCK_MODE = true
  *
- * Expone:
- *  - user     → objeto con datos del admin autenticado
- *  - logout() → limpia la sesión (listo para conectar al backend)
+ * Para conectar al backend real:
+ *   Cambia MOCK_MODE = false
  */
 
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import api from '../services/api'
 
 const AuthContext = createContext(null)
 
-// ─── USUARIO DE PRUEBA ────────────────────────────────────────────────────────
-// TODO: reemplazar con llamada real al backend cuando esté listo el login
-const mockUser = {
-  fullName: "Admin CoffeeLife",
-  email: "admin@coffeelife.com",
-  role: "admin",
+// ─── MODO DESARROLLO SIN BACKEND ─────────────────────────────────────────────
+// Cambia a false cuando tengas el backend listo
+const MOCK_MODE = true
+
+const MOCK_USER = {
+  fullName: 'Admin CoffeeLife',
+  email:    'admin@coffeelife.com',
+  role:     'admin',
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(mockUser)
+  const [user,    setUser]    = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const logout = () => {
-    // TODO: llamar al endpoint de logout del backend
+  useEffect(() => {
+    const saved = localStorage.getItem('cl_user')
+    const token = localStorage.getItem('cl_token')
+    if (saved && token) {
+      setUser(JSON.parse(saved))
+      if (!MOCK_MODE) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      }
+    }
+    setLoading(false)
+  }, [])
+
+  const login = async (email, password) => {
+    if (MOCK_MODE) {
+      const userData = { ...MOCK_USER, email }
+      localStorage.setItem('cl_token', 'mock-token-dev')
+      localStorage.setItem('cl_user',  JSON.stringify(userData))
+      setUser(userData)
+      return
+    }
+    const res = await api.post('/login', { email, password })
+    const { token, user: userData } = res.data
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    localStorage.setItem('cl_token', token)
+    localStorage.setItem('cl_user',  JSON.stringify(userData))
+    setUser(userData)
+  }
+
+  const register = async (fullName, email, password) => {
+    if (MOCK_MODE) {
+      const userData = { fullName, email, role: 'admin' }
+      localStorage.setItem('cl_token', 'mock-token-dev')
+      localStorage.setItem('cl_user',  JSON.stringify(userData))
+      setUser(userData)
+      return
+    }
+    const res = await api.post('/register', { fullName, email, password })
+    const { token, user: userData } = res.data
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    localStorage.setItem('cl_token', token)
+    localStorage.setItem('cl_user',  JSON.stringify(userData))
+    setUser(userData)
+  }
+
+  const logout = async () => {
+    if (!MOCK_MODE) {
+      try { await api.post('/logout') } catch { /* ignorar */ }
+      delete api.defaults.headers.common['Authorization']
+    }
+    localStorage.removeItem('cl_token')
+    localStorage.removeItem('cl_user')
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
