@@ -1,0 +1,54 @@
+/* ══════════════════════════════════════════
+   Fincas.css  — mismos tokens que Administrador.css
+   ══════════════════════════════════════════ */
+
+/* ─── Formulario de fincas ─── */
+.finca-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.finca-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.finca-form-row input {
+  flex: 1;
+  min-width: 180px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.finca-form-row input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+/* ─── Mensaje de éxito ─── */
+.finca-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin: 0;
+  border: 1px solid #c8e6c9;
+}
+
+/* ─── Celda vacía ─── */
+.finca-empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 32px 16px !important;
+  font-size: 14px;
+}
