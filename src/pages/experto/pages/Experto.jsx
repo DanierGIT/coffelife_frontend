@@ -169,7 +169,7 @@ const Experto = () => {
       </section>
 
       {/* ========================= */}
-      {/* TABLA */}
+      {/* TABLA aaaaaaaaaaaaaa*/}
       {/* ========================= */}
       <section className="tabla">
         <h3 id="registraus">Expertos registrados</h3>
