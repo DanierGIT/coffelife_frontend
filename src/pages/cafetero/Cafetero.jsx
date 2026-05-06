@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect } from "react"
-import "./Cafetero.css"
+import "./styles/cafeteros.css"
 
 const BASE_URL = "http://localhost:3333/cafeteros"
 

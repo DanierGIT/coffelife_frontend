@@ -1,16 +1,3 @@
-/**
- * Sidebar.jsx
- * ──────────────────────────────────────────────
- * Barra de navegación vertical del panel admin.
- *
- * Props:
- *  - activePage   → nombre de la página activa (string)
- *  - onNavigate   → función que recibe el nombre de la página a mostrar
- *
- * Para agregar o reordenar secciones, edita el array NAV_ITEMS.
- * Cuando una página esté lista, cambia ready: false → ready: true.
- */
-
 import React from 'react'
 import { useAuth } from '../context/AuthContext'
 import './Sidebar.css'
@@ -19,88 +6,111 @@ const NAV_ITEMS = [
   {
     key: 'dashboard',
     label: 'Dashboard',
+    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
         <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
       </svg>
     ),
-    ready: true,
   },
   {
     key: 'administrador',
     label: 'Administrador',
+    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
+  },
+  {
+    key: 'experto',
+    label: 'Experto',
     ready: true,
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    ),
+  },
+  {
+    key: 'cafetero',
+    label: 'Cafetero',
+    ready: true,
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+        <line x1="6" y1="1" x2="6" y2="4" />
+        <line x1="10" y1="1" x2="10" y2="4" />
+        <line x1="14" y1="1" x2="14" y2="4" />
+      </svg>
+    ),
+  },
+  {
+    key: 'fincas',
+    label: 'Fincas',
+    ready: true,
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    key: 'roles',
+    label: 'Roles',
+    ready: true,
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
   },
   {
     key: 'perfil',
-    label: 'Perfil',
+    label: 'Mi Perfil',
+    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="8" r="4" />
         <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
       </svg>
     ),
-    ready: false,
-  },
-  {
-    key: 'experto',
-    label: 'Experto',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    ),
-    ready: false,
-  },
-  {
-    key: 'cafetero',
-    label: 'Cafetero',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22V12" />
-        <path d="M5 12C5 7 8 4 12 4c4 0 7 3 7 8" />
-        <path d="M2 12h20" />
-      </svg>
-    ),
-    ready: true,
-  },
-  {
-    key: 'categorias',
-    label: 'Categorías',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-      </svg>
-    ),
-    ready: false,
   },
 ]
 
 export default function Sidebar({ activePage, onNavigate }) {
   const { user, logout } = useAuth()
 
+  const initials = ((user?.nombre?.[0] ?? '') + (user?.apellido?.[0] ?? '')).toUpperCase() ||
+                   (user?.correo?.[0] ?? 'A').toUpperCase()
+
+  const displayName = user?.nombre
+    ? `${user.nombre} ${user.apellido ?? ''}`.trim()
+    : (user?.correo ?? 'Usuario')
+
   return (
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <span className="sidebar-logo-icon"></span>
+        <span className="sidebar-logo-icon">☕</span>
         <span className="sidebar-logo-text">CoffeeLife</span>
       </div>
 
-      {/* Perfil del admin */}
+      {/* Perfil del usuario */}
       <div className="sidebar-profile">
-        <div className="sidebar-avatar">
-          {(user?.fullName ?? user?.email ?? 'A')[0].toUpperCase()}
-        </div>
+        <div className="sidebar-avatar">{initials}</div>
         <div className="sidebar-profile-info">
-          <p className="sidebar-profile-name">{user?.fullName ?? user?.email}</p>
-          <p className="sidebar-profile-role">Administrador</p>
+          <p className="sidebar-profile-name">{displayName}</p>
+          <p className="sidebar-profile-role">
+            {user?.rol?.nombreRol ?? user?.rol ?? 'Administrador'}
+          </p>
         </div>
       </div>
 
@@ -111,19 +121,17 @@ export default function Sidebar({ activePage, onNavigate }) {
         {NAV_ITEMS.map(item => (
           <button
             key={item.key}
-            className={`sidebar-nav-item${activePage === item.key ? ' active' : ''}${!item.ready ? ' disabled' : ''}`}
-            onClick={() => item.ready && onNavigate(item.key)}
-            title={!item.ready ? 'Por implementar' : item.label}
-            disabled={!item.ready}
+            className={`sidebar-nav-item${activePage === item.key ? ' active' : ''}`}
+            onClick={() => onNavigate(item.key)}
+            title={item.label}
           >
             <span className="sidebar-nav-icon">{item.icon}</span>
             <span className="sidebar-nav-label">{item.label}</span>
-            {!item.ready && <span className="sidebar-badge">Próximamente</span>}
           </button>
         ))}
       </nav>
 
-      {/* Logout al fondo */}
+      {/* Logout */}
       <div className="sidebar-footer">
         <button className="sidebar-logout" onClick={logout}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

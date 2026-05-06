@@ -1,45 +1,28 @@
-/**
- * App.jsx
- * ──────────────────────────────────────────────
- * Punto de entrada de la aplicación.
- *
- * ┌─────────────────────────────────────────────┐
- * │  AuthProvider  →  contexto de sesión         │
- * │    AdminLayout →  sidebar + área de contenido│
- * │      <página activa>                         │
- * └─────────────────────────────────────────────┘
- *
- * ── Cómo agregar una nueva página ──────────────
- * 1. Crea el componente en src/pages/TuPagina/TuPagina.jsx
- * 2. Impórtalo aquí y agrégalo al objeto PAGES con su key
- * 3. En Sidebar.jsx, cambia ready: false → ready: true en el ítem correspondiente
- */
 
 import React, { useState } from 'react'
 import { AuthProvider } from './context/AuthContext'
 import AdminLayout from './layouts/AdminLayout'
 
-// ── Páginas listas ───────────────────────────────────────────────────────────
+// ── Páginas ──────────────────────────────────────────────────────────────────
 import Dashboard     from './pages/Dashboard/Dashboard'
 import Administrador from './pages/Administrador/Administrador'
-
-// ── Páginas por implementar (descomentar cuando estén listas) ────────────────
-// import Perfil     from './pages/Perfil/Perfil'
-// import Experto    from './pages/Experto/Experto'
-import Cafetero from './pages/cafetero/Cafetero'
-// import Categorias from './pages/Categorias/Categorias'
+import Experto       from './pages/experto/pages/Experto'
+import Roles         from './pages/ROLES/Roles'
+import MiPerfil      from './pages/Perfi/Miperfil'
+import Cafetero      from './pages/cafetero/Cafetero'
+import Fincas        from './pages/Fincas/Fincas'
 
 // Mapa de key → componente  (la key debe coincidir con NAV_ITEMS en Sidebar.jsx)
 const PAGES = {
   dashboard:     <Dashboard />,
   administrador: <Administrador />,
-  // perfil:     <Perfil />,
-  // experto:    <Experto />,
-  cafetero:  <Cafetero/>,
-  // categorias: <Categorias />,
+  experto:       <Experto />,
+  roles:         <Roles />,
+  perfil:        <MiPerfil />,
+  cafetero:      <Cafetero />,
+  fincas:        <Fincas />,
 }
 
-// ── AppContent ───────────────────────────────────────────────────────────────
 function AppContent() {
   const [activePage, setActivePage] = useState('dashboard')
 
@@ -50,7 +33,6 @@ function AppContent() {
   )
 }
 
-// ── App principal ─────────────────────────────────────────────────────────────
 export default function App() {
   return (
     <AuthProvider>
