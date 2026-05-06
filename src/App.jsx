@@ -11,6 +11,7 @@ import Roles         from './pages/ROLES/Roles'
 import MiPerfil      from './pages/Perfi/Miperfil'
 import Cafetero      from './pages/cafetero/Cafetero'
 import Fincas        from './pages/Fincas/Fincas'
+import Monitoreos from './pages/Monitoreos/Monitoreos'
 
 // Mapa de key → componente  (la key debe coincidir con NAV_ITEMS en Sidebar.jsx)
 const PAGES = {
@@ -21,6 +22,10 @@ const PAGES = {
   perfil:        <MiPerfil />,
   cafetero:      <Cafetero />,
   fincas:        <Fincas />,
+  experto:    <Experto />,
+  // campesino:  <Campesino />,
+  // categorias: <Categorias />,
+  monitoreos:    <Monitoreos />,
 }
 
 function AppContent() {
