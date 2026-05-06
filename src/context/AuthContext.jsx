@@ -1,40 +1,54 @@
 /**
  * AuthContext.jsx
- * ----------------
- * Contexto de sesión del administrador.
- *
- * Por ahora el usuario está hardcodeado para desarrollo.
- * Cuando el backend esté listo, reemplaza el objeto `mockUser`
- * por una llamada real a la API de autenticación.
- *
- * Expone:
- *  - user     → objeto con datos del admin autenticado
- *  - logout() → limpia la sesión (listo para conectar al backend)
+ * Conectado al backend real de CoffeeLife (AdonisJS + JWT)
  */
 
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import api from '../services/api'
 
 const AuthContext = createContext(null)
 
-// ─── USUARIO DE PRUEBA ────────────────────────────────────────────────────────
-// TODO: reemplazar con llamada real al backend cuando esté listo el login
-const mockUser = {
-  fullName: "Admin CoffeeLife",
-  email: "admin@coffeelife.com",
-  role: "admin",
-}
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(mockUser)
+  const [user,    setUser]    = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('cl_user')
+    const token = localStorage.getItem('cl_token')
+    if (saved && token) {
+      setUser(JSON.parse(saved))
+    }
+    setLoading(false)
+  }, [])
+
+  // Backend espera: { correo, password }
+  // Devuelve:       { token, data: { idUsuario, nombre, apellido, correo, rol } }
+  const login = async (email, password) => {
+    const res = await api.post('/login', { correo: email, password })
+    const { token, data: userData } = res.data
+    localStorage.setItem('cl_token', token)
+    localStorage.setItem('cl_user',  JSON.stringify(userData))
+    setUser(userData)
+  }
+
+  // Backend espera: { nombre, apellido, correo, password }
+  // No devuelve token — hacemos login automático después
+  const register = async (fullName, email, password) => {
+    const parts = fullName.trim().split(' ')
+    const nombre   = parts[0] || fullName
+    const apellido = parts.slice(1).join(' ') || nombre
+    await api.post('/register', { nombre, apellido, correo: email, password })
+    await login(email, password)
+  }
 
   const logout = () => {
-    // TODO: llamar al endpoint de logout del backend
+    localStorage.removeItem('cl_token')
+    localStorage.removeItem('cl_user')
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
