@@ -26,7 +26,7 @@ import Administrador from './pages/Administrador/Administrador'
 // ── Páginas por implementar (descomentar cuando estén listas) ────────────────
 // import Perfil     from './pages/Perfil/Perfil'
 // import Experto    from './pages/Experto/Experto'
-import Campesino from './pages/cafetero/Campesino'
+import Cafetero from './pages/cafetero/Cafetero'
 // import Categorias from './pages/Categorias/Categorias'
 
 // Mapa de key → componente  (la key debe coincidir con NAV_ITEMS en Sidebar.jsx)
@@ -35,7 +35,7 @@ const PAGES = {
   administrador: <Administrador />,
   // perfil:     <Perfil />,
   // experto:    <Experto />,
-  Cafetero:  <Campesino />,
+  cafetero:  <Cafetero/>,
   // categorias: <Categorias />,
 }
 
