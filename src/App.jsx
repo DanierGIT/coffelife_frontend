@@ -27,6 +27,7 @@ import Administrador from './pages/Administrador/Administrador'
 import Roles         from './pages/ROLES/Roles'
 import MiPerfil      from './pages/Perfi/Miperfil'
 import Fincas        from './pages/Fincas/Fincas'
+import Monitoreos from './pages/Monitoreos/Monitoreos'
 
 // ── Páginas por implementar (descomentar cuando estén listas) ────────────────
 import Experto    from './pages/experto/pages/Experto'
@@ -43,6 +44,7 @@ const PAGES = {
   experto:    <Experto />,
   // campesino:  <Campesino />,
   // categorias: <Categorias />,
+  monitoreos:    <Monitoreos />,
 }
 
 // ── AppContent ───────────────────────────────────────────────────────────────

@@ -1,0 +1,80 @@
+.monitoreo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.monitoreo-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.monitoreo-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.monitoreo-label--full {
+  width: 100%;
+  flex: unset;
+}
+
+.monitoreo-label input,
+.monitoreo-label textarea {
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+
+.monitoreo-label input:focus,
+.monitoreo-label textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+.monitoreo-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  border: 1px solid #c8e6c9;
+}
+
+.monitoreo-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  border: 1px solid #fecaca;
+}
+
+.monitoreo-obs {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monitoreo-empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 40px 16px !important;
+  font-size: 14px;
+}
