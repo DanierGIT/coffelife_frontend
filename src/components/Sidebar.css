@@ -1,0 +1,180 @@
+/* ══════════════════════════════════════════
+   Sidebar.css — Barra de navegación vertical
+   ══════════════════════════════════════════ */
+
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #efdec0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ─── Logo ─── */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 20px;
+}
+
+.sidebar-logo-icon {
+  font-size: 24px;
+}
+
+.sidebar-logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #658c21;
+  letter-spacing: 1px;
+  font-family: 'Georgia', serif;
+}
+
+/* ─── Perfil ─── */
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: rgba(29, 71, 32, 0.515);
+  margin-bottom: 8px;
+}
+
+.sidebar-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-profile-info {
+  overflow: hidden;
+}
+
+.sidebar-profile-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #efdec0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-profile-role {
+  margin: 0;
+  font-size: 11px;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+/* ─── Divider ─── */
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid rgba(10, 10, 10, 0.303);
+  margin: 12px 0;
+}
+
+/* ─── Navegación ─── */
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #658c21;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sidebar-nav-item:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #000000;
+}
+
+.sidebar-nav-item.active {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(46, 125, 50, 0.2));
+  color: #000000;
+  border-left: 3px solid #489d4a;
+}
+
+.sidebar-nav-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sidebar-nav-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-nav-label {
+  flex: 1;
+}
+
+.sidebar-badge {
+  font-size: 9px;
+  background: rgba(239, 222, 192, 0.15);
+  color: #efdec0;
+  padding: 2px 6px;
+  border-radius: 20px;
+  border: 1px solid rgba(239, 222, 192, 0.2);
+  white-space: nowrap;
+}
+
+/* ─── Footer / Logout ─── */
+.sidebar-footer {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #a8c4a8;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.sidebar-logout:hover {
+  background: rgba(220, 80, 80, 0.15);
+  color: #f62e2e;
+}
