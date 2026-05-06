@@ -35,7 +35,7 @@ const PAGES = {
   administrador: <Administrador />,
   // perfil:     <Perfil />,
   // experto:    <Experto />,
-  campesino:  <Campesino />,
+  Cafetero:  <Campesino />,
   // categorias: <Categorias />,
 }
 
