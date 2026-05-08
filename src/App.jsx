@@ -1,38 +1,85 @@
-
 import React, { useState } from 'react'
-import { AuthProvider } from './context/AuthContext'
+
+import { AuthProvider, useAuth } from './context/AuthContext'
+
 import AdminLayout from './layouts/AdminLayout'
 
-// ── Páginas ──────────────────────────────────────────────────────────────────
-import Dashboard     from './pages/Dashboard/Dashboard'
+import Dashboard from './pages/Dashboard/Dashboard'
 import Administrador from './pages/Administrador/Administrador'
-import Experto       from './pages/experto/pages/Experto'
-import Roles         from './pages/ROLES/Roles'
-import MiPerfil      from './pages/Perfi/Miperfil'
-import Cafetero      from './pages/cafetero/Cafetero'
-import Fincas        from './pages/Fincas/Fincas'
+import Experto from './pages/experto/pages/Experto'
+import Roles from './pages/ROLES/Roles'
+import MiPerfil from './pages/Perfi/Miperfil'
+import Cafetero from './pages/cafetero/Cafetero'
+import Fincas from './pages/Fincas/Fincas'
 import Monitoreos from './pages/Monitoreos/Monitoreos'
 
-// Mapa de key → componente  (la key debe coincidir con NAV_ITEMS en Sidebar.jsx)
+import Login from './pages/Auth/Login'
+import Register from './pages/Auth/Register'
+
 const PAGES = {
-  dashboard:     <Dashboard />,
+  dashboard: <Dashboard />,
   administrador: <Administrador />,
-  experto:       <Experto />,
-  roles:         <Roles />,
-  perfil:        <MiPerfil />,
-  cafetero:      <Cafetero />,
-  fincas:        <Fincas />,
-  experto:    <Experto />,
-  // campesino:  <Campesino />,
-  // categorias: <Categorias />,
-  monitoreos:    <Monitoreos />,
+  experto: <Experto />,
+  roles: <Roles />,
+  perfil: <MiPerfil />,
+  cafetero: <Cafetero />,
+  fincas: <Fincas />,
+  monitoreos: <Monitoreos />,
 }
 
 function AppContent() {
+
+  const { user, loading } = useAuth()
+
   const [activePage, setActivePage] = useState('dashboard')
 
+  // Control Login / Register
+  const [authPage, setAuthPage] = useState('login')
+
+  // Pantalla de carga
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          fontSize: '20px',
+          fontWeight: 'bold'
+        }}
+      >
+        Cargando...
+      </div>
+    )
+  }
+
+  // Si NO hay usuario autenticado
+  if (!user) {
+
+    // Mostrar Register
+    if (authPage === 'register') {
+      return (
+        <Register
+          onGoLogin={() => setAuthPage('login')}
+        />
+      )
+    }
+
+    // Mostrar Login
+    return (
+      <Login
+        onGoRegister={() => setAuthPage('register')}
+      />
+    )
+  }
+
+  // Si hay usuario → mostrar sistema
   return (
-    <AdminLayout activePage={activePage} onNavigate={setActivePage}>
+    <AdminLayout
+      activePage={activePage}
+      onNavigate={setActivePage}
+    >
       {PAGES[activePage] ?? <Dashboard />}
     </AdminLayout>
   )

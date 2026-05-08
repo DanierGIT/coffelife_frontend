@@ -1,6 +1,6 @@
 /**
  * Administrador.jsx
- * CRUD completo conectado a /admins — con manejo de errores.
+ * CRUD completo conectado a /admins
  * El backend espera: { nombre, apellido, correo, telefono, password }
  */
 import { useState, useEffect } from 'react'
@@ -46,11 +46,11 @@ function EditModal({ admin, onClose, onSaved }) {
         </div>
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="modal-row">
-            <label>Nombre       <input name="nombre"   value={form.nombre}   onChange={handleChange} required /></label>
-            <label>Apellido     <input name="apellido" value={form.apellido} onChange={handleChange} required /></label>
+            <label>Nombre   <input name="nombre"   value={form.nombre}   onChange={handleChange} required /></label>
+            <label>Apellido <input name="apellido" value={form.apellido} onChange={handleChange} required /></label>
           </div>
-          <label>Correo         <input name="correo"   value={form.correo}   onChange={handleChange} required /></label>
-          <label>Teléfono       <input name="telefono" value={form.telefono} onChange={handleChange} /></label>
+          <label>Correo   <input name="correo"   value={form.correo}   onChange={handleChange} required /></label>
+          <label>Teléfono <input name="telefono" value={form.telefono} onChange={handleChange} /></label>
           <label>
             Contraseña <span className="modal-hint">(opcional)</span>
             <input name="password" type="password" value={form.password} onChange={handleChange} />
@@ -72,6 +72,7 @@ export default function Administrador() {
   const [admins,       setAdmins]       = useState([])
   const [editingAdmin, setEditingAdmin] = useState(null)
   const [loading,      setLoading]      = useState(false)
+  const [fetching,     setFetching]     = useState(true)   // ← nuevo: carga inicial
   const [error,        setError]        = useState('')
   const [success,      setSuccess]      = useState('')
 
@@ -80,11 +81,19 @@ export default function Administrador() {
   })
 
   const getAdmins = async () => {
+    setFetching(true)
+    setError('')
     try {
       const res = await api.get('/admins')
-      setAdmins(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
+      // El backend puede devolver el array directamente o dentro de { data: [...] }
+      const lista = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      setAdmins(lista)
     } catch (err) {
-      setError('No se pudieron cargar los administradores.')
+      // Muestra el error real para que puedas depurar
+      const msg = err?.response?.data?.message || err?.message || 'Error de red al cargar administradores.'
+      setError(msg)
+    } finally {
+      setFetching(false)
     }
   }
 
@@ -142,28 +151,32 @@ export default function Administrador() {
       </div>
 
       <div className="admin-table-card">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {admins.length === 0 ? (
-              <tr><td colSpan={4} className="finca-empty">No hay administradores registrados.</td></tr>
-            ) : admins.map((admin) => (
-              <tr key={admin.idUsuario}>
-                <td>{admin.nombre} {admin.apellido}</td>
-                <td>{admin.correo}</td>
-                <td>{admin.telefono || '—'}</td>
-                <td>
-                  <button className="btn-edit"   onClick={() => setEditingAdmin(admin)}>Editar</button>
-                  <button className="btn-delete" onClick={() => handleDelete(admin.idUsuario)}>Eliminar</button>
-                </td>
+        {fetching ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Cargando administradores…</p>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {admins.length === 0 ? (
+                <tr><td colSpan={4} className="finca-empty">No hay administradores registrados.</td></tr>
+              ) : admins.map((admin) => (
+                <tr key={admin.idUsuario}>
+                  <td>{admin.nombre} {admin.apellido}</td>
+                  <td>{admin.correo}</td>
+                  <td>{admin.telefono || '—'}</td>
+                  <td>
+                    <button className="btn-edit"   onClick={() => setEditingAdmin(admin)}>Editar</button>
+                    <button className="btn-delete" onClick={() => handleDelete(admin.idUsuario)}>Eliminar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {editingAdmin && (

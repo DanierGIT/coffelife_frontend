@@ -1,6 +1,6 @@
 import "./login.css";
 
-function Login() {
+function Login({ goToRegister }) {
 
   return (
 
@@ -153,7 +153,13 @@ function Login() {
           <p className="register-text">
 
             ¿No tienes una cuenta?
-            <span> Regístrate</span>
+
+            <span
+              onClick={goToRegister}
+              style={{ cursor: "pointer" }}
+            >
+              {" "}Regístrate
+            </span>
 
           </p>
 

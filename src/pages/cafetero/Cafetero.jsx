@@ -1,20 +1,12 @@
 /**
  * Cafetero.jsx
- * ──────────────────────────────────────────────
- * CRUD de cafeteros. Se conecta al backend
- * en /cafeteros vía fetch directo.
- *
- * Endpoints usados:
- *  GET    /cafeteros
- *  POST   /cafeteros
- *  PUT    /cafeteros/:id
- *  DELETE /cafeteros/:id
+ * CRUD de cafeteros conectado al backend via api centralizado (axios).
+ * Endpoints: GET/POST/PUT/DELETE /cafeteros
  */
 
 import { useState, useEffect } from "react"
+import api from "../../services/api"
 import "./styles/cafeteros.css"
-
-const BASE_URL = "http://localhost:3333/cafeteros"
 
 // ── Modal de edición ─────────────────────────────────────────────────────────
 function EditModal({ cafetero, onClose, onSaved }) {
@@ -28,7 +20,7 @@ function EditModal({ cafetero, onClose, onSaved }) {
     activo:        cafetero.activo ?? true,
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState("")
+  const [error,   setError]   = useState("")
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -40,17 +32,13 @@ function EditModal({ cafetero, onClose, onSaved }) {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch(`${BASE_URL}/${cafetero.idUsuario}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || "Error al actualizar")
+      const payload = { ...form }
+      if (!payload.password) delete payload.password
+      await api.put(`/cafeteros/${cafetero.idUsuario}`, payload)
       onSaved()
       onClose()
     } catch (err) {
-      setError(err.message || "No se pudo guardar. Intenta de nuevo.")
+      setError(err?.response?.data?.message || "No se pudo guardar. Intenta de nuevo.")
     } finally {
       setLoading(false)
     }
@@ -65,13 +53,11 @@ function EditModal({ cafetero, onClose, onSaved }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        {/* Cabecera */}
         <div className="modal-header">
-          <h2 className="modal-title">✏️ Editar cafetero</h2>
+          <h2 className="modal-title">Editar cafetero</h2>
           <button className="modal-close" onClick={onClose} title="Cerrar">✕</button>
         </div>
 
-        {/* Formulario */}
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="modal-row">
             <label>Nombre
@@ -95,7 +81,7 @@ function EditModal({ cafetero, onClose, onSaved }) {
           </label>
 
           <label>Estado
-            <select name="activo" value={form.activo} onChange={handleChange}>
+            <select name="activo" value={String(form.activo)} onChange={handleChange}>
               <option value="true">Activo</option>
               <option value="false">Inactivo</option>
             </select>
@@ -103,7 +89,7 @@ function EditModal({ cafetero, onClose, onSaved }) {
 
           <label>
             Nueva contraseña
-            <span className="modal-hint">(dejar en blanco para no cambiarla)</span>
+            <span className="modal-hint"> (dejar en blanco para no cambiarla)</span>
             <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" />
           </label>
 
@@ -123,26 +109,29 @@ function EditModal({ cafetero, onClose, onSaved }) {
 
 // ── Página principal ─────────────────────────────────────────────────────────
 export default function Cafetero() {
-  const [cafeteros, setCafeteros]       = useState([])
+  const [cafeteros,       setCafeteros] = useState([])
   const [editingCafetero, setEditing]   = useState(null)
+  const [loading,         setLoading]   = useState(false)
+  const [error,           setError]     = useState("")
+  const [success,         setSuccess]   = useState("")
+
   const [form, setForm] = useState({
-    nombre: "", apellido: "", correo: "", telefono: "", password: "", observaciones: "", activo: true,
+    nombre: "", apellido: "", correo: "", telefono: "",
+    password: "", observaciones: "", activo: true,
   })
 
-  // ── Cargar lista ──
   const getCafeteros = async () => {
     try {
-      const res  = await fetch(BASE_URL)
-      const data = await res.json()
-      setCafeteros(Array.isArray(data) ? data : [])
+      const res = await api.get("/cafeteros")
+      setCafeteros(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
     } catch (err) {
+      setError("No se pudieron cargar los cafeteros.")
       console.error("Error al obtener cafeteros:", err)
     }
   }
 
   useEffect(() => { getCafeteros() }, [])
 
-  // ── Crear ──
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm({ ...form, [name]: name === "activo" ? value === "true" : value })
@@ -150,29 +139,28 @@ export default function Cafetero() {
 
   const handleCreate = async (e) => {
     e.preventDefault()
+    setLoading(true)
+    setError("")
+    setSuccess("")
     try {
-      const res  = await fetch(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (!res.ok) { alert(data.message || "Error al crear"); return }
+      await api.post("/cafeteros", form)
       setForm({ nombre: "", apellido: "", correo: "", telefono: "", password: "", observaciones: "", activo: true })
+      setSuccess("Cafetero creado correctamente.")
       getCafeteros()
     } catch (err) {
-      console.error("Error al crear cafetero:", err)
+      setError(err?.response?.data?.message || "No se pudo crear el cafetero.")
+    } finally {
+      setLoading(false)
     }
   }
 
-  // ── Eliminar ──
   const handleDelete = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar este cafetero?")) return
     try {
-      await fetch(`${BASE_URL}/${id}`, { method: "DELETE" })
+      await api.delete(`/cafeteros/${id}`)
       getCafeteros()
     } catch (err) {
-      console.error("Error al eliminar cafetero:", err)
+      setError(err?.response?.data?.message || "No se pudo eliminar el cafetero.")
     }
   }
 
@@ -180,36 +168,36 @@ export default function Cafetero() {
     <div className="admin-page">
       <h1 className="admin-page-title">Cafeteros</h1>
 
-      {/* ── Formulario de creación ── */}
       <div className="admin-form-card">
-        <h2 className="admin-form-title">➕ Nuevo cafetero</h2>
+        <h2 className="admin-form-title">Nuevo cafetero</h2>
         <form className="admin-form" onSubmit={handleCreate}>
-          <input name="nombre"        value={form.nombre}        onChange={handleChange} placeholder="Nombre"       required />
-          <input name="apellido"      value={form.apellido}      onChange={handleChange} placeholder="Apellido"     required />
-          <input name="correo"        value={form.correo}        onChange={handleChange} placeholder="Correo"       type="email" required />
+          <input name="nombre"        value={form.nombre}        onChange={handleChange} placeholder="Nombre"        required />
+          <input name="apellido"      value={form.apellido}      onChange={handleChange} placeholder="Apellido"      required />
+          <input name="correo"        value={form.correo}        onChange={handleChange} placeholder="Correo"        type="email" required />
           <input name="telefono"      value={form.telefono}      onChange={handleChange} placeholder="Teléfono" />
           <input name="observaciones" value={form.observaciones} onChange={handleChange} placeholder="Observaciones" />
-          <input name="password"      value={form.password}      onChange={handleChange} placeholder="Contraseña"   type="password" required />
-          <select name="activo" value={form.activo} onChange={handleChange} className="admin-form-select">
+          <input name="password"      value={form.password}      onChange={handleChange} placeholder="Contraseña"    type="password" required />
+          <select name="activo" value={String(form.activo)} onChange={handleChange} className="admin-form-select">
             <option value="true">Activo</option>
             <option value="false">Inactivo</option>
           </select>
+
+          {error   && <p className="modal-error" style={{ marginTop: 8 }}>{error}</p>}
+          {success && <p style={{ marginTop: 8, color: "#2e7d32", fontSize: 13 }}>✅ {success}</p>}
+
           <div className="admin-form-actions">
-            <button type="submit" className="btn-primary">Crear</button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? "Creando..." : "Crear"}
+            </button>
           </div>
         </form>
       </div>
 
-      {/* ── Tabla ── */}
       <div className="admin-table-card">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Teléfono</th>
-              <th>Estado</th>
-              <th>Acciones</th>
+              <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -241,7 +229,6 @@ export default function Cafetero() {
         </table>
       </div>
 
-      {/* ── Modal de edición ── */}
       {editingCafetero && (
         <EditModal
           cafetero={editingCafetero}
