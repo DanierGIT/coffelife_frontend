@@ -28,11 +28,15 @@ import Roles         from './pages/ROLES/Roles'
 import MiPerfil      from './pages/Perfi/Miperfil'
 import Fincas        from './pages/Fincas/Fincas'
 
+
+import AnalisisIA from './pages/analisisia/AnalisisIA'
 // ── Páginas por implementar (descomentar cuando estén listas) ────────────────
 import Experto    from './pages/experto/pages/Experto'
 // import Campesino  from './pages/Campesino/Campesino'
 // import Categorias from './pages/Categorias/Categorias'
 
+
+import Prioridades from './pages/prioridades/Prioridades'
 // Mapa de key → componente  (la key debe coincidir con NAV_ITEMS en Sidebar.jsx)
 const PAGES = {
   dashboard:     <Dashboard />,
@@ -43,6 +47,9 @@ const PAGES = {
   experto:    <Experto />,
   // campesino:  <Campesino />,
   // categorias: <Categorias />,
+
+  analisisia: <AnalisisIA />,
+  prioridades: <Prioridades />
 }
 
 // ── AppContent ───────────────────────────────────────────────────────────────

@@ -104,6 +104,19 @@ const NAV_ITEMS = [
     ),
     ready: true,
   },
+
+{
+  key: 'analisisia',
+  label: 'Análisis IA',
+  ready: true
+  
+},
+
+{
+  key: 'prioridades',
+  label: 'Prioridades',
+  ready: true,
+},
 ]
 
 export default function Sidebar({ activePage, onNavigate }) {

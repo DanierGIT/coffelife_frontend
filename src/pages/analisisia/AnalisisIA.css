@@ -1,0 +1,322 @@
+.analisis-container {
+  padding: 20px;
+  margin-left: 200px;
+  min-height: 100vh;
+  background: #f5faf6;
+  font-family: Arial, sans-serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+.analisis-header {
+  background:white;
+  color: rgb(32, 106, 38);
+  padding: 25px;
+  border-radius: 18px;
+  margin-bottom: 25px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.analisis-header h1 {
+  margin: 0;
+  font-size: 32px;
+}
+
+.analisis-header p {
+  margin-top: 8px;
+  opacity: 0.9;
+}
+
+/* =========================
+   FORMULARIO
+========================= */
+.analisis-form {
+  background: white;
+  padding: 25px;
+  border-radius: 18px;
+  margin-bottom: 25px;
+
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.analisis-form h2 {
+  margin-bottom: 20px;
+  color: #145c38;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.form-grid input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+
+  transition: 0.2s ease;
+}
+
+.form-grid input:focus {
+  outline: none;
+  border-color: #2868a0;
+
+  box-shadow: 0 0 0 4px rgba(30,122,74,0.15);
+}
+
+.analisis-form button {
+  background: #1ea049;
+  color: white;
+
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+
+  cursor: pointer;
+  font-weight: bold;
+
+  transition: 0.2s ease;
+}
+
+.analisis-form button:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 8px 20px rgba(30,122,74,0.25);
+}
+
+/* =========================
+   TABLA
+========================= */
+.tabla-analisis {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+
+  overflow-x: auto;
+}
+
+.tabla-header {
+  margin-bottom: 20px;
+}
+
+.tabla-header h2 {
+  color: #145c38;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: linear-gradient(135deg, #145c38, #1e7a4a);
+  color: white;
+}
+
+thead th {
+  padding: 14px;
+  text-align: left;
+}
+
+tbody td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr {
+  transition: 0.2s ease;
+}
+
+tbody tr:hover {
+  background: #f1f8f5;
+}
+
+/* =========================
+   BADGES
+========================= */
+.badge {
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.alta {
+  background: #2ecc71;
+}
+
+.media {
+  background: #f39c12;
+}
+
+.baja {
+  background: #e74c3c;
+}
+
+/* =========================
+   BOTONES
+========================= */
+.acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-editar {
+  background: #1e7a4a;
+  color: white;
+
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.btn-editar:hover {
+  background: #145c38;
+  transform: scale(1.05);
+}
+
+.btn-eliminar {
+  background: #e74c3c;
+  color: white;
+
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.btn-eliminar:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* =========================
+   SIN DATOS
+========================= */
+.sin-datos {
+  text-align: center;
+  padding: 30px;
+  color: #777;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+
+  backdrop-filter: blur(5px);
+}
+
+.modal {
+  width: 420px;
+  background: white;
+
+  border-radius: 18px;
+  overflow: hidden;
+
+  animation: modalIn 0.25s ease;
+
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #145c38, #1e7a4a);
+  color: white;
+
+  padding: 18px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-body {
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-body input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.modal-body input:focus {
+  outline: none;
+  border-color: #1e7a4a;
+
+  box-shadow: 0 0 0 4px rgba(30,122,74,0.15);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 20px;
+}
+
+.btn-cancelar {
+  background: #e74c3c;
+  color: white;
+
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.btn-guardar {
+  background: #1e7a4a;
+  color: white;
+
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+/* =========================
+   ANIMACIÓN
+========================= */
+@keyframes modalIn {
+
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+}
