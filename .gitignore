@@ -1,3 +1,4 @@
 node_modules/
 .vite/
-dist/
+dist/"node_modules/" 
+"node_modules/.vite/" 

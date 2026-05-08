@@ -1,15 +1,7 @@
-/**
- * Login.jsx
- * Diseño fiel al mockup de CoffeeLife:
- * - Panel izquierdo: foto de café + features
- * - Panel derecho: formulario limpio con social login
- */
-
 import React, { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import './Auth.css'
 
-// Ícono Google SVG inline
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48">
     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -19,7 +11,6 @@ const GoogleIcon = () => (
   </svg>
 )
 
-// Ícono Microsoft SVG inline
 const MicrosoftIcon = () => (
   <svg width="20" height="20" viewBox="0 0 23 23">
     <rect x="1"  y="1"  width="10" height="10" fill="#F25022"/>
@@ -29,7 +20,6 @@ const MicrosoftIcon = () => (
   </svg>
 )
 
-// Puntos decorativos
 const Dots = ({ className }) => (
   <div className={className}>
     {Array.from({ length: 20 }).map((_, i) => (
@@ -49,14 +39,11 @@ const RightDots = () => (
 export default function Login({ onGoRegister }) {
   const { login } = useAuth()
 
-  const [form,      setForm]      = useState({ email: '', password: '' })
-  const [remember,  setRemember]  = useState(false)
-  const [showPass,  setShowPass]  = useState(false)
-  const [loading,   setLoading]   = useState(false)
-  const [error,     setError]     = useState('')
-
-
-
+  const [form,     setForm]     = useState({ email: '', password: '' })
+  const [remember, setRemember] = useState(false)
+  const [showPass, setShowPass] = useState(false)
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -85,42 +72,42 @@ export default function Login({ onGoRegister }) {
         <div className="auth-left-content">
           {/* Logo */}
           <div className="auth-logo">
-            <span className="auth-logo-icon">🌿</span>
+            <span className="auth-logo-icon">☕</span>
             <span className="auth-logo-name">CoffeeLife</span>
           </div>
 
           {/* Headline */}
           <div className="auth-left-headline">
             <h2 className="auth-headline-title">
-              Cada acción cuenta, 🌿<br />
-              cada hábito <span>transforma.</span>
+              Gestiona tus cultivos ☕<br />
+              con inteligencia <span>y precisión.</span>
             </h2>
             <p className="auth-headline-sub">
-              Únete a CoffeeLife y sé parte de una comunidad
-              que construye un futuro más sostenible.
+              Monitorea el estado de tus fincas, detecta la roya
+              a tiempo y toma decisiones respaldadas por datos reales.
             </p>
 
-            {/* Features */}
+            {/* Features acordes al proyecto */}
             <div className="auth-features">
               <div className="auth-feature-item">
-                <div className="auth-feature-icon">✅</div>
+                <div className="auth-feature-icon">🔍</div>
                 <div className="auth-feature-text">
-                  <h4>Impacto real</h4>
-                  <p>Tus acciones generan un cambio positivo en el planeta.</p>
+                  <h4>Monitoreo de cultivos</h4>
+                  <p>Registra y consulta el estado de cada cultivo en tiempo real desde cualquier lugar.</p>
                 </div>
               </div>
               <div className="auth-feature-item">
-                <div className="auth-feature-icon">👥</div>
+                <div className="auth-feature-icon">🧪</div>
                 <div className="auth-feature-text">
-                  <h4>Comunidad activa</h4>
-                  <p>Conecta, colabora y crece con personas que comparten tus valores.</p>
+                  <h4>Detección de roya</h4>
+                  <p>Análisis asistido por IA para identificar niveles de roya y actuar a tiempo.</p>
                 </div>
               </div>
               <div className="auth-feature-item">
-                <div className="auth-feature-icon">🎁</div>
+                <div className="auth-feature-icon">📋</div>
                 <div className="auth-feature-text">
-                  <h4>Recompensas verdes</h4>
-                  <p>Gana puntos, desbloquea logros y obtén beneficios por tu compromiso.</p>
+                  <h4>Tratamientos y recomendaciones</h4>
+                  <p>Expertos agrónomos asignan tratamientos personalizados para cada finca.</p>
                 </div>
               </div>
             </div>
@@ -133,15 +120,14 @@ export default function Login({ onGoRegister }) {
         <RightDots />
 
         <div className="auth-card">
-          {/* Ícono */}
-          <div className="auth-card-icon">🌿</div>
+          <div className="auth-card-icon">☕</div>
 
           <h2 className="auth-card-title">¡Bienvenido de nuevo!</h2>
           <p className="auth-card-subtitle">
-            Inicia sesión para continuar<br />con tu experiencia en CoffeeLife.
+            Inicia sesión para continuar<br />con la gestión de tus cultivos.
           </p>
+
           <form className="auth-form" onSubmit={handleSubmit}>
-            {/* Correo */}
             <div className="auth-field">
               <span className="auth-field-icon">✉️</span>
               <input
@@ -156,7 +142,6 @@ export default function Login({ onGoRegister }) {
               />
             </div>
 
-            {/* Contraseña */}
             <div className="auth-field">
               <span className="auth-field-icon">🔒</span>
               <input
@@ -179,7 +164,6 @@ export default function Login({ onGoRegister }) {
               </button>
             </div>
 
-            {/* Recordarme / Olvidé */}
             <div className="auth-row-extra">
               <label className="auth-remember">
                 <input
@@ -196,21 +180,18 @@ export default function Login({ onGoRegister }) {
 
             {error && <p className="auth-error">{error}</p>}
 
-            {/* Botón */}
             <button type="submit" className="auth-btn-primary" disabled={loading}>
               {loading ? 'Iniciando...' : 'Iniciar sesión'}
               {!loading && <span className="auth-btn-arrow">→</span>}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="auth-divider">
             <div className="auth-divider-line" />
             <span className="auth-divider-text">o continúa con</span>
             <div className="auth-divider-line" />
           </div>
 
-          {/* Social */}
           <button className="auth-social-btn" type="button">
             <GoogleIcon />
             Continuar con Google
@@ -221,7 +202,6 @@ export default function Login({ onGoRegister }) {
             Continuar con Microsoft
           </button>
 
-          {/* Switch */}
           <p className="auth-switch">
             ¿No tienes cuenta?{' '}
             <button className="auth-switch-link" onClick={onGoRegister}>
