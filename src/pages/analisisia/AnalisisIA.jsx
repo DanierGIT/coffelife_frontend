@@ -11,7 +11,7 @@ import {
 const AnalisisIa = () => {
 
   // =========================
-  // STATES
+  // STATES seccion ANALISIS IA
   // =========================
   const [analisis, setAnalisis] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
