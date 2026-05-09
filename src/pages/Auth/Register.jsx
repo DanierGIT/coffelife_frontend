@@ -1,8 +1,3 @@
-/**
- * Register.jsx
- * Diseño espejo al Login de CoffeeLife.
- */
-
 import React, { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import './Auth.css'
@@ -50,12 +45,11 @@ export default function Register({ onGoLogin }) {
     password: '',
     confirm:  '',
   })
-  const [showPass,  setShowPass]  = useState(false)
-  const [showConf,  setShowConf]  = useState(false)
-  const [loading,   setLoading]   = useState(false)
-  const [error,     setError]     = useState('')
-
-
+  const [showPass, setShowPass] = useState(false)
+  const [showConf, setShowConf] = useState(false)
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
+  const [success,  setSuccess]  = useState(false)  // ← nuevo: controla si mostrar mensaje de éxito
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -75,12 +69,88 @@ export default function Register({ onGoLogin }) {
 
     setLoading(true)
     try {
+      // Llamamos al register del contexto pero sin hacer login automático
+      // Solo necesitamos que se registre en el backend
       await register(form.fullName, form.email, form.password)
+
+      // Si llegó aquí, el registro fue exitoso → mostramos mensaje y redirigimos al login
+      setSuccess(true)
+
+      // Después de 2 segundos mandamos al login automáticamente
+      setTimeout(() => {
+        onGoLogin()
+      }, 2000)
+
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo crear la cuenta.')
     } finally {
       setLoading(false)
     }
+  }
+
+  // ── Pantalla de éxito ──
+  if (success) {
+    return (
+      <div className="auth-page">
+        <div className="auth-left">
+          <div className="auth-left-bg" />
+          <Dots className="auth-dots" />
+          <div className="auth-left-content">
+            <div className="auth-logo">
+              <span className="auth-logo-icon">☕</span>
+              <span className="auth-logo-name">CoffeeLife</span>
+            </div>
+            <div className="auth-left-headline">
+              <h2 className="auth-headline-title">
+                Gestiona tus cultivos ☕<br />
+                con inteligencia <span>y precisión.</span>
+              </h2>
+              <p className="auth-headline-sub">
+                Monitorea el estado de tus fincas, detecta la roya
+                a tiempo y toma decisiones respaldadas por datos reales.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="auth-right">
+          <div className="auth-card" style={{ textAlign: 'center' }}>
+            <div className="auth-card-icon">✅</div>
+            <h2 className="auth-card-title">¡Cuenta creada!</h2>
+            <p className="auth-card-subtitle">
+              Tu cuenta fue registrada correctamente.<br />
+              Redirigiendo al inicio de sesión…
+            </p>
+            {/* Barra de progreso animada */}
+            <div style={{
+              marginTop: 24,
+              height: 4,
+              borderRadius: 4,
+              background: '#e8f5e9',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                height: '100%',
+                background: '#2e7d32',
+                borderRadius: 4,
+                animation: 'progressBar 2s linear forwards'
+              }} />
+            </div>
+            <style>{`
+              @keyframes progressBar {
+                from { width: 0%; }
+                to   { width: 100%; }
+              }
+            `}</style>
+            <p style={{ marginTop: 16, fontSize: 13, color: '#888' }}>
+              ¿No te redirige?{' '}
+              <button className="auth-switch-link" onClick={onGoLogin}>
+                Ir al login
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -93,40 +163,40 @@ export default function Register({ onGoLogin }) {
 
         <div className="auth-left-content">
           <div className="auth-logo">
-            <span className="auth-logo-icon">🌿</span>
+            <span className="auth-logo-icon">☕</span>
             <span className="auth-logo-name">CoffeeLife</span>
           </div>
 
           <div className="auth-left-headline">
             <h2 className="auth-headline-title">
-              Cada acción cuenta, 🌿<br />
-              cada hábito <span>transforma.</span>
+              Gestiona tus cultivos ☕<br />
+              con inteligencia <span>y precisión.</span>
             </h2>
             <p className="auth-headline-sub">
-              Únete a CoffeeLife y sé parte de una comunidad
-              que construye un futuro más sostenible.
+              Monitorea el estado de tus fincas, detecta la roya
+              a tiempo y toma decisiones respaldadas por datos reales.
             </p>
 
             <div className="auth-features">
               <div className="auth-feature-item">
-                <div className="auth-feature-icon">✅</div>
+                <div className="auth-feature-icon">🔍</div>
                 <div className="auth-feature-text">
-                  <h4>Impacto real</h4>
-                  <p>Tus acciones generan un cambio positivo en el planeta.</p>
+                  <h4>Monitoreo de cultivos</h4>
+                  <p>Registra y consulta el estado de cada cultivo en tiempo real.</p>
                 </div>
               </div>
               <div className="auth-feature-item">
-                <div className="auth-feature-icon">👥</div>
+                <div className="auth-feature-icon">🧪</div>
                 <div className="auth-feature-text">
-                  <h4>Comunidad activa</h4>
-                  <p>Conecta, colabora y crece con personas que comparten tus valores.</p>
+                  <h4>Detección de roya</h4>
+                  <p>Análisis asistido por IA para identificar niveles de roya a tiempo.</p>
                 </div>
               </div>
               <div className="auth-feature-item">
-                <div className="auth-feature-icon">🎁</div>
+                <div className="auth-feature-icon">📋</div>
                 <div className="auth-feature-text">
-                  <h4>Recompensas verdes</h4>
-                  <p>Gana puntos, desbloquea logros y obtén beneficios por tu compromiso.</p>
+                  <h4>Tratamientos y recomendaciones</h4>
+                  <p>Expertos asignan tratamientos personalizados para cada finca.</p>
                 </div>
               </div>
             </div>
@@ -139,14 +209,14 @@ export default function Register({ onGoLogin }) {
         <RightDots />
 
         <div className="auth-card">
-          <div className="auth-card-icon">🌿</div>
+          <div className="auth-card-icon">☕</div>
 
           <h2 className="auth-card-title">Crear cuenta</h2>
           <p className="auth-card-subtitle">
             Completa los datos para registrarte<br />en CoffeeLife.
           </p>
+
           <form className="auth-form" onSubmit={handleSubmit}>
-            {/* Nombre */}
             <div className="auth-field">
               <span className="auth-field-icon">👤</span>
               <input
@@ -161,7 +231,6 @@ export default function Register({ onGoLogin }) {
               />
             </div>
 
-            {/* Correo */}
             <div className="auth-field">
               <span className="auth-field-icon">✉️</span>
               <input
@@ -176,7 +245,6 @@ export default function Register({ onGoLogin }) {
               />
             </div>
 
-            {/* Contraseña */}
             <div className="auth-field">
               <span className="auth-field-icon">🔒</span>
               <input
@@ -199,7 +267,6 @@ export default function Register({ onGoLogin }) {
               </button>
             </div>
 
-            {/* Confirmar */}
             <div className="auth-field">
               <span className="auth-field-icon">🔒</span>
               <input

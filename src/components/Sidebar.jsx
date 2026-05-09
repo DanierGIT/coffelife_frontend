@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import './Sidebar.css'
 
@@ -6,7 +6,6 @@ const NAV_ITEMS = [
   {
     key: 'dashboard',
     label: 'Dashboard',
-    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
@@ -17,7 +16,6 @@ const NAV_ITEMS = [
   {
     key: 'administrador',
     label: 'Administrador',
-    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -27,7 +25,6 @@ const NAV_ITEMS = [
   {
     key: 'experto',
     label: 'Experto',
-    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -37,7 +34,6 @@ const NAV_ITEMS = [
   {
     key: 'cafetero',
     label: 'Cafetero',
-    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
@@ -51,7 +47,6 @@ const NAV_ITEMS = [
   {
     key: 'fincas',
     label: 'Fincas',
-    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -62,24 +57,12 @@ const NAV_ITEMS = [
   {
     key: 'roles',
     label: 'Roles',
-    ready: true,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-  },
-  {
-    key: 'perfil',
-    label: 'Mi Perfil',
-    ready: true,
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
       </svg>
     ),
   },
@@ -92,12 +75,32 @@ const NAV_ITEMS = [
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
       </svg>
     ),
-    ready: true,
   },
+  {
+    key: 'perfil',
+    label: 'Mi Perfil',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      </svg>
+    ),
+  },
+]
+
+// Las 6 subcategorías del menú desplegable
+const CAT_ITEMS = [
+  { key: 'cultivo',     label: 'Estados de Cultivo' },
+  { key: 'analisis',    label: 'Estados de Análisis' },
+  { key: 'roya',        label: 'Niveles de Roya' },
+  { key: 'prioridad',   label: 'Prioridades' },
+  { key: 'tratamiento', label: 'Tipos de Tratamiento' },
+  { key: 'tipos',       label: 'Tipos de Recomendación' },
 ]
 
 export default function Sidebar({ activePage, onNavigate }) {
   const { user, logout } = useAuth()
+  const [catOpen, setCatOpen] = useState(activePage === 'categorias')
 
   const initials = ((user?.nombre?.[0] ?? '') + (user?.apellido?.[0] ?? '')).toUpperCase() ||
                    (user?.correo?.[0] ?? 'A').toUpperCase()
@@ -105,6 +108,8 @@ export default function Sidebar({ activePage, onNavigate }) {
   const displayName = user?.nombre
     ? `${user.nombre} ${user.apellido ?? ''}`.trim()
     : (user?.correo ?? 'Usuario')
+
+  const isCategoriasActive = activePage === 'categorias'
 
   return (
     <aside className="sidebar">
@@ -114,7 +119,7 @@ export default function Sidebar({ activePage, onNavigate }) {
         <span className="sidebar-logo-text">CoffeeLife</span>
       </div>
 
-      {/* Perfil del usuario */}
+      {/* Perfil */}
       <div className="sidebar-profile">
         <div className="sidebar-avatar">{initials}</div>
         <div className="sidebar-profile-info">
@@ -133,13 +138,49 @@ export default function Sidebar({ activePage, onNavigate }) {
           <button
             key={item.key}
             className={`sidebar-nav-item${activePage === item.key ? ' active' : ''}`}
-            onClick={() => onNavigate(item.key)}
+            onClick={() => { onNavigate(item.key); setCatOpen(false) }}
             title={item.label}
           >
             <span className="sidebar-nav-icon">{item.icon}</span>
             <span className="sidebar-nav-label">{item.label}</span>
           </button>
         ))}
+
+        {/* ── Categorías con submenú desplegable ── */}
+        <button
+          className={`sidebar-nav-item${isCategoriasActive ? ' active' : ''}`}
+          onClick={() => setCatOpen(!catOpen)}
+          title="Categorías"
+        >
+          <span className="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+          </span>
+          <span className="sidebar-nav-label">Categorías</span>
+          {/* Flecha que rota al abrir */}
+          <span className={`sidebar-arrow${catOpen ? ' open' : ''}`}>▾</span>
+        </button>
+
+        {/* Submenú desplegable */}
+        {catOpen && (
+          <div className="sidebar-submenu">
+            {CAT_ITEMS.map(sub => (
+              <button
+                key={sub.key}
+                className={`sidebar-submenu-item${activePage === 'categorias' ? ' active' : ''}`}
+                onClick={() => onNavigate('categorias', sub.key)}
+              >
+                {sub.label}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* Logout */}
