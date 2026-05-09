@@ -1,85 +1,57 @@
 import React, { useState } from 'react'
-
 import { AuthProvider, useAuth } from './context/AuthContext'
-
-import AdminLayout from './layouts/AdminLayout'
-
-import Dashboard from './pages/Dashboard/Dashboard'
+import AdminLayout   from './layouts/AdminLayout'
+import Dashboard     from './pages/Dashboard/Dashboard'
 import Administrador from './pages/Administrador/Administrador'
-import Experto from './pages/experto/pages/Experto'
-import Roles from './pages/ROLES/Roles'
-import MiPerfil from './pages/Perfi/Miperfil'
-import Cafetero from './pages/cafetero/Cafetero'
-import Fincas from './pages/Fincas/Fincas'
-import Monitoreos from './pages/Monitoreos/Monitoreos'
-
-import Login from './pages/Auth/Login'
-import Register from './pages/Auth/Register'
-
-const PAGES = {
-  dashboard: <Dashboard />,
-  administrador: <Administrador />,
-  experto: <Experto />,
-  roles: <Roles />,
-  perfil: <MiPerfil />,
-  cafetero: <Cafetero />,
-  fincas: <Fincas />,
-  monitoreos: <Monitoreos />,
-}
+import Experto       from './pages/experto/pages/Experto'
+import Roles         from './pages/ROLES/Roles'
+import MiPerfil      from './pages/Perfi/Miperfil'
+import Cafetero      from './pages/cafetero/Cafetero'
+import Fincas        from './pages/Fincas/Fincas'
+import Monitoreos    from './pages/Monitoreos/Monitoreos'
+import Categorias    from './pages/Categorias/Categorias/Categorias'
+import Login         from './pages/Auth/Login'
+import Register      from './pages/Auth/Register'
 
 function AppContent() {
-
   const { user, loading } = useAuth()
+  const [activePage,  setActivePage]  = useState('dashboard')
+  const [catSubPage,  setCatSubPage]  = useState('cultivo')
+  const [authPage,    setAuthPage]    = useState('login')
 
-  const [activePage, setActivePage] = useState('dashboard')
+  // onNavigate recibe la página y opcionalmente la subcategoría
+  const handleNavigate = (page, sub) => {
+    setActivePage(page)
+    if (sub) setCatSubPage(sub)
+  }
 
-  // Control Login / Register
-  const [authPage, setAuthPage] = useState('login')
-
-  // Pantalla de carga
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          fontSize: '20px',
-          fontWeight: 'bold'
-        }}
-      >
+      <div style={{ display:'flex', justifyContent:'center', alignItems:'center', height:'100vh', fontSize:'20px', fontWeight:'bold' }}>
         Cargando...
       </div>
     )
   }
 
-  // Si NO hay usuario autenticado
   if (!user) {
-
-    // Mostrar Register
-    if (authPage === 'register') {
-      return (
-        <Register
-          onGoLogin={() => setAuthPage('login')}
-        />
-      )
-    }
-
-    // Mostrar Login
-    return (
-      <Login
-        onGoRegister={() => setAuthPage('register')}
-      />
-    )
+    if (authPage === 'register') return <Register onGoLogin={() => setAuthPage('login')} />
+    return <Login onGoRegister={() => setAuthPage('register')} />
   }
 
-  // Si hay usuario → mostrar sistema
+  const PAGES = {
+    dashboard:     <Dashboard />,
+    administrador: <Administrador />,
+    experto:       <Experto />,
+    roles:         <Roles />,
+    perfil:        <MiPerfil />,
+    cafetero:      <Cafetero />,
+    fincas:        <Fincas />,
+    monitoreos:    <Monitoreos />,
+    categorias:    <Categorias subPage={catSubPage} />,
+  }
+
   return (
-    <AdminLayout
-      activePage={activePage}
-      onNavigate={setActivePage}
-    >
+    <AdminLayout activePage={activePage} onNavigate={handleNavigate}>
       {PAGES[activePage] ?? <Dashboard />}
     </AdminLayout>
   )
