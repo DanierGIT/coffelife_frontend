@@ -14,6 +14,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    key: 'perfil',
+    label: 'Mi Perfil',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      </svg>
+    ),
+  },
+  {
     key: 'administrador',
     label: 'Administrador',
     icon: (
@@ -77,18 +87,85 @@ const NAV_ITEMS = [
     ),
   },
   {
-    key: 'perfil',
-    label: 'Mi Perfil',
+    key: 'usuarios',
+    label: 'Usuarios',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
       </svg>
     ),
   },
+  {
+    key: 'prioridades',
+    label: 'Prioridades',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 3h18v4H3z" /><path d="M3 10h12v4H3z" /><path d="M3 17h6v4H3z" />
+      </svg>
+    ),
+  },
+  {
+    key: 'analisisIA',
+    label: 'Análisis IA',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+      </svg>
+    ),
+  },
+  {
+    key: 'recomendaciones',
+    label: 'Recomendaciones',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    ),
+  },
+  
+  {
+  key: 'imagenes',
+  label: 'Imágenes',
+  icon: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </svg>
+  ),
+  },
+  {
+    key: 'tratamientos',
+    label: 'Tratamientos',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+      </svg>
+    ),
+  },
+  {
+  key: 'cultivos',
+  label: 'Cultivos',
+  icon: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
+      <circle cx="12" cy="11" r="3"/>
+    </svg>
+  ),
+  },
+  {
+    key: 'aplicacion',
+    label: 'Aplicación Tratamientos',
+    icon: (
+     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+       <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+     </svg>
+   ),
+  },
 ]
 
-// Las 6 subcategorías del menú desplegable
 const CAT_ITEMS = [
   { key: 'cultivo',     label: 'Estados de Cultivo' },
   { key: 'analisis',    label: 'Estados de Análisis' },
@@ -113,13 +190,14 @@ export default function Sidebar({ activePage, onNavigate }) {
 
   return (
     <aside className="sidebar">
-      {/* Logo */}
       <div className="sidebar-logo">
-        <span className="sidebar-logo-icon">☕</span>
-        <span className="sidebar-logo-text">CoffeeLife</span>
+         <img
+          src="/src/assets/logo.jpg"
+          alt="CoffeeLife"
+          className="sidebar-logo-img"
+        />
       </div>
 
-      {/* Perfil */}
       <div className="sidebar-profile">
         <div className="sidebar-avatar">{initials}</div>
         <div className="sidebar-profile-info">
@@ -132,7 +210,6 @@ export default function Sidebar({ activePage, onNavigate }) {
 
       <hr className="sidebar-divider" />
 
-      {/* Navegación */}
       <nav className="sidebar-nav">
         {NAV_ITEMS.map(item => (
           <button
@@ -146,7 +223,6 @@ export default function Sidebar({ activePage, onNavigate }) {
           </button>
         ))}
 
-        {/* ── Categorías con submenú desplegable ── */}
         <button
           className={`sidebar-nav-item${isCategoriasActive ? ' active' : ''}`}
           onClick={() => setCatOpen(!catOpen)}
@@ -163,11 +239,9 @@ export default function Sidebar({ activePage, onNavigate }) {
             </svg>
           </span>
           <span className="sidebar-nav-label">Categorías</span>
-          {/* Flecha que rota al abrir */}
           <span className={`sidebar-arrow${catOpen ? ' open' : ''}`}>▾</span>
         </button>
 
-        {/* Submenú desplegable */}
         {catOpen && (
           <div className="sidebar-submenu">
             {CAT_ITEMS.map(sub => (
@@ -183,7 +257,6 @@ export default function Sidebar({ activePage, onNavigate }) {
         )}
       </nav>
 
-      {/* Logout */}
       <div className="sidebar-footer">
         <button className="sidebar-logout" onClick={logout}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -1,0 +1,81 @@
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla thead {
+  background: #efdec0;
+}
+
+.tabla th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b5e20;
+  letter-spacing: 0.3px;
+}
+
+.tabla td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla tbody tr:hover {
+  background: #f9fafb;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.editar {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editar:hover {
+  background: #c8e6c9;
+}
+
+.eliminar {
+  background: #fce8e8;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.eliminar:hover {
+  background: #fecaca;
+}
+
+@media (max-width: 768px) {
+  .tabla th,
+  .tabla td {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+}

@@ -1,7 +1,3 @@
-/**
- * AuthContext.jsx
- * Conectado al backend real de CoffeeLife (AdonisJS + JWT)
- */
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import api from '../services/api'

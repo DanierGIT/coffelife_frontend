@@ -1,0 +1,207 @@
+/* ══════════════════════════════════════════
+   Prioridades.css
+   ══════════════════════════════════════════ */
+
+.prioridades-container {
+  width: 100%;
+}
+
+/* ─── Header ─── */
+.prioridades-header {
+  margin-bottom: 24px;
+}
+
+.prioridades-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+/* ─── Formulario ─── */
+.prioridad-form {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+
+  margin-bottom: 24px;
+}
+
+/* ─── Inputs ─── */
+.prioridad-form input {
+  flex: 1;
+  min-width: 180px;
+
+  padding: 11px 14px;
+
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+
+  font-size: 14px;
+  color: #111827;
+
+  background: #fafafa;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.prioridad-form input:focus {
+  outline: none;
+
+  border-color: #4caf50;
+
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+
+  background: #fff;
+}
+
+/* ─── Botón ─── */
+.prioridad-form button {
+  background: linear-gradient(
+    135deg,
+    #4caf50,
+    #2e7d32
+  );
+
+  color: #fff;
+
+  border: none;
+
+  padding: 11px 22px;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.prioridad-form button:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* ─── Tabla ─── */
+.tabla-container {
+  background: #fff;
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.tabla-prioridades {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* ─── Encabezado ─── */
+.tabla-prioridades thead {
+  background: #efdec0;
+}
+
+.tabla-prioridades th {
+  text-align: left;
+
+  padding: 14px 16px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #1b5e20;
+
+  letter-spacing: 0.3px;
+}
+
+/* ─── Celdas ─── */
+.tabla-prioridades td {
+  padding: 14px 16px;
+
+  border-bottom: 1px solid #f0f0f0;
+
+  font-size: 14px;
+
+  color: #374151;
+}
+
+.tabla-prioridades tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-prioridades tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ─── Badge ─── */
+.badge {
+  display: inline-block;
+
+  min-width: 32px;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  text-align: center;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Nivel 1 */
+.badge-1 {
+  background: #fce8e8;
+  color: #b91c1c;
+}
+
+/* Nivel 2 */
+.badge-2 {
+  background: #fff4db;
+  color: #b7791f;
+}
+
+/* Nivel 3 */
+.badge-3 {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ─── Botón eliminar ─── */
+.btn-delete {
+  background: #fce8e8;
+
+  color: #b91c1c;
+
+  border: 1px solid #fecaca;
+
+  padding: 6px 14px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: background 0.2s;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}

@@ -258,3 +258,10 @@
   background: rgba(220, 80, 80, 0.15);
   color: #f62e2e;
 }
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  object-fit: contain;
+  padding: 4px 0;
+}

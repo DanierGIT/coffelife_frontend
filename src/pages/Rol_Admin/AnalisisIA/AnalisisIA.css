@@ -1,0 +1,349 @@
+/* ══════════════════════════════════════════
+   AnalisisIA.css
+   ══════════════════════════════════════════ */
+
+/* ─── Título de página ─── */
+.analisis-page-title {
+  margin: 0 0 24px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+/* ─── Descripción del header ─── */
+.analisis-page-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: -16px 0 24px;
+}
+
+/* ─── Tarjeta de formulario ─── */
+.admin-form-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.admin-form-title {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ─── Grid del formulario ─── */
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-grid input {
+  flex: 1;
+  min-width: 180px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-grid input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ─── Botones principales ─── */
+.btn-primary {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: #fff;
+  border: none;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* ─── Tarjeta de tabla ─── */
+.admin-table-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead {
+  background: #efdec0;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b5e20;
+  letter-spacing: 0.3px;
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ─── Celda de acciones ─── */
+.acciones {
+  display: flex;
+  gap: 8px;
+}
+
+/* ─── Botones de tabla ─── */
+.btn-edit,
+.btn-editar {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-edit:hover,
+.btn-editar:hover {
+  background: #c8e6c9;
+}
+
+.btn-delete,
+.btn-eliminar {
+  background: #fce8e8;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-delete:hover,
+.btn-eliminar:hover {
+  background: #fecaca;
+}
+
+/* ─── Sin datos ─── */
+.sin-datos {
+  text-align: center;
+  padding: 32px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* ─── Badges de confianza ─── */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.badge.alta {
+  background: #4caf50;
+}
+
+.badge.media {
+  background: #f59e0b;
+}
+
+.badge.baja {
+  background: #ef4444;
+}
+
+/* ══════════════════════════════════════════
+   Modal de edición
+   ══════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-box,
+.modal {
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px 36px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-title,
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin: 0;
+}
+
+.modal-close {
+  background: #f3f4f6;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.modal-body,
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.modal-body input,
+.modal-form input {
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-body input:focus,
+.modal-form input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+.modal-footer,
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-secondary,
+.btn-cancelar {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover,
+.btn-cancelar:hover {
+  background: #e5e7eb;
+}
+
+.btn-guardar {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: #fff;
+  border: none;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-guardar:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.modal-error {
+  background: #fce8e8;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin: 0;
+}

@@ -1,0 +1,51 @@
+.usuario-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.usuario-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.usuario-form-row input,
+.usuario-form-row select {
+  flex: 1;
+  min-width: 180px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.usuario-form-row input:focus,
+.usuario-form-row select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+.usuario-form input[name="observaciones"] {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #111827;
+}
