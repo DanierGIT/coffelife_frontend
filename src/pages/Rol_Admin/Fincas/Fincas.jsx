@@ -110,7 +110,7 @@ export default function Fincas() {
 
   const getFincas = async () => {
     try {
-      const res = await api.get('/fincas')
+      const res = await api('/fincas')
       setFincas(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
     } catch {
       setError('No se pudieron cargar las fincas.')
