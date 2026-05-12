@@ -25,28 +25,29 @@ import Tratamientos    from './pages/Rol_Admin/Tratamientos/Tratamientos'
 import Aplicacion      from './pages/Rol_Admin/AplicacionTratamientos/Aplicacion'
 import Cultivos        from './pages/Rol_Admin/Cultivos/Cultivos'
 
-function AppContent() {
-  const { user, loading } = useAuth()
+// ── Rol_Experto ──
+import ExpertoLayout         from './pages/Rol_Experto/layout/ExpertoLayout'
+import DashboardExperto      from './pages/Rol_Experto/Dashboard/DashboardExperto'
+import EscanerIA             from './pages/Rol_Experto/EscanerIA/EscanerIA'
+import MonitoreosExperto     from './pages/Rol_Experto/Monitoreos/MonitoreosExperto'
+import MapaRiesgo            from './pages/Rol_Experto/MapaRiesgo/MapaRiesgo'
+import TratamientosExperto   from './pages/Rol_Experto/Tratamientos/TratamientosExperto'
+import RecomendacionesExperto from './pages/Rol_Experto/Recomendaciones/RecomendacionesExperto'
+import HistorialExperto      from './pages/Rol_Experto/Historial/HistorialExperto'
+import ProductoresExperto    from './pages/Rol_Experto/Productores/ProductoresExperto'
+import ReportesExperto       from './pages/Rol_Experto/Reportes/ReportesExperto'
+import PerfilExperto         from './pages/Rol_Experto/Perfil/PerfilExperto'
+
+// ─────────────────────────────────────────────
+// Vista Admin
+// ─────────────────────────────────────────────
+function AdminApp() {
   const [activePage, setActivePage] = useState('dashboard')
   const [catSubPage, setCatSubPage] = useState('cultivo')
-  const [authPage,   setAuthPage]   = useState('login')
 
   const handleNavigate = (page, sub) => {
     setActivePage(page)
     if (sub) setCatSubPage(sub)
-  }
-
-  if (loading) {
-    return (
-      <div style={{ display:'flex', justifyContent:'center', alignItems:'center', height:'100vh', fontSize:'20px', fontWeight:'bold' }}>
-        Cargando...
-      </div>
-    )
-  }
-
-  if (!user) {
-    if (authPage === 'register') return <Register onGoLogin={() => setAuthPage('login')} />
-    return <Login onGoRegister={() => setAuthPage('register')} />
   }
 
   const PAGES = {
@@ -74,6 +75,59 @@ function AppContent() {
       {PAGES[activePage] ?? <Dashboard />}
     </AdminLayout>
   )
+}
+
+// ─────────────────────────────────────────────
+// Vista Experto
+// ─────────────────────────────────────────────
+function ExpertoApp() {
+  const [activePage, setActivePage] = useState('dashboard')
+
+  const PAGES = {
+    dashboard:       <DashboardExperto />,
+    escaner:         <EscanerIA />,
+    monitoreos:      <MonitoreosExperto />,
+    mapa:            <MapaRiesgo />,
+    tratamientos:    <TratamientosExperto />,
+    recomendaciones: <RecomendacionesExperto />,
+    historial:       <HistorialExperto />,
+    productores:     <ProductoresExperto />,
+    reportes:        <ReportesExperto />,
+    perfil:          <PerfilExperto />,
+  }
+
+  return (
+    <ExpertoLayout activePage={activePage} onNavigate={setActivePage}>
+      {PAGES[activePage] ?? <DashboardExperto />}
+    </ExpertoLayout>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Root con routing por rol
+// ─────────────────────────────────────────────
+function AppContent() {
+  const { user, loading } = useAuth()
+  const [authPage, setAuthPage] = useState('login')
+
+  if (loading) {
+    return (
+      <div style={{ display:'flex', justifyContent:'center', alignItems:'center', height:'100vh', fontSize:'20px', fontWeight:'bold' }}>
+        Cargando...
+      </div>
+    )
+  }
+
+  if (!user) {
+    if (authPage === 'register') return <Register onGoLogin={() => setAuthPage('login')} />
+    return <Login onGoRegister={() => setAuthPage('register')} />
+  }
+
+  // Routing por rol
+  // Routing por rol
+    const nombreRol = (user?.rol?.nombreRol ?? user?.rol ?? '').toString().toLowerCase().trim()
+    if (nombreRol === 'experto') return <ExpertoApp />
+    return <AdminApp />
 }
 
 export default function App() {

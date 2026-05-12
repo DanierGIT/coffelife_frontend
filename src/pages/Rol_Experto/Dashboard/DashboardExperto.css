@@ -1,0 +1,214 @@
+/* ══════════════════════════════════════════
+   DashboardExperto.css
+   ══════════════════════════════════════════ */
+
+.dash-exp {
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Header ─── */
+.dash-exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dash-exp-title {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.dash-exp-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.dash-exp-date {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+  align-self: flex-end;
+}
+
+/* ─── Stat Cards ─── */
+.dash-exp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.dash-exp-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-exp-card.risk-high { border-top: 3px solid #ef4444; }
+.dash-exp-card.risk-mid  { border-top: 3px solid #f59e0b; }
+.dash-exp-card.risk-low  { border-top: 3px solid #4caf50; }
+
+.dash-exp-card-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.dash-exp-card-value {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.dash-exp-card-value.pending { color: #f59e0b; }
+
+.dash-exp-card-note {
+  margin: 0;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ─── Row ─── */
+.dash-exp-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .dash-exp-row { grid-template-columns: 1fr; }
+}
+
+/* ─── Secciones ─── */
+.dash-exp-section {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.dash-exp-section-title {
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+/* ─── Donut roya ─── */
+.roya-chart {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.roya-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roya-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.roya-legend-item strong {
+  margin-left: auto;
+  font-weight: 700;
+  color: #111827;
+  padding-left: 12px;
+}
+
+.roya-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.roya-dot.red    { background: #ef4444; }
+.roya-dot.yellow { background: #f59e0b; }
+.roya-dot.green  { background: #4caf50; }
+
+/* ─── Monitoreos recientes ─── */
+.recientes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.recientes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reciente-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border-radius: 10px;
+  border-left: 3px solid #4caf50;
+}
+
+.reciente-icon {
+  width: 34px;
+  height: 34px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2e7d32;
+  flex-shrink: 0;
+}
+
+.reciente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 100px;
+}
+
+.reciente-finca {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.reciente-fecha {
+  margin: 0;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.reciente-obs {
+  font-size: 12px;
+  color: #6b7280;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

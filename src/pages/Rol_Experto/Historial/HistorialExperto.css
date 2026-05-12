@@ -1,0 +1,113 @@
+/* ══ HistorialExperto.css ══ */
+.hist-page { max-width: 1200px; }
+
+.hist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.hist-header h1 { font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 4px; }
+.hist-header p  { font-size: 13px; color: #6b7280; margin: 0; }
+
+.hist-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 240px;
+}
+
+.hist-search input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #111827;
+  background: transparent;
+  width: 100%;
+}
+
+.hist-error { background: #fee2e2; color: #dc2626; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+
+.hist-table-wrap {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.hist-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.hist-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.hist-table tr:last-child td { border-bottom: none; }
+.hist-table tr:hover td { background: #f9fafb; }
+
+.hist-num { color: #9ca3af; font-size: 12px; }
+
+.hist-nivel {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.hist-nivel.high { background: #fee2e2; color: #dc2626; }
+.hist-nivel.mid  { background: #fef3c7; color: #d97706; }
+.hist-nivel.low  { background: #dcfce7; color: #16a34a; }
+
+.hist-confianza {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hist-conf-bar {
+  width: 80px;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hist-conf-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #2e7d32);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.hist-estado {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.hist-estado.completado { background: #dcfce7; color: #16a34a; }
+.hist-estado.pendiente  { background: #fef3c7; color: #d97706; }
+
+.hist-empty { padding: 32px; text-align: center; color: #9ca3af; font-size: 14px; }
+.hist-footer { font-size: 11px; color: #9ca3af; margin-top: 12px; }

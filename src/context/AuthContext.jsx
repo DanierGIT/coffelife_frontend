@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import api from '../services/api'
 
@@ -9,26 +8,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem('cl_user')
-    const token = localStorage.getItem('cl_token')
-    if (saved && token) {
-      setUser(JSON.parse(saved))
+    try {
+      const saved = localStorage.getItem('cl_user')
+      if (saved) setUser(JSON.parse(saved))
+    } catch {
+      localStorage.removeItem('cl_user')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
-  // Backend espera: { correo, password }
-  // Devuelve:       { token, data: { idUsuario, nombre, apellido, correo, rol } }
   const login = async (email, password) => {
-    const res = await api.post('/login', { correo: email, password })
-    const { token, data: userData } = res.data
-    localStorage.setItem('cl_token', token)
-    localStorage.setItem('cl_user',  JSON.stringify(userData))
-    setUser(userData)
-  }
+  const res = await api.post('/login', { correo: email, password })
+  const { token, data: userData } = res.data
+  console.log('userData del backend:', userData)  // <-- agrega esta línea
+  localStorage.setItem('cl_token', token)
+  localStorage.setItem('cl_user',  JSON.stringify(userData))
+  setUser(userData)
+}
 
-  // Backend espera: { nombre, apellido, correo, password }
-  // No devuelve token — hacemos login automático después
   const register = async (fullName, email, password) => {
     const parts = fullName.trim().split(' ')
     const nombre   = parts[0] || fullName
