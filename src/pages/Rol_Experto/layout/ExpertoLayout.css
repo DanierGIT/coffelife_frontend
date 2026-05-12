@@ -1,7 +1,3 @@
-/* ══════════════════════════════════════════
-   ExpertoLayout.css
-   ══════════════════════════════════════════ */
-
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&display=swap');
 
 .experto-layout {
@@ -27,7 +23,6 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-/* Logo */
 .experto-navbar-logo {
   display: flex;
   flex-direction: column;
@@ -53,7 +48,6 @@
   border-radius: 4px;
 }
 
-/* Nav items */
 .experto-navbar-items {
   display: flex;
   align-items: center;
@@ -99,19 +93,35 @@
   stroke: #2e7d32;
 }
 
-/* Usuario */
+/* ─── Usuario ─── */
 .experto-navbar-user {
   display: flex;
   align-items: center;
-  gap: 10px;
   flex-shrink: 0;
   margin-left: auto;
+  position: relative;
 }
 
 .experto-user-info {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.experto-user-info:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.experto-user-info.active {
+  background: #e8f5e9;
+}
+
+.experto-user-info.active .experto-user-name {
+  color: #2e7d32;
 }
 
 .experto-avatar {
@@ -148,23 +158,70 @@
   white-space: nowrap;
 }
 
-.experto-logout-btn {
-  background: #f3f4f6;
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.experto-chevron {
   color: #6b7280;
-  transition: background 0.2s, color 0.2s;
+  transition: transform 0.2s;
+  flex-shrink: 0;
 }
 
-.experto-logout-btn:hover {
+.experto-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* ─── Dropdown ─── */
+.experto-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 200;
+  animation: dropDown 0.15s ease;
+}
+
+@keyframes dropDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.experto-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+}
+
+.experto-dropdown-item:hover {
+  background: #f9fafb;
+  color: #1b5e20;
+}
+
+.experto-dropdown-item.danger {
+  color: #b91c1c;
+}
+
+.experto-dropdown-item.danger:hover {
   background: #fce8e8;
   color: #b91c1c;
+}
+
+.experto-dropdown-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 2px 0;
 }
 
 /* ─── Contenido ─── */
