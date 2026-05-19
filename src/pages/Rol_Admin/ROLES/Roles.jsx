@@ -26,7 +26,7 @@ function EditModal({ rol, onClose, onSaved }) {
     setLoading(true)
     try {
       const id = rol.idRol || rol.id
-      await api.put(`/roles/${id}`, form)
+      await api.put(`/cat_roles/${id}`, form)
       onSaved()
       onClose()
     } catch (err) {
@@ -76,7 +76,7 @@ export default function Roles() {
 
   const cargarRoles = async () => {
     try {
-      const res  = await api.get('/roles')
+      const res  = await api.get('/cat_roles')
       const data = res.data
       setRoles(Array.isArray(data) ? data : (data?.data ?? data?.roles ?? []))
     } catch {
@@ -95,7 +95,7 @@ export default function Roles() {
     setSuccess('')
     setLoading(true)
     try {
-      await api.post('/roles', form)
+      await api.post('/cat_roles', form)
       setForm({ nombre_rol: '', descripcion: '' })
       setSuccess('Rol creado correctamente.')
       cargarRoles()
@@ -110,7 +110,7 @@ export default function Roles() {
     const id = rol.idRol || rol.id
     if (!id || !window.confirm(`¿Eliminar el rol "${rol.nombreRol || rol.nombre_rol}"?`)) return
     try {
-      await api.delete(`/roles/${id}`)
+      await api.delete(`/cat_roles/${id}`)
       cargarRoles()
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo eliminar el rol.')
