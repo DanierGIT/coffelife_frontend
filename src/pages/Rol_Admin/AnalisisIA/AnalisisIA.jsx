@@ -24,11 +24,10 @@ const AnalisisIA = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [form, setForm] = useState({
     idAnalisis: null,
-    idImagen: "",
-    idEstado: "",
+    id_imagen: "",
+    id_estado_analisis: "",
     resultado: "",
-    porcentajeConfianza: "",
-    idNivelRoya: "",
+    confianza: "",
   });
 
   const obtenerAnalisis = async () => {

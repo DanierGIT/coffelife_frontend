@@ -1,9 +1,3 @@
-/**
- * MiPerfil.jsx
- * Conectado al backend: carga los datos del usuario logueado desde localStorage
- * y permite actualizar via PUT /usuarios/:id
- */
-
 import { useEffect, useRef, useState } from 'react'
 import './miperfil.css'
 import api from '../../../services/api'
@@ -26,24 +20,23 @@ export default function MiPerfil() {
   const [message,   setMessage]   = useState('')
   const overlayRef = useRef(null)
 
-  const userId = user?.idUsuario
-
+  // ✅ Carga el perfil desde /mi_perfil (no /usuarios/:id)
   useEffect(() => {
-    if (!userId) { setLoading(false); return }
-    api.get(`/usuarios/${userId}`)
+    api.get('/mi-perfil')
       .then((res) => {
-        const d = res.data
+        const d = res.data?.data || res.data
         setProfile({
           nombre:        d.nombre        || '',
           apellido:      d.apellido      || '',
           correo:        d.correo        || '',
           telefono:      d.telefono      || '',
           observaciones: d.observaciones || '',
+          fotoPerfil:    d.foto_perfil   || d.fotoPerfil || null,
         })
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [userId])
+  }, [])
 
   const openModal = () => {
     setForm({ ...profile, password: '' })
@@ -56,23 +49,36 @@ export default function MiPerfil() {
   const handleFormChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
 
+  // ✅ Guarda via PUT /mi_perfil (no /usuarios/:id)
   const handleSave = async () => {
     setMessage('')
     try {
       const payload = {
         nombre:        form.nombre,
         apellido:      form.apellido,
-        correo:        form.correo,
         telefono:      form.telefono,
         observaciones: form.observaciones,
       }
-      if (form.password) payload.password = form.password
-      await api.put(`/usuarios/${userId}`, payload)
-      setProfile({ ...payload })
+      await api.put('/mi-perfil', payload)
+      setProfile((prev) => ({ ...prev, ...payload }))
       setMessage('✅ Perfil actualizado correctamente')
       closeModal()
     } catch (err) {
       setMessage('❌ ' + (err?.response?.data?.message || 'Error al actualizar perfil'))
+    }
+  }
+
+  // ✅ Cambia contraseña via POST /mi_perfil/cambiar_password
+  const handleCambiarPassword = async () => {
+    if (!form.passwordActual || !form.password) return
+    try {
+      await api.post('/mi-perfil/cambiar-password', {
+        passwordActual: form.passwordActual,
+        nuevaPassword:  form.password,
+      })
+      setMessage('✅ Contraseña cambiada correctamente')
+    } catch (err) {
+      setMessage('❌ ' + (err?.response?.data?.message || 'Error al cambiar contraseña'))
     }
   }
 
@@ -89,7 +95,10 @@ export default function MiPerfil() {
 
         <div className="profile-avatar-row">
           <div className="profile-avatar">
-            {getInitials(profile.nombre, profile.apellido)}
+            {profile.fotoPerfil
+              ? <img src={profile.fotoPerfil} alt="foto perfil" />
+              : getInitials(profile.nombre, profile.apellido)
+            }
           </div>
           <button className="profile-edit-btn" onClick={openModal}>
             Editar perfil
@@ -140,10 +149,6 @@ export default function MiPerfil() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Correo electrónico</label>
-                  <input name="correo" type="email" value={form.correo} onChange={handleFormChange} />
-                </div>
-                <div className="form-group">
                   <label>Teléfono</label>
                   <input name="telefono" value={form.telefono} onChange={handleFormChange} />
                 </div>
@@ -152,10 +157,24 @@ export default function MiPerfil() {
                 <label>Observaciones</label>
                 <textarea name="observaciones" rows={3} value={form.observaciones} onChange={handleFormChange} />
               </div>
-              <div className="form-group">
-                <label>Nueva contraseña <span style={{opacity:.6, fontWeight:400}}>(dejar vacío para no cambiar)</span></label>
-                <input name="password" type="password" value={form.password || ''} onChange={handleFormChange} />
+
+              <hr style={{ border: 'none', borderTop: '0.5px solid #d6cbbf', margin: '16px 0' }} />
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Contraseña actual</label>
+                  <input name="passwordActual" type="password" value={form.passwordActual || ''} onChange={handleFormChange} />
+                </div>
+                <div className="form-group">
+                  <label>Nueva contraseña</label>
+                  <input name="password" type="password" value={form.password || ''} onChange={handleFormChange} />
+                </div>
               </div>
+              {(form.passwordActual || form.password) && (
+                <button className="btn-save" style={{ marginBottom: 8 }} onClick={handleCambiarPassword}>
+                  Cambiar contraseña
+                </button>
+              )}
             </div>
 
             <div className="modal-footer">

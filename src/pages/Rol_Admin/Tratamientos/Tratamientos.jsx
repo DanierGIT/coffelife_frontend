@@ -32,7 +32,7 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
   });
 
   useEffect(() => {
-    api.get("/cat_tipos_tratamiento")
+    api.get("/cat_tipos_tratamientos")
       .then((r) => {
         const datos = Array.isArray(r.data) ? r.data : r.data.data || [];
         const unicos = datos.filter(

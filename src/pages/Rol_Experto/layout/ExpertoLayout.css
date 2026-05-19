@@ -431,3 +431,19 @@
   background: #f3f0ea;
   margin: 4px 0;
 }
+.fincas-empty-state,
+.fincas-error-state {
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.fincas-empty-state {
+  color: #6b7280;
+}
+
+.fincas-error-state {
+  color: #b91c1c;
+  background: #fce8e8;
+}

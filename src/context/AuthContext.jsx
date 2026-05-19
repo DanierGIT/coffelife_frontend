@@ -1,7 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import api from '../services/api'
 
 const AuthContext = createContext(null)
+
+const getTokenFromResponse = (data) => {
+  return data?.token?.token || data?.token?.value || data?.token || data?.accessToken || null
+}
+
+const getUserFromResponse = (data) => {
+  return data?.usuario || data?.user || data?.data?.usuario || data?.data?.user || null
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -9,13 +17,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     try {
+      const token = localStorage.getItem('cl_token')
       const saved = localStorage.getItem('cl_user')
 
-      if (saved) {
+      if (token && saved) {
         setUser(JSON.parse(saved))
       }
-    } catch (error) {
-      console.error('Error cargando usuario:', error)
+    } catch {
+      localStorage.removeItem('cl_token')
       localStorage.removeItem('cl_user')
       localStorage.removeItem('cl_token')
     } finally {
@@ -27,60 +36,48 @@ export function AuthProvider({ children }) {
   // LOGIN
   // ─────────────────────────────────────────────
   const login = async (email, password) => {
-    try {
-      const res = await api.post('/login', {
-        correo: email,
-        password,
-      })
+    const res = await api.post('/login', { correo: email, password })
 
-      console.log('Respuesta login:', res.data)
+    const token = getTokenFromResponse(res.data)
+    const userData = getUserFromResponse(res.data)
 
-      const { token, usuario } = res.data
-
-      // Guardar token
-      localStorage.setItem('cl_token', token)
-
-      // Guardar usuario
-      localStorage.setItem(
-        'cl_user',
-        JSON.stringify(usuario)
-      )
-
-      // Actualizar estado
-      setUser(usuario)
-
-      return usuario
-    } catch (error) {
-      console.error('Error login:', error)
-      throw error
+    if (!token || !userData) {
+      throw new Error('Respuesta de login inválida.')
     }
+
+    localStorage.setItem('cl_token', token)
+    localStorage.setItem('cl_user', JSON.stringify(userData))
+    setUser(userData)
   }
 
-  // ─────────────────────────────────────────────
-  // REGISTER
-  // ─────────────────────────────────────────────
   const register = async (fullName, email, password) => {
-    try {
-      const parts = fullName.trim().split(' ')
+    const parts = fullName.trim().split(/\s+/)
+    const nombre = parts[0] || fullName
+    const apellido = parts.slice(1).join(' ') || nombre
 
-      const nombre = parts[0] || fullName
-      const apellido =
-        parts.slice(1).join(' ') || nombre
+    const res = await api.post('/register', {
+      nombre,
+      apellido,
+      correo: email,
+      password,
+    })
 
-      await api.post('/register', {
-        nombre,
-        apellido,
-        correo: email,
-        password,
-      })
-
-      // Login automático
-      await login(email, password)
-    } catch (error) {
-      console.error('Error register:', error)
-      throw error
-    }
+    return res.data
   }
+
+  const recuperarPassword = async (correo) => {
+    const res = await api.post('/recuperar-password', { correo })
+    return res.data
+  }
+
+  const restablecerPassword = async (token, nuevaPassword) => {
+    const res = await api.post('/restablecer-password', { token, nuevaPassword })
+    return res.data
+  }
+
+  // ─────────────────────────────────────────────
+
+
 
   // ─────────────────────────────────────────────
   // LOGOUT
@@ -100,6 +97,8 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        recuperarPassword,
+        restablecerPassword,
       }}
     >
       {children}

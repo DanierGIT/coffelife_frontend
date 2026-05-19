@@ -399,3 +399,20 @@
 
 .btn-guardar:hover { opacity: 0.88; transform: translateY(-1px); }
 .btn-guardar:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.rl-help {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.rl-success {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #c8e6c9;
+}

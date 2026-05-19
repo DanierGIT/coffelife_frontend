@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import './ExpertoLayout.css'
+import logo from '../../../assets/logo.jpg'
+import api from '../../../services/api'
 
 const NAV_ITEMS = [
   {
@@ -98,15 +100,74 @@ function ActionsDropdown({ finca, onAction }) {
   )
 }
 
-function FincasTable({ onAction }) {
-  const fincas = [
-    { id: 1, nombre: 'El Paraíso',   dueno: 'Andrés Martínez', estado: 'activa'   },
-    { id: 2, nombre: 'La Esperanza', dueno: 'Gloria Ríos',     estado: 'revision' },
-    { id: 3, nombre: 'San Isidro',   dueno: 'Luis Pedraza',    estado: 'inactiva' },
-  ]
+function FincasTable({ user, onAction }) {
+  const [fincas, setFincas] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const estadoLabel = { activa: 'Activa', revision: 'En revisión', inactiva: 'Inactiva' }
-  const estadoClass = { activa: 'badge-active', revision: 'badge-warning', inactiva: 'badge-inactive' }
+  const idExperto = user?.idUsuario || user?.id
+
+  useEffect(() => {
+    const cargarFincasAsignadas = async () => {
+      setLoading(true)
+      setError('')
+
+      try {
+        const res = await api.get('/asignaciones_expertos')
+        const asignaciones = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+
+        const propias = asignaciones.filter((asignacion) => {
+          return Number(asignacion.idExperto) === Number(idExperto)
+        })
+
+        const fincasAsignadas = propias
+          .map((asignacion) => {
+            const finca = asignacion.finca || {}
+
+            return {
+              id: finca.idFinca || asignacion.idFinca,
+              idFinca: finca.idFinca || asignacion.idFinca,
+              nombre: finca.nombreFinca || 'Finca sin nombre',
+              municipio: finca.municipio || '-',
+              departamento: finca.departamento || '-',
+              altitud: finca.altitudMsnm || null,
+              area: finca.areaHectareas || null,
+              fechaAsignada: asignacion.fechaAsignada,
+              asignacion,
+            }
+          })
+          .filter((finca) => finca.idFinca)
+
+        setFincas(fincasAsignadas)
+      } catch (err) {
+        if (err?.response?.status === 403) {
+          setError('Tu usuario experto no tiene permiso para consultar asignaciones. Revisa la ruta GET /asignaciones_expertos en backend.')
+        } else {
+          setError(err?.response?.data?.message || 'No se pudieron cargar las fincas asignadas.')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (idExperto) cargarFincasAsignadas()
+  }, [idExperto])
+
+  if (loading) {
+    return (
+      <div className="fincas-table-card">
+        <p className="fincas-empty-state">Cargando fincas asignadas...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="fincas-table-card">
+        <p className="fincas-error-state">{error}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="fincas-table-card">
@@ -114,27 +175,36 @@ function FincasTable({ onAction }) {
         <thead>
           <tr>
             <th>Nombre de finca</th>
-            <th>Dueño de finca</th>
-            <th>Estado</th>
+            <th>Ubicacion</th>
+            <th>Datos</th>
+            <th>Fecha asignada</th>
             <th>Acciones</th>
           </tr>
         </thead>
+
         <tbody>
-          {fincas.map(f => (
-            <tr key={f.id}>
-              <td className="td-name">{f.nombre}</td>
-              <td>{f.dueno}</td>
-              <td>
-                <span className={`estado-badge ${estadoClass[f.estado]}`}>
-                  <span className="badge-dot" />
-                  {estadoLabel[f.estado]}
-                </span>
-              </td>
-              <td>
-                <ActionsDropdown finca={f} onAction={onAction} />
+          {fincas.length === 0 ? (
+            <tr>
+              <td colSpan={5}>
+                <p className="fincas-empty-state">Aun no tienes fincas asignadas.</p>
               </td>
             </tr>
-          ))}
+          ) : (
+            fincas.map((finca) => (
+              <tr key={finca.idFinca}>
+                <td className="td-name">{finca.nombre}</td>
+                <td>{finca.municipio}, {finca.departamento}</td>
+                <td>
+                  {finca.altitud ? `${finca.altitud} m.s.n.m.` : '-'}
+                  {finca.area ? ` / ${finca.area} ha` : ''}
+                </td>
+                <td>{finca.fechaAsignada || '-'}</td>
+                <td>
+                  <ActionsDropdown finca={finca} onAction={onAction} />
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
@@ -183,7 +253,7 @@ export default function ExpertoLayout({ activePage, onNavigate, children }) {
       {/* ── NAVBAR ── */}
       <nav className="experto-navbar">
         <div className="experto-navbar-logo">
-          <img src="/src/assets/logo.jpg" alt="CoffeeLife" className="experto-logo-img" />
+          <img src={logo} alt="CoffeeLife" className="experto-logo-img" />
           <span className="experto-logo-badge">EXPERTO</span>
         </div>
 
@@ -251,7 +321,7 @@ export default function ExpertoLayout({ activePage, onNavigate, children }) {
               <h1 className="fincas-title">Fincas asignadas</h1>
               <p className="fincas-subtitle">Gestiona las fincas bajo tu supervisión</p>
             </div>
-            <FincasTable onAction={handleFincaAction} />
+            <FincasTable user={user} onAction={handleFincaAction} />
           </div>
         ) : (
           children
