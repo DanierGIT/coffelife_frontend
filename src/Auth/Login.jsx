@@ -66,7 +66,7 @@ const EyeOffIcon = () => (
   </svg>
 )
 
-export default function Login({ onGoRegister }) {
+export default function Login({ onGoRegister, onGoRecuperar }) {
   const { login } = useAuth()
 
   const [form,     setForm]     = useState({ email: '', password: '' })
@@ -218,9 +218,9 @@ export default function Login({ onGoRegister }) {
                 />
                 Recordarme
               </label>
-              <button type="button" className="auth-forgot">
-                ¿Olvidaste tu contraseña?
-              </button>
+<button type="button" className="auth-forgot" onClick={onGoRecuperar}>
+  ¿Olvidaste tu contraseña?
+</button>
             </div>
 
             {error && <p className="auth-error">{error}</p>}

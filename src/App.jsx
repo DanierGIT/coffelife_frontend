@@ -5,7 +5,7 @@ import AdminLayout from './layouts/AdminLayout'
 // ── Auth ──
 import Login    from './Auth/Login'
 import Register from './Auth/Register'
-
+import RecuperarContrasena from './Auth/RecuperarContrasena'
 // ── Rol_Admin ──
 import Dashboard       from './pages/Rol_Admin/Dashboard/Dashboard'
 import Administrador   from './pages/Rol_Admin/Administrador/Administrador'
@@ -120,8 +120,19 @@ function AppContent() {
 
   if (!user) {
     if (authPage === 'register') return <Register onGoLogin={() => setAuthPage('login')} />
-    return <Login onGoRegister={() => setAuthPage('register')} />
+
+ if (authPage === 'recuperar') { //  NUEVO
+      return <RecuperarContrasena onIrAlLogin={() => setAuthPage('login')} />
+    }
+
+    return (
+      <Login
+        onGoRegister={() => setAuthPage('register')}
+        onGoRecuperar={() => setAuthPage('recuperar')} // 👈 NUEVO
+      />
+    )
   }
+
 
   // Routing por rol
   // Routing por rol

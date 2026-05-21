@@ -26,11 +26,15 @@ export function AuthProvider({ children }) {
     } catch {
       localStorage.removeItem('cl_token')
       localStorage.removeItem('cl_user')
+      localStorage.removeItem('cl_token')
     } finally {
       setLoading(false)
     }
   }, [])
 
+  // ─────────────────────────────────────────────
+  // LOGIN
+  // ─────────────────────────────────────────────
   const login = async (email, password) => {
     const res = await api.post('/login', { correo: email, password })
 
@@ -71,9 +75,17 @@ export function AuthProvider({ children }) {
     return res.data
   }
 
+  // ─────────────────────────────────────────────
+
+
+
+  // ─────────────────────────────────────────────
+  // LOGOUT
+  // ─────────────────────────────────────────────
   const logout = () => {
     localStorage.removeItem('cl_token')
     localStorage.removeItem('cl_user')
+
     setUser(null)
   }
 
