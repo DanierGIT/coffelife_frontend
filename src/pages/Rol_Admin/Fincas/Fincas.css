@@ -129,3 +129,35 @@
   color: #b91c1c;
   border: 1px solid #fecaca;
 }
+/* ── Añade esto a tu Fincas.css existente ── */
+
+/* Mapa interactivo (selector de coordenadas) */
+.map-wrapper {
+  margin: 12px 0;
+}
+
+.map-hint {
+  font-size: 13px;
+  color: #6B4226;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* Modal más ancho para que el mapa quepa bien */
+.modal-box--wide {
+  max-width: 720px;
+  width: 95%;
+}
+
+/* Celda de la tabla con mini-mapa */
+.td-map {
+  min-width: 200px;
+  max-width: 260px;
+  padding: 8px !important;
+}
+
+.no-coords {
+  color: #aaa;
+  font-size: 12px;
+  font-style: italic;
+}

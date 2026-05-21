@@ -1,48 +1,120 @@
-import { useEffect, useState } from 'react'
+/**
+ * Fincas.jsx
+ * Igual que antes pero con mapa Leaflet para seleccionar/ver ubicación.
+ * Requiere instalar: npm install leaflet react-leaflet
+ * Y en tu index.html o main.jsx importar el CSS:
+ *   import 'leaflet/dist/leaflet.css'
+ */
+import { useState, useEffect } from 'react'
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import L from 'leaflet'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import './Fincas.css'
 
-const getArrayData = (data) => {
-  if (Array.isArray(data)) return data
-  if (Array.isArray(data?.data)) return data.data
-  return []
-}
+// Fix ícono por defecto de Leaflet (problema conocido con bundlers)
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl:       'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+})
 
-const getRoleName = (user) => {
+// ── Helpers ──────────────────────────────────────────
+const toFloat = (val) => val !== '' && val !== null && val !== undefined
+  ? parseFloat(val)
+  : null
+
+// ── Selector de coordenadas en el mapa ──────────────
+function MapPicker({ latitud, longitud, onChange }) {
+  const center = latitud && longitud
+    ? [parseFloat(latitud), parseFloat(longitud)]
+    : [4.5709, -74.2973]
+
+  function ClickHandler() {
+    useMapEvents({
+      click(e) {
+        onChange(
+          e.latlng.lat.toFixed(6),
+          e.latlng.lng.toFixed(6),
+        )
+      },
+    })
+    return null
+  }
+
   return (
-    user?.rol?.nombreRol ||
-    user?.rol?.nombre_rol ||
-    user?.rol ||
-    ''
-  ).toString().toLowerCase().trim()
+    <div className="map-wrapper">
+      <p className="map-hint">📍 Haz clic en el mapa para seleccionar la ubicación</p>
+      <MapContainer
+        center={center}
+        zoom={latitud && longitud ? 13 : 6}
+        style={{ height: '260px', width: '100%', borderRadius: '10px' }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+        />
+        <ClickHandler />
+        {latitud && longitud && (
+          <Marker position={[parseFloat(latitud), parseFloat(longitud)]} />
+        )}
+      </MapContainer>
+    </div>
+  )
 }
 
-const getToday = () => new Date().toISOString().slice(0, 10)
+// ── Mapa de solo lectura (fila de tabla) ─────────────
+function MapaFinca({ latitud, longitud }) {
+  if (!latitud || !longitud) return null
+  return (
+    <MapContainer
+      center={[parseFloat(latitud), parseFloat(longitud)]}
+      zoom={13}
+      style={{ height: '140px', width: '100%', borderRadius: '8px', marginTop: '6px' }}
+      dragging={false}
+      scrollWheelZoom={false}
+      doubleClickZoom={false}
+      zoomControl={false}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <Marker position={[parseFloat(latitud), parseFloat(longitud)]} />
+    </MapContainer>
+  )
+}
 
+// ── Modal de edición ─────────────────────────────────
 function EditModal({ finca, onClose, onSaved }) {
   const [form, setForm] = useState({
-    nombre_finca: finca.nombreFinca || '',
-    municipio: finca.municipio || '',
-    departamento: finca.departamento || '',
-    latitud: finca.latitud || '',
-    longitud: finca.longitud || '',
-    altitud_msnm: finca.altitudMsnm || '',
+    nombre_finca:   finca.nombreFinca   || '',
+    municipio:      finca.municipio     || '',
+    departamento:   finca.departamento  || '',
+    latitud:        finca.latitud       || '',
+    longitud:       finca.longitud      || '',
+    altitud_msnm:   finca.altitudMsnm   || '',
     area_hectareas: finca.areaHectareas || '',
   })
-
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error,   setError]   = useState('')
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleChange   = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleMapClick = (lat, lng) => setForm((f) => ({ ...f, latitud: lat, longitud: lng }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     try {
-      await api.put(`/fincas/${finca.idFinca}`, form)
+      const payload = {
+        nombre_finca:   form.nombre_finca,
+        municipio:      form.municipio,
+        departamento:   form.departamento,
+        latitud:        toFloat(form.latitud),
+        longitud:       toFloat(form.longitud),
+        altitud_msnm:   toFloat(form.altitud_msnm),
+        area_hectareas: toFloat(form.area_hectareas),
+      }
+      await api.put(`/fincas/${finca.idFinca}`, payload)
       onSaved()
       onClose()
     } catch (err) {
@@ -54,56 +126,49 @@ function EditModal({ finca, onClose, onSaved }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-box modal-box--wide" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">Editar finca</h2>
-          <button className="modal-close" onClick={onClose}>x</button>
+          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
-
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="modal-row">
-            <label>
-              Nombre de la finca
+            <label>Nombre de la finca
               <input name="nombre_finca" value={form.nombre_finca} onChange={handleChange} required />
             </label>
-
-            <label>
-              Municipio
+            <label>Municipio
               <input name="municipio" value={form.municipio} onChange={handleChange} required />
             </label>
           </div>
-
-          <label>
-            Departamento
+          <label>Departamento
             <input name="departamento" value={form.departamento} onChange={handleChange} required />
           </label>
-
           <div className="modal-row">
-            <label>
-              Latitud
+            <label>Latitud
               <input name="latitud" value={form.latitud} onChange={handleChange} placeholder="Ej: 4.7110" />
             </label>
-
-            <label>
-              Longitud
+            <label>Longitud
               <input name="longitud" value={form.longitud} onChange={handleChange} placeholder="Ej: -74.0721" />
             </label>
           </div>
 
+          {/* Mapa interactivo */}
+          <MapPicker
+            latitud={form.latitud}
+            longitud={form.longitud}
+            onChange={handleMapClick}
+          />
+
           <div className="modal-row">
-            <label>
-              Altitud m.s.n.m.
+            <label>Altitud (m.s.n.m.)
               <input name="altitud_msnm" value={form.altitud_msnm} onChange={handleChange} placeholder="Ej: 1800" />
             </label>
-
-            <label>
-              Area en hectareas
+            <label>Área (hectáreas)
               <input name="area_hectareas" value={form.area_hectareas} onChange={handleChange} placeholder="Ej: 5.2" />
             </label>
           </div>
 
           {error && <p className="modal-error">{error}</p>}
-
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
@@ -116,228 +181,71 @@ function EditModal({ finca, onClose, onSaved }) {
   )
 }
 
-function AssignExpertModal({ finca, expertos, asignacionActual, onClose, onSaved }) {
-  const [idExperto, setIdExperto] = useState(asignacionActual?.idExperto || '')
-  const [fechaAsignada, setFechaAsignada] = useState(asignacionActual?.fechaAsignada || getToday())
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  const expertoSeleccionado = expertos.find(
-    (experto) => Number(experto.idUsuario) === Number(idExperto)
-  )
-
-  const expertosOrdenados = [...expertos].sort((a, b) => {
-    if (a.activo === b.activo) return a.nombre.localeCompare(b.nombre)
-    return a.activo ? -1 : 1
-  })
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    if (!expertoSeleccionado?.activo) {
-      setError('No puedes asignar una finca a un experto inactivo.')
-      setLoading(false)
-      return
-    }
-
-    try {
-      const payload = {
-        idExperto: Number(idExperto),
-        idFinca: Number(finca.idFinca),
-        fechaAsignada,
-      }
-
-      if (asignacionActual?.idAsignacion) {
-        await api.put(`/asignaciones_expertos/${asignacionActual.idAsignacion}`, payload)
-      } else {
-        await api.post('/asignaciones_expertos', payload)
-      }
-
-      onSaved()
-      onClose()
-    } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo asignar el experto.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-title">Asignar experto</h2>
-          <button className="modal-close" onClick={onClose}>x</button>
-        </div>
-
-        <form className="modal-form" onSubmit={handleSubmit}>
-          <p className="modal-help">
-            Finca seleccionada: <strong>{finca.nombreFinca}</strong>
-          </p>
-
-          <label>
-            Experto
-            <select value={idExperto} onChange={(e) => setIdExperto(e.target.value)} required>
-              <option value="">Selecciona un experto</option>
-
-              {expertosOrdenados.map((experto) => (
-                <option
-                  key={experto.idUsuario}
-                  value={experto.idUsuario}
-                  disabled={!experto.activo}
-                >
-                  {experto.nombre} {experto.apellido || ''} - {experto.correo} - {experto.activo ? 'Activo' : 'Inactivo'}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          {expertoSeleccionado && (
-            <div className={expertoSeleccionado.activo ? 'expert-status active' : 'expert-status inactive'}>
-              Estado del experto: <strong>{expertoSeleccionado.activo ? 'Activo' : 'Inactivo'}</strong>
-            </div>
-          )}
-
-          <label>
-            Fecha de asignacion
-            <input
-              type="date"
-              value={fechaAsignada}
-              onChange={(e) => setFechaAsignada(e.target.value)}
-              required
-            />
-          </label>
-
-          {error && <p className="modal-error">{error}</p>}
-
-          <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
-              Cancelar
-            </button>
-
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={loading || !expertoSeleccionado?.activo}
-            >
-              {loading ? 'Asignando...' : asignacionActual ? 'Actualizar asignacion' : 'Asignar experto'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
+// ── Componente principal ─────────────────────────────
 export default function Fincas() {
   const { user } = useAuth()
-  const role = getRoleName(user)
-  const isAdmin = role === 'admin' || role === 'administrador'
 
-  const [fincas, setFincas] = useState([])
-  const [expertos, setExpertos] = useState([])
-  const [asignaciones, setAsignaciones] = useState([])
+  const [fincas,       setFincas]       = useState([])
   const [editingFinca, setEditingFinca] = useState(null)
-  const [assigningFinca, setAssigningFinca] = useState(null)
-
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [loading,      setLoading]      = useState(false)
+  const [error,        setError]        = useState('')
+  const [success,      setSuccess]      = useState('')
 
   const [form, setForm] = useState({
-    nombre_finca: '',
-    municipio: '',
-    departamento: '',
-    latitud: '',
-    longitud: '',
-    altitud_msnm: '',
+    nombre_finca:   '',
+    municipio:      '',
+    departamento:   '',
+    latitud:        '',
+    longitud:       '',
+    altitud_msnm:   '',
     area_hectareas: '',
   })
 
   const getFincas = async () => {
     try {
-      const res = await api.get('/fincas')
-      setFincas(getArrayData(res.data))
+      const res = await api('/fincas')
+      setFincas(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
     } catch {
       setError('No se pudieron cargar las fincas.')
     }
   }
 
-  const getAdminData = async () => {
-    if (!isAdmin) return
+  useEffect(() => { getFincas() }, [])
 
-    try {
-      const [expertosRes, asignacionesRes] = await Promise.all([
-        api.get('/expertos'),
-        api.get('/asignaciones_expertos'),
-      ])
-
-      setExpertos(getArrayData(expertosRes.data))
-      setAsignaciones(getArrayData(asignacionesRes.data))
-    } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudieron cargar expertos o asignaciones.')
-    }
-  }
-
-  useEffect(() => {
-    getFincas()
-  }, [])
-
-  useEffect(() => {
-    getAdminData()
-  }, [isAdmin])
-
-  const refreshData = async () => {
-    await getFincas()
-    await getAdminData()
-  }
-
-  const getAsignacionByFinca = (idFinca) => {
-    return asignaciones.find((asignacion) => Number(asignacion.idFinca) === Number(idFinca))
-  }
-
-  const getNombreExpertoAsignado = (idFinca) => {
-    const asignacion = getAsignacionByFinca(idFinca)
-
-    if (!asignacion) return 'Sin asignar'
-
-    if (asignacion.experto?.nombre) {
-      return `${asignacion.experto.nombre} ${asignacion.experto.apellido || ''}`.trim()
-    }
-
-    const experto = expertos.find((item) => Number(item.idUsuario) === Number(asignacion.idExperto))
-
-    if (!experto) return 'Asignado'
-
-    return `${experto.nombre} ${experto.apellido || ''}`.trim()
-  }
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleChange   = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleMapClick = (lat, lng) => setForm((f) => ({ ...f, latitud: lat, longitud: lng }))
 
   const handleCreate = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     setSuccess('')
-
     try {
-      await api.post('/fincas', {
-        ...form,
-        id_usuario: user?.idUsuario || user?.id,
-      })
+      
+        console.log("Usuario completo:", user)
 
+const payload = {
+  id_usuario:
+    user?.id ||
+    user?.id_usuario ||
+    user?.idUsuario,
+
+  nombre_finca: form.nombre_finca,
+  municipio: form.municipio,
+  departamento: form.departamento,
+  latitud: toFloat(form.latitud),
+  longitud: toFloat(form.longitud),
+  altitud_msnm: toFloat(form.altitud_msnm),
+  area_hectareas: toFloat(form.area_hectareas),
+}
+
+console.log("Payload enviado:", payload)
+
+      await api.post('/fincas', payload)
       setForm({
-        nombre_finca: '',
-        municipio: '',
-        departamento: '',
-        latitud: '',
-        longitud: '',
-        altitud_msnm: '',
-        area_hectareas: '',
+        nombre_finca: '', municipio: '', departamento: '',
+        latitud: '', longitud: '', altitud_msnm: '', area_hectareas: '',
       })
-
       setSuccess('Finca registrada correctamente.')
       getFincas()
     } catch (err) {
@@ -348,11 +256,10 @@ export default function Fincas() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Eliminar esta finca?')) return
-
+    if (!window.confirm('¿Eliminar esta finca?')) return
     try {
       await api.delete(`/fincas/${id}`)
-      refreshData()
+      getFincas()
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo eliminar la finca.')
     }
@@ -362,26 +269,31 @@ export default function Fincas() {
     <>
       <h1 className="admin-page-title">Fincas</h1>
 
+      {/* ── Formulario de registro ── */}
       <div className="admin-form-card">
         <h2 className="admin-form-title">Registrar nueva finca</h2>
-
         <form className="finca-form" onSubmit={handleCreate}>
           <div className="finca-form-row">
-            <input name="nombre_finca" value={form.nombre_finca} onChange={handleChange} placeholder="Nombre de la finca" required />
-            <input name="municipio" value={form.municipio} onChange={handleChange} placeholder="Municipio" required />
-            <input name="departamento" value={form.departamento} onChange={handleChange} placeholder="Departamento" required />
+            <input name="nombre_finca"  value={form.nombre_finca}  onChange={handleChange} placeholder="Nombre de la finca" required />
+            <input name="municipio"     value={form.municipio}     onChange={handleChange} placeholder="Municipio"          required />
+            <input name="departamento"  value={form.departamento}  onChange={handleChange} placeholder="Departamento"       required />
           </div>
-
           <div className="finca-form-row">
-            <input name="latitud" value={form.latitud} onChange={handleChange} placeholder="Latitud (ej: 4.7110)" />
-            <input name="longitud" value={form.longitud} onChange={handleChange} placeholder="Longitud (ej: -74.0721)" />
-            <input name="altitud_msnm" value={form.altitud_msnm} onChange={handleChange} placeholder="Altitud m.s.n.m." />
-            <input name="area_hectareas" value={form.area_hectareas} onChange={handleChange} placeholder="Area (hectareas)" />
+            <input name="latitud"        value={form.latitud}        onChange={handleChange} placeholder="Latitud (ej: 4.7110)"    />
+            <input name="longitud"       value={form.longitud}       onChange={handleChange} placeholder="Longitud (ej: -74.0721)" />
+            <input name="altitud_msnm"   value={form.altitud_msnm}   onChange={handleChange} placeholder="Altitud m.s.n.m."        />
+            <input name="area_hectareas" value={form.area_hectareas} onChange={handleChange} placeholder="Área (hectáreas)"        />
           </div>
 
-          {error && <p className="modal-error">{error}</p>}
-          {success && <p className="finca-success">{success}</p>}
+          {/* Mapa interactivo */}
+          <MapPicker
+            latitud={form.latitud}
+            longitud={form.longitud}
+            onChange={handleMapClick}
+          />
 
+          {error   && <p className="modal-error">{error}</p>}
+          {success && <p className="finca-success">{success}</p>}
           <div className="admin-form-actions">
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? 'Registrando...' : 'Registrar finca'}
@@ -390,6 +302,7 @@ export default function Fincas() {
         </form>
       </div>
 
+      {/* ── Tabla de fincas ── */}
       <div className="admin-table-card">
         <table className="admin-table">
           <thead>
@@ -399,59 +312,34 @@ export default function Fincas() {
               <th>Municipio</th>
               <th>Departamento</th>
               <th>Altitud</th>
-              <th>Area (ha)</th>
-              {isAdmin && <th>Experto</th>}
+              <th>Área (ha)</th>
+              <th>Ubicación</th>
               <th>Acciones</th>
             </tr>
           </thead>
-
           <tbody>
             {fincas.length === 0 ? (
-              <tr>
-                <td colSpan={isAdmin ? 8 : 7} className="finca-empty">
-                  No hay fincas registradas aun.
+              <tr><td colSpan={8} className="finca-empty">No hay fincas registradas aún.</td></tr>
+            ) : fincas.map((f) => (
+              <tr key={f.idFinca}>
+                <td>{f.idFinca}</td>
+                <td>{f.nombreFinca}</td>
+                <td>{f.municipio}</td>
+                <td>{f.departamento}</td>
+                <td>{f.altitudMsnm ? `${f.altitudMsnm} m` : '—'}</td>
+                <td>{f.areaHectareas ?? '—'}</td>
+                <td className="td-map">
+                  {f.latitud && f.longitud
+                    ? <MapaFinca latitud={f.latitud} longitud={f.longitud} />
+                    : <span className="no-coords">Sin coordenadas</span>
+                  }
+                </td>
+                <td>
+                  <button className="btn-edit"   onClick={() => setEditingFinca(f)}>Editar</button>
+                  <button className="btn-delete" onClick={() => handleDelete(f.idFinca)}>Eliminar</button>
                 </td>
               </tr>
-            ) : fincas.map((f) => {
-              const asignacionActual = getAsignacionByFinca(f.idFinca)
-
-              return (
-                <tr key={f.idFinca}>
-                  <td>{f.idFinca}</td>
-                  <td>{f.nombreFinca}</td>
-                  <td>{f.municipio}</td>
-                  <td>{f.departamento}</td>
-                  <td>{f.altitudMsnm ? `${f.altitudMsnm} m` : '-'}</td>
-                  <td>{f.areaHectareas ?? '-'}</td>
-
-                  {isAdmin && (
-                    <td>
-                      <span className={asignacionActual ? 'assignment-hint assigned' : 'assignment-hint'}>
-                        {getNombreExpertoAsignado(f.idFinca)}
-                      </span>
-                    </td>
-                  )}
-
-                  <td>
-                    <div className="finca-actions">
-                      {isAdmin && (
-                        <button className="btn-assign" onClick={() => setAssigningFinca(f)}>
-                          {asignacionActual ? 'Cambiar experto' : 'Asignar experto'}
-                        </button>
-                      )}
-
-                      <button className="btn-edit" onClick={() => setEditingFinca(f)}>
-                        Editar
-                      </button>
-
-                      <button className="btn-delete" onClick={() => handleDelete(f.idFinca)}>
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+            ))}
           </tbody>
         </table>
       </div>
@@ -460,17 +348,7 @@ export default function Fincas() {
         <EditModal
           finca={editingFinca}
           onClose={() => setEditingFinca(null)}
-          onSaved={refreshData}
-        />
-      )}
-
-      {assigningFinca && (
-        <AssignExpertModal
-          finca={assigningFinca}
-          expertos={expertos}
-          asignacionActual={getAsignacionByFinca(assigningFinca.idFinca)}
-          onClose={() => setAssigningFinca(null)}
-          onSaved={refreshData}
+          onSaved={getFincas}
         />
       )}
     </>

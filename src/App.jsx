@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import AdminLayout from './layouts/AdminLayout'
+import 'leaflet/dist/leaflet.css'
 
 // ── Auth ──
 import Login    from './Auth/Login'

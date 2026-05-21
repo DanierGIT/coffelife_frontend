@@ -121,17 +121,27 @@ function PasoEmail({ onSiguiente }) {
 function PasoCodigo({ onSiguiente }) {
   const [codigo, setCodigo] = useState("");
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  const verificarCodigo = () => {
-    if (!codigo || codigo.length < 4) {
-      setError("Ingresa el código correctamente");
+  const verificarCodigo = async () => {
+    if (!codigo || codigo.length < 6) {
+      setError("El código debe tener 6 dígitos");
       return;
     }
 
-    setError("");
+    try {
+      setCargando(true);
+      setError("");
 
-    // El código ES el token
-    onSiguiente(codigo);
+      // ✅ Verificar el token contra el backend antes de avanzar
+      await apiFetch("/verificar-token", { token: codigo });
+
+      onSiguiente(codigo);
+    } catch (err) {
+      setError(err.message); // Mostrará "Código inválido" o "El código ha expirado"
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -140,47 +150,36 @@ function PasoCodigo({ onSiguiente }) {
         <ShieldCheck size={34} />
       </div>
 
-      <h2 className="recuperar-titulo">
-        Verificación
-      </h2>
+      <h2 className="recuperar-titulo">Verificación</h2>
 
       <p className="recuperar-subtitulo">
-        Revisa tu correo e ingresa el código
-        de recuperación.
+        Revisa tu correo e ingresa el código de recuperación.
       </p>
 
       <div className="recuperar-campo">
         <label>Código</label>
-
         <div className="recuperar-input-group">
           <KeyRound size={18} />
-
           <input
             type="text"
             className="codigo-input"
             placeholder="123456"
             value={codigo}
-            onChange={(e) =>
-              setCodigo(
-                e.target.value.replace(/\D/g, "")
-              )
-            }
+            onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
             maxLength={6}
+            disabled={cargando}
           />
         </div>
       </div>
 
-      {error && (
-        <div className="recuperar-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="recuperar-error">{error}</div>}
 
       <button
         className="recuperar-boton"
         onClick={verificarCodigo}
+        disabled={cargando}
       >
-        Continuar
+        {cargando ? "Verificando..." : "Continuar"}
       </button>
     </div>
   );
