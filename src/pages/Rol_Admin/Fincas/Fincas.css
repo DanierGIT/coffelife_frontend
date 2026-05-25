@@ -1,54 +1,142 @@
-/* ══════════════════════════════════════════
-   Fincas.css  — mismos tokens que Administrador.css
-   ══════════════════════════════════════════ */
-
-/* ─── Formulario de fincas ─── */
-.finca-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+body {
+  background: #f5f7fb;
+  font-family: 'Inter', sans-serif;
 }
 
-.finca-form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+/* PAGE */
+.page {
+  padding: 30px;
 }
 
-.finca-form-row input {
-  flex: 1;
-  min-width: 180px;
-  padding: 11px 14px;
+/* HEADER */
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.page-header p {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+/* FORM */
+.form input {
+  width: 100%;
+  padding: 12px;
   border-radius: 10px;
-  border: 1.5px solid #d1d5db;
-  font-size: 14px;
-  color: #111827;
-  background: #fafafa;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.finca-form-row input:focus {
+  border: 1px solid #e5e7eb;
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
-  background: #fff;
+  background: #fafafa;
+  transition: 0.2s;
 }
 
-/* ─── Mensaje de éxito ─── */
-.finca-success {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border-radius: 8px;
-  padding: 10px 14px;
+.form input:focus {
+  border-color: #22c55e;
+  background: white;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* BUTTON */
+.btn-primary {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
   font-size: 13px;
-  margin: 0;
-  border: 1px solid #c8e6c9;
+  color: #6b7280;
+  padding: 10px;
 }
 
-/* ─── Celda vacía ─── */
-.finca-empty {
-  text-align: center;
-  color: #9ca3af;
-  padding: 32px 16px !important;
+td {
+  padding: 12px;
+  border-top: 1px solid #eee;
   font-size: 14px;
+}
+
+.actions button {
+  margin-right: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.actions button:first-child {
+  background: #3b82f6;
+  color: white;
+}
+
+.actions button:last-child {
+  background: #ef4444;
+  color: white;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-card {
+  background: white;
+  width: 500px;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.modal-body input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
 }
