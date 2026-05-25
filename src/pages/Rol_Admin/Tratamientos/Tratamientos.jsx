@@ -152,10 +152,10 @@ function TablaTratamientos({ tratamientos, eliminar, editar }) {
             </td>
           </tr>
         ) : (
-          tratamientos.map((t) => (
+          tratamientos.map((t, idx) => (
             <tr key={t.idTratamiento}>
-              <td>{t.idTratamiento}</td>
-              <td>{t.tipoTratamiento?.nombreTipo || t.idTipoTratamiento}</td>
+              <td>{idx + 1}</td>
+              <td>{t.tipoTratamiento?.nombreTipo || '—'}</td>
               <td>{t.nombre}</td>
               <td>{t.descripcion}</td>
               <td className="acciones">

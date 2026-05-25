@@ -1,11 +1,33 @@
-/**
+  /**
  * Administrador.jsx
  * CRUD completo conectado a /admins
  * El backend espera: { nombre, apellido, correo, telefono, password }
  */
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
+import PasswordStrength from '../../../components/PasswordStrength'
+import { validatePassword } from '../../../utils/passwordValidator'
 import './Administrador.css'
+
+const normalizeRole = (role) =>
+  (role ?? '').toString().toLowerCase().trim()
+
+const isAdminRole = (role) => {
+  const value = normalizeRole(role?.nombreRol || role?.nombre_rol || role?.nombre || role)
+  return value === 'admin' || value === 'administrador'
+}
+
+const getAdminRoleId = async () => {
+  const res = await api.get('/cat_roles')
+  const roles = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+  const adminRole = roles.find(isAdminRole)
+
+  if (!adminRole) {
+    throw new Error('No existe un rol admin/administrador en cat_roles.')
+  }
+
+  return adminRole.idRol || adminRole.id_rol || adminRole.id
+}
 
 function EditModal({ admin, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -27,7 +49,7 @@ function EditModal({ admin, onClose, onSaved }) {
     try {
       const payload = { ...form }
       if (!payload.password) delete payload.password
-      await api.put(`/admins/${admin.idUsuario}`, payload)
+      await api.put(`/usuarios/${admin.idUsuario}`, payload)
       onSaved()
       onClose()
     } catch (err) {
@@ -54,6 +76,7 @@ function EditModal({ admin, onClose, onSaved }) {
           <label>
             Contraseña <span className="modal-hint">(opcional)</span>
             <input name="password" type="password" value={form.password} onChange={handleChange} />
+            <PasswordStrength password={form.password} />
           </label>
           {error && <p className="modal-error">{error}</p>}
           <div className="modal-actions">
@@ -77,17 +100,16 @@ export default function Administrador() {
   const [success,      setSuccess]      = useState('')
 
   const [form, setForm] = useState({
-    nombre: '', apellido: '', correo: '', telefono: '', password: '',
+    nombre: '', apellido: '', correo: '', telefono: '', password: '', confirmPassword: '',
   })
 
   const getAdmins = async () => {
     setFetching(true)
     setError('')
     try {
-      const res = await api.get('/admins')
-      // El backend puede devolver el array directamente o dentro de { data: [...] }
+      const res = await api.get('/usuarios')
       const lista = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
-      setAdmins(lista)
+      setAdmins(lista.filter((usuario) => isAdminRole(usuario.rol)))
     } catch (err) {
       // Muestra el error real para que puedas depurar
       const msg = err?.response?.data?.message || err?.message || 'Error de red al cargar administradores.'
@@ -103,12 +125,25 @@ export default function Administrador() {
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
     setSuccess('')
+
+    const roleName = 'administrador'
+    const { isValid, errors: pwErrors } = validatePassword(form.password, roleName)
+    if (!isValid) {
+      setError(`Contraseña inválida: ${pwErrors.join(', ')}`)
+      return
+    }
+    if (form.password !== form.confirmPassword) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+
+    setLoading(true)
     try {
-      await api.post('/admins', form)
-      setForm({ nombre: '', apellido: '', correo: '', telefono: '', password: '' })
+      const idRol = await getAdminRoleId()
+      await api.post('/usuarios', { ...form, id_rol: idRol })
+      setForm({ nombre: '', apellido: '', correo: '', telefono: '', password: '', confirmPassword: '' })
       setSuccess('Administrador creado correctamente.')
       getAdmins()
     } catch (err) {
@@ -118,13 +153,15 @@ export default function Administrador() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Eliminar administrador?')) return
+  const handleToggleActivo = async (admin) => {
+    const next = !admin.activo
+    const accion = next ? 'activar' : 'desactivar'
+    if (!window.confirm(`¿${accion} a ${admin.nombre}?`)) return
     try {
-      await api.delete(`/admins/${id}`)
+      await api.put(`/usuarios/${admin.idUsuario}`, { activo: next })
       getAdmins()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar.')
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -139,7 +176,13 @@ export default function Administrador() {
           <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido" required />
           <input name="correo"   value={form.correo}   onChange={handleChange} placeholder="Correo"   required />
           <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" />
-          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña" required />
+          <div style={{ position: 'relative' }}>
+            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder={`Contraseña (mín. 10)`} required />
+            <PasswordStrength password={form.password} role="administrador" />
+          </div>
+          <div style={{ position: 'relative' }}>
+            <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" required />
+          </div>
           {error   && <p className="modal-error"   style={{marginTop:8}}>{error}</p>}
           {success && <p className="finca-success" style={{marginTop:8}}>{success}</p>}
           <div className="admin-form-actions">
@@ -157,20 +200,40 @@ export default function Administrador() {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Acciones</th>
+                <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {admins.length === 0 ? (
-                <tr><td colSpan={4} className="finca-empty">No hay administradores registrados.</td></tr>
+                <tr><td colSpan={5} className="finca-empty">No hay administradores registrados.</td></tr>
               ) : admins.map((admin) => (
                 <tr key={admin.idUsuario}>
                   <td>{admin.nombre} {admin.apellido}</td>
                   <td>{admin.correo}</td>
                   <td>{admin.telefono || '—'}</td>
                   <td>
-                    <button className="btn-edit"   onClick={() => setEditingAdmin(admin)}>Editar</button>
-                    <button className="btn-delete" onClick={() => handleDelete(admin.idUsuario)}>Eliminar</button>
+                    <span style={{
+                      padding:'3px 10px', borderRadius:20, fontSize:12, fontWeight:600,
+                      background: admin.activo ? '#e8f5e9' : '#fce8e8',
+                      color:      admin.activo ? '#2e7d32' : '#b91c1c',
+                    }}>
+                      {admin.activo ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="btn-edit" onClick={() => setEditingAdmin(admin)}>Editar</button>
+                    <button
+                      onClick={() => handleToggleActivo(admin)}
+                      style={{
+                        padding:'6px 14px', borderRadius:8, fontSize:13, fontWeight:500,
+                        cursor:'pointer', marginRight:0,
+                        background: admin.activo ? '#fef3c7' : '#e8f5e9',
+                        color:      admin.activo ? '#92400e' : '#2e7d32',
+                        border:     admin.activo ? '1px solid #fde68a' : '1px solid #c8e6c9',
+                      }}
+                    >
+                      {admin.activo ? 'Desactivar' : 'Activar'}
+                    </button>
                   </td>
                 </tr>
               ))}

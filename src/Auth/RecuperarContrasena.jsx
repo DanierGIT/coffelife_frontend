@@ -7,6 +7,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+import PasswordStrength from "../components/PasswordStrength";
 import "./RecuperarContrasena.css";
 
 const API_BASE_URL = "http://localhost:3333";
@@ -261,6 +262,7 @@ function PasoNuevaContrasena({
             }
           />
         </div>
+        <PasswordStrength password={nuevaPassword} />
       </div>
 
       <div className="recuperar-campo">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
+import PasswordStrength from '../../../components/PasswordStrength'
 import './PerfilExperto.css'
 
 export default function PerfilExperto() {
@@ -195,6 +196,7 @@ export default function PerfilExperto() {
                   onChange={e => setPwForm(f => ({ ...f, password_nueva: e.target.value }))}
                   required
                 />
+                <PasswordStrength password={pwForm.password_nueva} />
               </label>
               <label>Confirmar nueva contraseña
                 <input

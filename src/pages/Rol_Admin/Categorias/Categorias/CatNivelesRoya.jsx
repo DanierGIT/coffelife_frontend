@@ -138,9 +138,9 @@ export default function CatNivelesRoya() {
                   </td>
                 </tr>
               ) : (
-                niveles.map((nivel) => (
+                niveles.map((nivel, idx) => (
                   <tr key={nivel.idNivel}>
-                    <td>{nivel.idNivel}</td>
+                    <td>{idx + 1}</td>
                     <td>{nivel.nombreNivel}</td>
                     <td>{nivel.descripcion || '-'}</td>
                     <td className="actions">

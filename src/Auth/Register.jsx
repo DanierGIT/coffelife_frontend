@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { validatePassword } from '../utils/passwordValidator'
 import './Auth.css'
 import logo from '../assets/logo.jpg'
 
@@ -95,8 +96,9 @@ export default function Register({ onGoLogin }) {
       setError('Las contraseñas no coinciden.')
       return
     }
-    if (form.password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.')
+    const { isValid: pwOk, errors: pwErrors } = validatePassword(form.password, 'cafetero')
+    if (!pwOk) {
+      setError(`Contraseña inválida: ${pwErrors.join(', ')}`)
       return
     }
     setLoading(true)
@@ -258,6 +260,7 @@ export default function Register({ onGoLogin }) {
                 {showPass ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
+            <PasswordStrength password={form.password} />
 
             <div className="auth-field">
               <span className="auth-field-icon"><LockIcon /></span>

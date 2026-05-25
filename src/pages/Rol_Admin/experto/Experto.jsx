@@ -3,13 +3,14 @@
  * Modal emergente para editar. Errores visibles en pantalla.
  */
 import { useEffect, useState } from 'react'
-import { getExpertos, createExperto, updateExperto, deleteExperto } from './api'
-// Reutilizamos el CSS de Administrador para coherencia visual
+import { getExpertos, createExperto, updateExperto } from './api'
+import PasswordStrength from '../../../components/PasswordStrength'
+import { validatePassword } from '../../../utils/passwordValidator'
 import "../Administrador/Administrador.css";
 
 const EMPTY_FORM = {
   nombre: '', apellido: '', correo: '', telefono: '',
-  password: '', observaciones: '', activo: true,
+  password: '', confirmPassword: '', observaciones: '', activo: true,
 }
 
 // ── Modal de edición ─────────────────────────────────────────────────────────
@@ -72,6 +73,7 @@ function EditModal({ experto, onClose, onSaved }) {
           <label>
             Contraseña <span className="modal-hint">(dejar vacío para no cambiar)</span>
             <input name="password" type="password" value={form.password} onChange={handleChange} />
+            <PasswordStrength password={form.password} />
           </label>
           <label>
             Observaciones
@@ -129,6 +131,18 @@ export default function Experto() {
     e.preventDefault()
     setError('')
     setSuccess('')
+
+    const roleName = 'experto'
+    const { isValid, errors: pwErrors } = validatePassword(form.password, roleName)
+    if (!isValid) {
+      setError(`Contraseña inválida: ${pwErrors.join(', ')}`)
+      return
+    }
+    if (form.password !== form.confirmPassword) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+
     setLoading(true)
     try {
       await createExperto({
@@ -150,14 +164,15 @@ export default function Experto() {
     }
   }
 
-  const handleDelete = async (exp) => {
-    const id = exp.idUsuario || exp.id_usuario || exp.id
-    if (!id || !window.confirm(`¿Eliminar a ${exp.nombre}?`)) return
+  const handleToggleActivo = async (exp) => {
+    const next = !exp.activo
+    const accion = next ? 'activar' : 'desactivar'
+    if (!window.confirm(`¿${accion} a ${exp.nombre}?`)) return
     try {
-      await deleteExperto(id)
+      await updateExperto(exp.idUsuario, { activo: next })
       obtenerExpertos()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar el experto.')
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -174,7 +189,13 @@ export default function Experto() {
             <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido"              />
             <input name="correo"   value={form.correo}   onChange={handleChange} placeholder="Correo *"     required />
             <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono"              />
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña *" required />
+            <div style={{ position: 'relative' }}>
+              <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña *" required />
+              <PasswordStrength password={form.password} role="experto" />
+            </div>
+            <div style={{ position: 'relative' }}>
+              <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña *" required />
+            </div>
             <select name="activo" value={String(form.activo)} onChange={handleChange}
               style={{ flex:1, minWidth:140, padding:'11px 14px', borderRadius:10, border:'1.5px solid #d1d5db',
                        fontSize:14, background:'#fafafa', color:'#111827' }}>
@@ -203,9 +224,9 @@ export default function Experto() {
           <tbody>
             {expertos.length === 0 ? (
               <tr><td colSpan={6} style={{ textAlign:'center', padding:'1.5rem', color:'#9ca3af' }}>No hay expertos registrados.</td></tr>
-            ) : expertos.map((exp) => (
+            ) : expertos.map((exp, idx) => (
               <tr key={exp.idUsuario || exp.id}>
-                <td>{exp.idUsuario || exp.id}</td>
+                <td>{idx + 1}</td>
                 <td>{exp.nombre} {exp.apellido}</td>
                 <td>{exp.correo}</td>
                 <td>{exp.telefono || '—'}</td>
@@ -219,8 +240,19 @@ export default function Experto() {
                   </span>
                 </td>
                 <td>
-                  <button className="btn-edit"   onClick={() => setEditingExperto(exp)}>Editar</button>
-                  <button className="btn-delete" onClick={() => handleDelete(exp)}>Eliminar</button>
+                  <button className="btn-edit" onClick={() => setEditingExperto(exp)}>Editar</button>
+                  <button
+                    onClick={() => handleToggleActivo(exp)}
+                    style={{
+                      padding:'6px 14px', borderRadius:8, fontSize:13, fontWeight:500,
+                      cursor:'pointer', marginRight:0,
+                      background: exp.activo ? '#fef3c7' : '#e8f5e9',
+                      color:      exp.activo ? '#92400e' : '#2e7d32',
+                      border:     exp.activo ? '1px solid #fde68a' : '1px solid #c8e6c9',
+                    }}
+                  >
+                    {exp.activo ? 'Desactivar' : 'Activar'}
+                  </button>
                 </td>
               </tr>
             ))}

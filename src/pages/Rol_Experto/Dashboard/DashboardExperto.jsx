@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import api from '../../../services/api'
 import './DashboardExperto.css'
 
@@ -21,16 +21,6 @@ const decodeTokenPayload = () => {
   }
 }
 
-const getTokenRole = () => {
-  const payload = decodeTokenPayload()
-  return (
-    payload?.rol?.nombreRol ||
-    payload?.rol?.nombre_rol ||
-    payload?.rol ||
-    ''
-  ).toString().trim()
-}
-
 const getNivelNombre = (analisis) => {
   return (
     analisis?.nivelRoya?.nombreNivel ||
@@ -45,22 +35,30 @@ const getFincaIdFromMonitoreo = (monitoreo) => {
   return (
     monitoreo?.idFinca ||
     monitoreo?.cultivo?.idFinca ||
+    monitoreo?.cultivo?.id_finca ||
     monitoreo?.cultivo?.finca?.idFinca ||
     monitoreo?.cultivo?.finca?.id_finca ||
     null
   )
 }
 
+const getMonitoreoIdFromAnalisis = (analisis) => {
+  return analisis?.imagen?.idMonitoreo || analisis?.imagen?.id_monitoreo || null
+}
+
 export default function DashboardExperto() {
   const [stats, setStats] = useState({
     fincas: 0,
+    monitoreos: 0,
     pendientes: 0,
+    recomendaciones: 0,
     alto: 0,
     medio: 0,
     bajo: 0,
   })
 
   const [recientes, setRecientes] = useState([])
+  const [fincasAsignadas, setFincasAsignadas] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -69,64 +67,91 @@ export default function DashboardExperto() {
       setLoading(true)
       setError('')
 
-      const rolToken = getTokenRole()
-      const rolNormalizado = rolToken.toLowerCase()
-
-      if (!['admin', 'experto', 'cafetero'].includes(rolNormalizado)) {
-        setError(
-          rolToken
-            ? `Tu token tiene el rol "${rolToken}", pero el backend solo permite "experto" para este panel. Cierra sesion y vuelve a ingresar. Si sigue igual, revisa que el rol en la base de datos se llame exactamente "experto".`
-            : 'No se encontro un rol valido en el token. Cierra sesion y vuelve a ingresar.'
-        )
-        setLoading(false)
-        return
-      }
-
       try {
-        const [monitoreosRes, analisisRes] = await Promise.all([
+        const payload = decodeTokenPayload()
+        const idExperto = payload?.id
+
+        if (!idExperto) {
+          setError('No se encontro el usuario experto en la sesion. Cierra sesion e ingresa nuevamente.')
+          return
+        }
+
+        const [asignacionesRes, monitoreosRes, analisisRes, recomendacionesRes] = await Promise.all([
+          api.get('/asignaciones_expertos'),
           api.get('/monitoreos'),
           api.get('/analisis_ia'),
+          api.get('/recomendaciones'),
         ])
 
-        const mon = getArrayData(monitoreosRes.data)
-        const anal = getArrayData(analisisRes.data)
+        const asignaciones = getArrayData(asignacionesRes.data).filter(
+          (a) => Number(a.idExperto) === Number(idExperto)
+        )
 
-        const fincasUnicas = new Set(
-          mon.map((m) => getFincaIdFromMonitoreo(m)).filter(Boolean)
-        ).size
+        const fincas = asignaciones
+          .map((a) => {
+            const f = a.finca || {}
+            return {
+              idFinca: f.idFinca || a.idFinca,
+              nombre: f.nombreFinca || `Finca #${f.idFinca || a.idFinca || '-'}`,
+              municipio: f.municipio || '-',
+              departamento: f.departamento || '-',
+              fechaAsignada: a.fechaAsignada,
+            }
+          })
+          .filter((f) => f.idFinca)
 
-        const alto = anal.filter((a) => {
+        const fincaIds = new Set(fincas.map((f) => Number(f.idFinca)))
+        const monitoreos = getArrayData(monitoreosRes.data)
+          .filter((m) => {
+            const fincaId = getFincaIdFromMonitoreo(m)
+            const esFincaAsignada = fincaId && fincaIds.has(Number(fincaId))
+            const esExperto = Number(m.idExperto) === Number(idExperto)
+            return esFincaAsignada || esExperto
+          })
+          .sort((a, b) => new Date(b.fechaMonitoreo || 0) - new Date(a.fechaMonitoreo || 0))
+
+        const monitoreoIds = new Set(monitoreos.map((m) => Number(m.idMonitoreo)))
+        const analisis = getArrayData(analisisRes.data).filter((a) => {
+          const idMonitoreo = getMonitoreoIdFromAnalisis(a)
+          return idMonitoreo && monitoreoIds.has(Number(idMonitoreo))
+        })
+
+        const recomendaciones = getArrayData(recomendacionesRes.data).filter((r) =>
+          monitoreoIds.has(Number(r.idMonitoreo))
+        )
+        const monitoreosConRecomendacion = new Set(
+          recomendaciones.map((r) => Number(r.idMonitoreo)).filter(Boolean)
+        )
+
+        const alto = analisis.filter((a) => {
           const nivel = getNivelNombre(a)
-          return a.idNivelRoya === 1 || nivel.includes('alto')
+          return Number(a.idNivelRoya) === 1 || nivel.includes('alto')
         }).length
 
-        const medio = anal.filter((a) => {
+        const medio = analisis.filter((a) => {
           const nivel = getNivelNombre(a)
-          return a.idNivelRoya === 2 || nivel.includes('medio')
+          return Number(a.idNivelRoya) === 2 || nivel.includes('medio')
         }).length
 
-        const bajo = anal.filter((a) => {
+        const bajo = analisis.filter((a) => {
           const nivel = getNivelNombre(a)
-          return a.idNivelRoya === 3 || nivel.includes('bajo')
+          return Number(a.idNivelRoya) === 3 || nivel.includes('bajo')
         }).length
 
+        setFincasAsignadas(fincas)
+        setRecientes(monitoreos.slice(0, 5))
         setStats({
-          fincas: fincasUnicas || mon.length,
-          pendientes: mon.filter((m) => !m.idEstado || m.idEstado === 1).length,
+          fincas: fincas.length,
+          monitoreos: monitoreos.length,
+          pendientes: monitoreos.filter((m) => !monitoreosConRecomendacion.has(Number(m.idMonitoreo))).length,
+          recomendaciones: recomendaciones.length,
           alto,
           medio,
           bajo,
         })
-
-        setRecientes(mon.slice(0, 5))
       } catch (err) {
         if (err?.response?.status === 403) {
-          const backendRole = err.response.data?.tuRol
-          setError(
-            backendRole
-              ? `Acceso denegado por backend. Tu token llega con rol "${backendRole}". El backend exige "experto". Cierra sesion y vuelve a ingresar; si continua, corrige el nombre del rol en la base de datos.`
-              : 'Acceso denegado por backend. Tu usuario no tiene permiso para consultar monitoreos o analisis IA.'
-          )
+          setError('Acceso denegado por backend. Verifica que tu usuario tenga rol experto.')
         } else {
           setError(err?.response?.data?.message || 'No se pudo cargar el dashboard.')
         }
@@ -144,12 +169,18 @@ export default function DashboardExperto() {
   const pctMedio = Math.round((stats.medio / total) * 100)
   const pctBajo = Math.round((stats.bajo / total) * 100)
 
+  const resumenAsignaciones = useMemo(() => {
+    if (loading) return 'Cargando informacion asignada...'
+    if (fincasAsignadas.length === 0) return 'Aun no tienes fincas asignadas.'
+    return `${fincasAsignadas.length} finca(s) asignada(s) para seguimiento.`
+  }, [fincasAsignadas.length, loading])
+
   return (
     <div className="dash-exp">
       <div className="dash-exp-header">
         <div>
           <h1 className="dash-exp-title">Dashboard</h1>
-          <p className="dash-exp-subtitle">Resumen general de fincas y monitoreos asignados</p>
+          <p className="dash-exp-subtitle">{resumenAsignaciones}</p>
         </div>
 
         <p className="dash-exp-date">
@@ -161,41 +192,43 @@ export default function DashboardExperto() {
         </p>
       </div>
 
-      {error && (
-        <div className="dash-exp-alert">
-          {error}
-        </div>
-      )}
+      {error && <div className="dash-exp-alert">{error}</div>}
 
       <div className="dash-exp-cards">
         <div className="dash-exp-card">
           <p className="dash-exp-card-label">Fincas asignadas</p>
           <p className="dash-exp-card-value">{loading ? '...' : stats.fincas}</p>
-          <p className="dash-exp-card-note">Total fincas</p>
+          <p className="dash-exp-card-note">Asignaciones activas</p>
         </div>
 
         <div className="dash-exp-card">
-          <p className="dash-exp-card-label">Monitoreos pendientes</p>
+          <p className="dash-exp-card-label">Monitoreos</p>
+          <p className="dash-exp-card-value">{loading ? '...' : stats.monitoreos}</p>
+          <p className="dash-exp-card-note">De tus fincas</p>
+        </div>
+
+        <div className="dash-exp-card">
+          <p className="dash-exp-card-label">Pendientes</p>
           <p className="dash-exp-card-value pending">{loading ? '...' : stats.pendientes}</p>
-          <p className="dash-exp-card-note">Por revisar</p>
+          <p className="dash-exp-card-note">Sin recomendacion</p>
         </div>
 
         <div className="dash-exp-card risk-high">
           <p className="dash-exp-card-label">Riesgo alto</p>
           <p className="dash-exp-card-value">{loading ? '...' : stats.alto}</p>
-          <p className="dash-exp-card-note">Fincas</p>
+          <p className="dash-exp-card-note">Analisis IA</p>
         </div>
 
         <div className="dash-exp-card risk-mid">
           <p className="dash-exp-card-label">Riesgo medio</p>
           <p className="dash-exp-card-value">{loading ? '...' : stats.medio}</p>
-          <p className="dash-exp-card-note">Fincas</p>
+          <p className="dash-exp-card-note">Analisis IA</p>
         </div>
 
         <div className="dash-exp-card risk-low">
           <p className="dash-exp-card-label">Riesgo bajo</p>
           <p className="dash-exp-card-value">{loading ? '...' : stats.bajo}</p>
-          <p className="dash-exp-card-note">Fincas</p>
+          <p className="dash-exp-card-note">Analisis IA</p>
         </div>
       </div>
 
@@ -207,68 +240,18 @@ export default function DashboardExperto() {
             <div className="roya-donut">
               <svg viewBox="0 0 120 120" width="140" height="140">
                 <circle cx="60" cy="60" r="50" fill="none" stroke="#f3f4f6" strokeWidth="18" />
-
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth="18"
-                  strokeDasharray={`${pctAlto * 3.14} 314`}
-                  strokeDashoffset="0"
-                  transform="rotate(-90 60 60)"
-                />
-
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="none"
-                  stroke="#f59e0b"
-                  strokeWidth="18"
-                  strokeDasharray={`${pctMedio * 3.14} 314`}
-                  strokeDashoffset={`${-pctAlto * 3.14}`}
-                  transform="rotate(-90 60 60)"
-                />
-
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="none"
-                  stroke="#4caf50"
-                  strokeWidth="18"
-                  strokeDasharray={`${pctBajo * 3.14} 314`}
-                  strokeDashoffset={`${-(pctAlto + pctMedio) * 3.14}`}
-                  transform="rotate(-90 60 60)"
-                />
-
-                <text x="60" y="56" textAnchor="middle" fontSize="20" fontWeight="700" fill="#1b5e20">
-                  {loading ? '...' : totalRoya}
-                </text>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" strokeWidth="18" strokeDasharray={`${pctAlto * 3.14} 314`} strokeDashoffset="0" transform="rotate(-90 60 60)" />
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#f59e0b" strokeWidth="18" strokeDasharray={`${pctMedio * 3.14} 314`} strokeDashoffset={`${-pctAlto * 3.14}`} transform="rotate(-90 60 60)" />
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#4caf50" strokeWidth="18" strokeDasharray={`${pctBajo * 3.14} 314`} strokeDashoffset={`${-(pctAlto + pctMedio) * 3.14}`} transform="rotate(-90 60 60)" />
+                <text x="60" y="56" textAnchor="middle" fontSize="20" fontWeight="700" fill="#1b5e20">{loading ? '...' : totalRoya}</text>
                 <text x="60" y="70" textAnchor="middle" fontSize="10" fill="#6b7280">Analisis</text>
               </svg>
             </div>
 
             <div className="roya-legend">
-              <div className="roya-legend-item">
-                <span className="roya-dot red" />
-                <span>Alto riesgo</span>
-                <strong>{pctAlto}% ({stats.alto})</strong>
-              </div>
-
-              <div className="roya-legend-item">
-                <span className="roya-dot yellow" />
-                <span>Medio riesgo</span>
-                <strong>{pctMedio}% ({stats.medio})</strong>
-              </div>
-
-              <div className="roya-legend-item">
-                <span className="roya-dot green" />
-                <span>Bajo riesgo</span>
-                <strong>{pctBajo}% ({stats.bajo})</strong>
-              </div>
+              <div className="roya-legend-item"><span className="roya-dot red" /><span>Alto riesgo</span><strong>{pctAlto}% ({stats.alto})</strong></div>
+              <div className="roya-legend-item"><span className="roya-dot yellow" /><span>Medio riesgo</span><strong>{pctMedio}% ({stats.medio})</strong></div>
+              <div className="roya-legend-item"><span className="roya-dot green" /><span>Bajo riesgo</span><strong>{pctBajo}% ({stats.bajo})</strong></div>
             </div>
           </div>
         </div>
@@ -282,7 +265,7 @@ export default function DashboardExperto() {
             <p style={{ color: '#9ca3af', fontSize: 14 }}>Cargando...</p>
           ) : recientes.length === 0 ? (
             <p style={{ color: '#9ca3af', fontSize: 14 }}>
-              {error ? 'No se pudieron cargar los monitoreos.' : 'No hay monitoreos registrados.'}
+              {error ? 'No se pudieron cargar los monitoreos.' : 'No hay monitoreos para tus fincas asignadas.'}
             </p>
           ) : (
             <div className="recientes-list">
@@ -297,21 +280,49 @@ export default function DashboardExperto() {
 
                   <div className="reciente-info">
                     <p className="reciente-finca">
-                      Finca #{getFincaIdFromMonitoreo(m) || '-'}
+                      {m.cultivo?.finca?.nombreFinca || m.cultivo?.nombreCultivo || `Finca #${getFincaIdFromMonitoreo(m) || '-'}`}
                     </p>
                     <p className="reciente-fecha">
                       {m.fechaMonitoreo ? new Date(m.fechaMonitoreo).toLocaleDateString('es-CO') : '-'}
                     </p>
                   </div>
 
-                  <div className="reciente-obs">
-                    {m.observaciones || '-'}
-                  </div>
+                  <div className="reciente-obs">{m.observaciones || '-'}</div>
                 </div>
               ))}
             </div>
           )}
         </div>
+      </div>
+
+      <div className="dash-exp-section" style={{ marginTop: '24px' }}>
+        <h2 className="dash-exp-section-title">Mis fincas asignadas</h2>
+        {loading ? (
+          <p style={{ color: '#9ca3af', fontSize: 14 }}>Cargando...</p>
+        ) : fincasAsignadas.length === 0 ? (
+          <p style={{ color: '#9ca3af', fontSize: 14 }}>No hay fincas asignadas para este experto.</p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="fincas-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontSize: '13px', color: '#6b7280' }}>Finca</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontSize: '13px', color: '#6b7280' }}>Ubicacion</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontSize: '13px', color: '#6b7280' }}>Fecha asignacion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fincasAsignadas.map((f) => (
+                  <tr key={f.idFinca}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f3f4f6', fontWeight: 500 }}>{f.nombre}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{f.municipio}, {f.departamento}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{f.fechaAsignada || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

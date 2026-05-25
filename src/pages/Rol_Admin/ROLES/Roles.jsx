@@ -161,9 +161,9 @@ export default function Roles() {
           <tbody>
             {roles.length === 0 ? (
               <tr><td colSpan={4} style={{ textAlign:'center', padding:'1.5rem', color:'#9ca3af' }}>No hay roles registrados.</td></tr>
-            ) : roles.map((rol) => (
+            ) : roles.map((rol, idx) => (
               <tr key={rol.idRol || rol.id}>
-                <td>{rol.idRol || rol.id}</td>
+                <td>{idx + 1}</td>
                 <td>{rol.nombreRol || rol.nombre_rol || rol.nombre}</td>
                 <td>{rol.descripcion || '—'}</td>
                 <td>

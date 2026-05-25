@@ -202,15 +202,15 @@ const AnalisisIA = () => {
               analisis.map((item) => (
                 <tr key={item.idAnalisis}>
                   <td>{item.idAnalisis}</td>
-                  <td>#{item.idImagen}</td>
-                  <td>#{item.idEstado}</td>
+                  <td>{item.imagen?.rutaImagen || `#${item.idImagen}`}</td>
+                  <td>{item.estadoAnalisis?.nombreEstado || `#${item.idEstado}`}</td>
                   <td>{item.resultado}</td>
                   <td>
                     <span className={obtenerClaseConfianza(item.porcentajeConfianza)}>
                       {item.porcentajeConfianza}%
                     </span>
                   </td>
-                  <td>Nivel {item.idNivelRoya}</td>
+                  <td>{item.nivelRoya?.nombreNivel || `Nivel ${item.idNivelRoya}`}</td>
                   <td className="acciones">
                     <button
                       className="btn-editar"

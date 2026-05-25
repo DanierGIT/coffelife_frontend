@@ -148,9 +148,9 @@ export default function Prioridades() {
                 </td>
               </tr>
             ) : (
-              prioridades.map((p) => (
+              prioridades.map((p, idx) => (
                 <tr key={p.idPrioridad}>
-                  <td>{p.idPrioridad}</td>
+                  <td>{idx + 1}</td>
                   <td>{p.nombre}</td>
                   <td>
                     <span className={`badge badge-${p.nivelOrden}`}>

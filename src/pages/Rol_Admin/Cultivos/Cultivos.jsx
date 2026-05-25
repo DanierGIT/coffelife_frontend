@@ -157,8 +157,8 @@ export default function Cultivos() {
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Tipo</th>
-                <th>ID Finca</th>
-                <th>ID Estado</th>
+                <th>Finca</th>
+                <th>Estado</th>
                 <th>Fecha creación</th>
                 <th>Última actualización</th>
                 <th>Acciones</th>
@@ -177,8 +177,8 @@ export default function Cultivos() {
                     <td>{cultivo.idCultivo}</td>
                     <td>{cultivo.nombreCultivo}</td>
                     <td>{cultivo.tipoCultivo}</td>
-                    <td>{cultivo.idFinca}</td>
-                    <td>{cultivo.idEstado}</td>
+                    <td>{cultivo.finca?.nombreFinca || '—'}</td>
+                    <td>{cultivo.estadoCultivo?.nombreEstado || '—'}</td>
                     <td>
                       {cultivo.createdAt
                         ? new Date(cultivo.createdAt).toLocaleDateString()

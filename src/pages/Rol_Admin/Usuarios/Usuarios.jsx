@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import api from "../../../services/api";
+import PasswordStrength from "../../../components/PasswordStrength";
+import { validatePassword, PASSWORD_RULES } from "../../../utils/passwordValidator";
 import "./Usuarios.css";
 
 function EditModal({ usuario, onClose, onSaved, roles }) {
   const [form, setForm] = useState({
-    id_rol: usuario.id_rol || "",
+    id_rol: usuario.id_rol || usuario.idRol || usuario.rol?.idRol || "",
     nombre: usuario.nombre || "",
     apellido: usuario.apellido || "",
     correo: usuario.correo || "",
@@ -88,9 +90,9 @@ function EditModal({ usuario, onClose, onSaved, roles }) {
                 value={form.apellido}
                 onChange={handleChange}
                 required
-              />
-            </label>
-          </div>
+             />
+          </label>
+        </div>
 
           <label>
             Correo
@@ -183,6 +185,26 @@ function EditModal({ usuario, onClose, onSaved, roles }) {
   );
 }
 
+function RequisitosPassword({ roleName }) {
+  const rule = PASSWORD_RULES[(roleName || 'cafetero').toLowerCase().trim()] || PASSWORD_RULES.cafetero
+  const items = [
+    rule.minLength && `Mínimo ${rule.minLength} caracteres`,
+    rule.requireUppercase && 'Al menos una mayúscula',
+    rule.requireLowercase && 'Al menos una minúscula',
+    rule.requireDigit && 'Al menos un número',
+    rule.requireSpecial && 'Al menos un carácter especial',
+  ].filter(Boolean)
+
+  return (
+    <div style={{ fontSize: 11, color: '#666', marginTop: 4, lineHeight: 1.5 }}>
+      Requisitos para <strong>{rule.label}</strong>:
+      <ul style={{ margin: '2px 0 0', paddingLeft: 16 }}>
+        {items.map((item, i) => <li key={i}>{item}</li>)}
+      </ul>
+    </div>
+  )
+}
+
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -237,12 +259,25 @@ export default function Usuarios() {
     });
   };
 
+  const getRoleNameById = (id) => {
+    const found = roles.find((r) => r.idRol === Number(id));
+    return found?.nombreRol || "cafetero";
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
     setError("");
     setSuccess("");
+
+    const roleName = getRoleNameById(form.id_rol);
+    const { isValid, errors: pwErrors } = validatePassword(form.password, roleName);
+    if (!isValid) {
+      setError(`Contraseña inválida para rol ${roleName}: ${pwErrors.join(", ")}`);
+      return;
+    }
+
+    setLoading(true);
 
     try {
       await api.post("/usuarios", form);
@@ -283,6 +318,24 @@ export default function Usuarios() {
     } catch (err) {
       console.error(err);
       setError("No se pudo eliminar el usuario.");
+    }
+  };
+
+  const handleToggleActivo = async (usuario) => {
+    const nextActivo = !usuario.activo;
+    const accion = nextActivo ? "activar" : "desactivar";
+
+    if (!window.confirm(`Deseas ${accion} a ${usuario.nombre}?`))
+      return;
+
+    try {
+      await api.put(`/usuarios/${usuario.idUsuario}`, {
+        activo: nextActivo,
+      });
+      getUsuarios();
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo actualizar el estado del usuario.");
     }
   };
 
@@ -335,14 +388,21 @@ export default function Usuarios() {
               placeholder="Teléfono"
             />
 
-            <input
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Contraseña"
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder={`Contraseña (mín. ${PASSWORD_RULES[getRoleNameById(form.id_rol)]?.minLength || 6})`}
+                required
+              />
+              <PasswordStrength password={form.password} role={getRoleNameById(form.id_rol)} />
+            </div>
+
+            {form.id_rol && (
+              <RequisitosPassword roleName={getRoleNameById(form.id_rol)} />
+            )}
 
             <select
               name="id_rol"
@@ -419,9 +479,9 @@ export default function Usuarios() {
                 </td>
               </tr>
             ) : (
-              usuarios.map((u) => (
+              usuarios.map((u, idx) => (
                 <tr key={u.idUsuario}>
-                  <td>{u.idUsuario}</td>
+                  <td>{idx + 1}</td>
 
                   <td>
                     {u.nombre} {u.apellido}
@@ -430,7 +490,7 @@ export default function Usuarios() {
                   <td>{u.correo}</td>
 
                   <td>
-                    {u.telefono || "—"}
+                     {u.telefono || "—"}
                   </td>
 
                   <td>
@@ -438,7 +498,13 @@ export default function Usuarios() {
                   </td>
 
                   <td>
-                    {u.activo ? "✅" : "❌"}
+                    <button
+                      type="button"
+                      className={`usuario-status ${u.activo ? "active" : "inactive"}`}
+                      onClick={() => handleToggleActivo(u)}
+                    >
+                      {u.activo ? "Activo" : "Inactivo"}
+                    </button>
                   </td>
 
                   <td>

@@ -138,9 +138,9 @@ export default function CatTiposTratamiento() {
                   </td>
                 </tr>
               ) : (
-                tipos.map((tipo) => (
+                tipos.map((tipo, idx) => (
                   <tr key={tipo.idTipo}>
-                    <td>{tipo.idTipo}</td>
+                    <td>{idx + 1}</td>
                     <td>{tipo.nombreTipo}</td>
                     <td>{tipo.descripcion || '-'}</td>
                     <td className="actions">

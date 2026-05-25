@@ -167,7 +167,8 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
           <table>
             <thead>
               <tr>
-                {fields.map(f => <th key={f.name}>{f.label}</th>)}
+                <th>#</th>
+                {fields.slice(1).map(f => <th key={f.name}>{f.label}</th>)}
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -179,9 +180,10 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
                     Sin registros aún.
                   </td>
                 </tr>
-              ) : data.map(row => (
+              ) : data.map((row, idx) => (
                 <tr key={getId(row)}>
-                  {fields.map(f => <td key={f.name}>{row[f.name] ?? '—'}</td>)}
+                  <td>{idx + 1}</td>
+                  {fields.slice(1).map(f => <td key={f.name}>{row[f.name] ?? '—'}</td>)}
                   <td className="actions">
                     <button
                       type="button"

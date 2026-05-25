@@ -357,9 +357,9 @@ export default function Recomendaciones() {
               recomendaciones.map((r) => (
                 <tr key={r.idRecomendacion}>
                   <td>{r.idRecomendacion}</td>
-                  <td>#{r.idMonitoreo}</td>
+                  <td>{r.monitoreo?.cultivo?.nombreCultivo || `#${r.idMonitoreo}`}</td>
                   <td>{getTipoNombre(r)}</td>
-                  <td>{r.experto ? `${r.experto.nombre} ${r.experto.apellido || ''}` : r.idExpertoEmisor || '-'}</td>
+                  <td>{r.experto ? `${r.experto.nombre} ${r.experto.apellido || ''}`.trim() : '—'}</td>
                   <td>{getPrioridadNombre(r)}</td>
                   <td>{r.descripcion}</td>
                   <td>{normalizeDate(r.fechaLimite) || '-'}</td>

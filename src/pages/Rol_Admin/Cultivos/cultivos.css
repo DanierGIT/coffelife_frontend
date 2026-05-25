@@ -351,7 +351,8 @@
   font-family: 'Lato', sans-serif;
 }
 
-.modal-form input {
+.modal-form input,
+.modal-form select {
   padding: 11px 14px;
   border-radius: 10px;
   border: 1.5px solid #d1d5db;

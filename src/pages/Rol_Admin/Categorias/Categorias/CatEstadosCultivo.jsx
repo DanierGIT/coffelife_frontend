@@ -138,9 +138,9 @@ export default function CatEstadosCultivo() {
                   </td>
                 </tr>
               ) : (
-                estados.map((estado) => (
+                estados.map((estado, idx) => (
                   <tr key={estado.idEstado}>
-                    <td>{estado.idEstado}</td>
+                    <td>{idx + 1}</td>
                     <td>{estado.nombreEstado}</td>
                     <td>{estado.descripcion || '-'}</td>
                     <td className="actions">

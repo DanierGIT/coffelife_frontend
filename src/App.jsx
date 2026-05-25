@@ -39,6 +39,16 @@ import ProductoresExperto    from './pages/Rol_Experto/Productores/ProductoresEx
 import ReportesExperto       from './pages/Rol_Experto/Reportes/ReportesExperto'
 import PerfilExperto         from './pages/Rol_Experto/Perfil/PerfilExperto'
 
+const normalizeRole = (role) => {
+  const value = (role ?? '').toString().toLowerCase().trim()
+  const aliases = {
+    administrador: 'admin',
+    caficultor: 'cafetero',
+    productor: 'cafetero',
+  }
+  return aliases[value] || value
+}
+
 // ─────────────────────────────────────────────
 // Vista Admin
 // ─────────────────────────────────────────────
@@ -137,7 +147,7 @@ function AppContent() {
 
   // Routing por rol
   // Routing por rol
-    const nombreRol = (user?.rol?.nombreRol ?? user?.rol ?? '').toString().toLowerCase().trim()
+    const nombreRol = normalizeRole(user?.rol?.nombreRol ?? user?.rol?.nombre_rol ?? user?.rol)
     if (nombreRol === 'experto') return <ExpertoApp />
     return <AdminApp />
 }

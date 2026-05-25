@@ -274,9 +274,9 @@ export default function Aplicacion() {
                   <td colSpan="9" className="rl-empty">No hay aplicaciones registradas</td>
                 </tr>
               ) : (
-                aplicaciones.map((aplicacion) => (
+                aplicaciones.map((aplicacion, idx) => (
                   <tr key={aplicacion.idAplicacion}>
-                    <td>{aplicacion.idAplicacion}</td>
+                    <td>{idx + 1}</td>
                     <td>{aplicacion.tratamiento ? getTratamientoLabel(aplicacion.tratamiento) : `#${aplicacion.idTratamiento}`}</td>
                     <td>{aplicacion.dosis}</td>
                     <td>{aplicacion.frecuencia || '-'}</td>
