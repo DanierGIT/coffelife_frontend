@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import AdminLayout from './layouts/AdminLayout'
+import 'leaflet/dist/leaflet.css'
 
 // ── Auth ──
 import Login    from './Auth/Login'
 import Register from './Auth/Register'
-
+import RecuperarContrasena from './Auth/RecuperarContrasena'
 // ── Rol_Admin ──
 import Dashboard       from './pages/Rol_Admin/Dashboard/Dashboard'
 import Administrador   from './pages/Rol_Admin/Administrador/Administrador'
@@ -37,6 +38,16 @@ import HistorialExperto      from './pages/Rol_Experto/Historial/HistorialExpert
 import ProductoresExperto    from './pages/Rol_Experto/Productores/ProductoresExperto'
 import ReportesExperto       from './pages/Rol_Experto/Reportes/ReportesExperto'
 import PerfilExperto         from './pages/Rol_Experto/Perfil/PerfilExperto'
+
+const normalizeRole = (role) => {
+  const value = (role ?? '').toString().toLowerCase().trim()
+  const aliases = {
+    administrador: 'admin',
+    caficultor: 'cafetero',
+    productor: 'cafetero',
+  }
+  return aliases[value] || value
+}
 
 // ─────────────────────────────────────────────
 // Vista Admin
@@ -120,12 +131,23 @@ function AppContent() {
 
   if (!user) {
     if (authPage === 'register') return <Register onGoLogin={() => setAuthPage('login')} />
-    return <Login onGoRegister={() => setAuthPage('register')} />
+
+ if (authPage === 'recuperar') { //  NUEVO
+      return <RecuperarContrasena onIrAlLogin={() => setAuthPage('login')} />
+    }
+
+    return (
+      <Login
+        onGoRegister={() => setAuthPage('register')}
+        onGoRecuperar={() => setAuthPage('recuperar')} // 👈 NUEVO
+      />
+    )
   }
+
 
   // Routing por rol
   // Routing por rol
-    const nombreRol = (user?.rol?.nombreRol ?? user?.rol ?? '').toString().toLowerCase().trim()
+    const nombreRol = normalizeRole(user?.rol?.nombreRol ?? user?.rol?.nombre_rol ?? user?.rol)
     if (nombreRol === 'experto') return <ExpertoApp />
     return <AdminApp />
 }

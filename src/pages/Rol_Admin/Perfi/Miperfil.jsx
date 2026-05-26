@@ -1,359 +1,260 @@
-/**
- * MiPerfil.jsx
- * Diseño PREMIUM profesional — Estilo Coffee Life ☕
- * Estructura limpia de dos columnas sin modales invasivos para la edición.
- */
-
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './miperfil.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-
-const DEFAULT_PROFILE = {
-  nombre: '',
-  apellido: '',
-  correo: '',
-  telefono: '',
-  observaciones: '',
-  fotoPerfil: '',
-}
+import PasswordStrength from '../../../components/PasswordStrength'
 
 function getInitials(nombre = '', apellido = '') {
-  return (
-    ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || '?'
-  )
+  return ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || 'A'
 }
 
+const MailIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+  </svg>
+)
+
+const PhoneIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.18z"/>
+  </svg>
+)
+
 export default function MiPerfil() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [profile, setProfile] = useState(DEFAULT_PROFILE)
-  const [form, setForm] = useState(DEFAULT_PROFILE)
-  const [activeTab, setActiveTab] = useState('personales') // 'personales' | 'seguridad'
-  const [imageModal, setImageModal] = useState(false)
-  const [message, setMessage] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
-  const [preview, setPreview] = useState('')
-  const [foto, setFoto] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [tab, setTab] = useState('info')
 
-  const fileInputRef = useRef(null)
-  const userId = user?.id || user?.idUsuario
+  const [form, setForm] = useState({
+    nombre: '', apellido: '', correo: '', telefono: '', observaciones: '',
+  })
 
-  // =========================================
-  // LOAD PROFILE
-  // =========================================
+  const [pwForm, setPwForm] = useState({
+    passwordActual: '', passwordNueva: '', passwordConfirm: '',
+  })
+
   useEffect(() => {
-    if (!userId) {
-      setLoading(false)
-      return;
-    }
-
-    api
-      .get(`/usuarios/${userId}`)
+    api.get('/mi-perfil')
       .then((res) => {
-        const d = res.data
-        const userData = {
-          nombre: d.nombre || '',
-          apellido: d.apellido || '',
-          correo: d.correo || '',
-          telefono: d.telefono || '',
+        const d = res.data?.data || res.data
+        setForm({
+          nombre:        d.nombre        || '',
+          apellido:      d.apellido      || '',
+          correo:        d.correo        || '',
+          telefono:      d.telefono      || '',
           observaciones: d.observaciones || '',
-          fotoPerfil: d.fotoPerfil || '',
-        }
-        setProfile(userData)
-        setForm({ ...userData, password: '' })
+        })
       })
-      .catch(console.error)
+      .catch(() => {
+        if (user) {
+          setForm({
+            nombre:        user.nombre        || '',
+            apellido:      user.apellido      || '',
+            correo:        user.correo        || '',
+            telefono:      user.telefono      || '',
+            observaciones: '',
+          })
+        }
+      })
       .finally(() => setLoading(false))
-  }, [userId])
+  }, [user])
 
-  // =========================================
-  // INPUTS
-  // =========================================
-  const handleFormChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    })
-  }
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handlePwChange = (e) => setPwForm({ ...pwForm, [e.target.name]: e.target.value })
 
-  // =========================================
-  // IMAGE MANAGEMENT
-  // =========================================
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    setFoto(file)
-    setPreview(URL.createObjectURL(file))
-    setMessage('Imagen seleccionada. No olvides guardar los cambios.')
-  }
-
-  const openFileSelector = (e) => {
-    e.stopPropagation()
-    fileInputRef.current?.click()
-  }
-
-  // =========================================
-  // SAVE DATA
-  // =========================================
   const handleSave = async (e) => {
     e.preventDefault()
     setSaving(true)
-    setMessage('')
-    setErrorMsg('')
-
+    setError('')
+    setSuccess('')
     try {
-      const formData = new FormData()
-      formData.append('nombre', form.nombre)
-      formData.append('apellido', form.apellido)
-      formData.append('correo', form.correo)
-      formData.append('telefono', form.telefono)
-      formData.append('observaciones', form.observaciones)
-
-      if (form.password) {
-        formData.append('password', form.password)
-      }
-
-      if (foto) {
-        formData.append('foto_perfil', foto)
-      }
-
-      const res = await api.put(`/usuarios/${userId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      await api.put('/mi-perfil', {
+        nombre: form.nombre, apellido: form.apellido,
+        telefono: form.telefono, observaciones: form.observaciones,
       })
-
-      const updatedData = res.data.data
-      setProfile(updatedData)
-      setForm({ ...updatedData, password: '' })
-      setPreview('')
-      setFoto(null)
-      setMessage('Perfil actualizado correctamente')
+      setSuccess('Perfil actualizado correctamente.')
     } catch (err) {
-      console.error(err)
-      setErrorMsg(
-        err?.response?.data?.message || 'Error al actualizar el perfil'
-      )
+      setError(err?.response?.data?.message || 'No se pudo actualizar el perfil.')
     } finally {
       setSaving(false)
     }
   }
 
-  if (loading) {
-    return <div className="profile-loading">Cargando perfil...</div>
+  const handleChangePw = async (e) => {
+    e.preventDefault()
+    if (pwForm.passwordNueva !== pwForm.passwordConfirm) {
+      setError('Las contraseñas nuevas no coinciden.')
+      return
+    }
+    if (pwForm.passwordNueva.length < 6) {
+      setError('La nueva contraseña debe tener al menos 6 caracteres.')
+      return
+    }
+    setSaving(true)
+    setError('')
+    setSuccess('')
+    try {
+      await api.post('/mi-perfil/cambiar-password', {
+        passwordActual: pwForm.passwordActual,
+        nuevaPassword: pwForm.passwordNueva,
+      })
+      setSuccess('Contraseña actualizada correctamente.')
+      setPwForm({ passwordActual: '', passwordNueva: '', passwordConfirm: '' })
+    } catch (err) {
+      setError(err?.response?.data?.message || 'No se pudo cambiar la contraseña.')
+    } finally {
+      setSaving(false)
+    }
   }
 
+  if (loading) return <p className="mp-loading">Cargando perfil...</p>
+
+  const displayName = `${form.nombre} ${form.apellido}`.trim() || form.correo || 'Administrador'
+
   return (
-    <>
-      <div className="perfil-header-top">
-        <h1 className="admin-page-title">Perfil del Experto</h1>
-        <p className="admin-page-subtitle">Gestiona tu información de usuario y credenciales de acceso</p>
+    <div className="mp-page">
+      <div className="mp-header">
+        <h1>Mi Perfil</h1>
+        <p>Información personal y configuración de la cuenta</p>
       </div>
 
-      <div className="perfil-layout-container">
-        
-        {/* ─── COLUMNA IZQUIERDA: TARJETA DE IDENTIDAD ─── */}
-        <div className="perfil-sidebar-card">
-          <div 
-            className="profile-avatar-wrapper"
-            onClick={() => {
-              if (profile.fotoPerfil || preview) {
-                setImageModal(true)
-              }
-            }}
-          >
-            {preview || profile.fotoPerfil ? (
-              <img
-                src={preview || profile.fotoPerfil}
-                alt="Perfil"
-                className="profile-avatar-img"
-              />
-            ) : (
-              <div className="avatar-iniciales">
-                {getInitials(profile.nombre, profile.apellido)}
+      {error   && <p className="mp-message mp-message--error">{error}</p>}
+      {success && <p className="mp-message mp-message--success">{success}</p>}
+
+      <div className="mp-content">
+        {/* ── Tarjeta lateral ── */}
+        <aside className="mp-sidebar">
+          <div className="mp-sidebar-cover" />
+          <div className="mp-avatar">{getInitials(form.nombre, form.apellido)}</div>
+          <h2 className="mp-name">{displayName}</h2>
+          <span className="mp-role">Administrador</span>
+
+          <div className="mp-contact">
+            <div className="mp-contact-row">
+              <MailIcon />
+              <span>{form.correo || '—'}</span>
+            </div>
+            {form.telefono && (
+              <div className="mp-contact-row">
+                <PhoneIcon />
+                <span>{form.telefono}</span>
               </div>
             )}
-            
-            <button className="avatar-camera-overlay" onClick={openFileSelector} type="button">
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-            </button>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageChange}
-            />
           </div>
 
-          <h2 className="perfil-nombre-title">
-            {profile.nombre} {profile.apellido}
-          </h2>
-          <span className="perfil-badge-rol">Experto Agrónomo</span>
-
-          <div className="perfil-info-contacto-list">
-            <div className="perfil-contacto-item">
-              <span>✉️</span> {profile.correo || '—'}
+          <div className="mp-account">
+            <h4>Cuenta</h4>
+            <div className="mp-account-row">
+              <span>Rol</span>
+              <strong>Administrador</strong>
             </div>
-            <div className="perfil-contacto-item">
-              <span>📞</span> {profile.telefono || '—'}
+            <div className="mp-account-row">
+              <span>Estado</span>
+              <span className="mp-badge">Activo</span>
             </div>
           </div>
 
-          <div className="perfil-meta-cuenta-box">
-            <h3 className="perfil-meta-titulo">Estado de Cuenta</h3>
-            <div className="perfil-meta-row">
-              <span className="perfil-meta-label">ID Usuario</span>
-              <span className="perfil-meta-value">#{userId}</span>
-            </div>
-            <div className="perfil-meta-row">
-              <span className="perfil-meta-label">Estatus</span>
-              <span className="perfil-meta-value badge-activo-status">Activo</span>
-            </div>
-          </div>
-        </div>
+          <button className="mp-logout" onClick={logout}>
+            Cerrar sesión
+          </button>
+        </aside>
 
-        {/* ─── COLUMNA DERECHA: PANEL PRINCIPAL CON PESTAÑAS ─── */}
-        <div className="perfil-main-card">
-          <div className="perfil-tabs-header">
+        {/* ── Panel principal ── */}
+        <div className="mp-panel">
+          <div className="mp-tabs">
             <button
-              className={`perfil-tab-btn ${activeTab === 'personales' ? 'active' : ''}`}
-              onClick={() => setActiveTab('personales')}
+              className={`mp-tab${tab === 'info' ? ' active' : ''}`}
+              onClick={() => setTab('info')}
             >
-              Información Personal
+              Información personal
             </button>
             <button
-              className={`perfil-tab-btn ${activeTab === 'seguridad' ? 'active' : ''}`}
-              onClick={() => setActiveTab('seguridad')}
+              className={`mp-tab${tab === 'seguridad' ? ' active' : ''}`}
+              onClick={() => setTab('seguridad')}
             >
-              Seguridad y Acceso
+              Seguridad
             </button>
           </div>
 
-          <div className="perfil-tabs-content">
-            <form onSubmit={handleSave} className="perfil-grid-form">
-              
-              {/* VISTA 1: DATOS PERSONALES */}
-              {activeTab === 'personales' && (
-                <>
-                  <div className="perfil-form-row">
-                    <div className="perfil-input-group">
-                      <label>Nombre</label>
-                      <input
-                        name="nombre"
-                        type="text"
-                        value={form.nombre}
-                        onChange={handleFormChange}
-                        placeholder="Ingresa tu nombre"
-                        required
-                      />
-                    </div>
-                    <div className="perfil-input-group">
-                      <label>Apellido</label>
-                      <input
-                        name="apellido"
-                        type="text"
-                        value={form.apellido}
-                        onChange={handleFormChange}
-                        placeholder="Ingresa tu apellido"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="perfil-form-row">
-                    <div className="perfil-input-group">
-                      <label>Correo Electrónico</label>
-                      <input
-                        name="correo"
-                        type="email"
-                        value={form.correo}
-                        onChange={handleFormChange}
-                        placeholder="ejemplo@coffeelife.com"
-                        required
-                      />
-                    </div>
-                    <div className="perfil-input-group">
-                      <label>Teléfono Celular</label>
-                      <input
-                        name="telefono"
-                        type="text"
-                        value={form.telefono}
-                        onChange={handleFormChange}
-                        placeholder="Ej: 3125896558"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="perfil-input-group">
-                    <label>Observaciones Profesionales</label>
-                    <textarea
-                      name="observaciones"
-                      rows="4"
-                      value={form.observaciones}
-                      onChange={handleFormChange}
-                      placeholder="Agrega descripciones o apuntes de tu perfil de experto agrónomo..."
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* VISTA 2: SEGURIDAD (CONTRASEÑA) */}
-              {activeTab === 'seguridad' && (
-                <div className="perfil-seguridad-wrapper">
-                  <div className="perfil-input-group security-input">
-                    <label>Nueva Contraseña</label>
-                    <input
-                      name="password"
-                      type="password"
-                      value={form.password || ''}
-                      onChange={handleFormChange}
-                      placeholder="Dejar en blanco para no cambiar"
-                    />
-                    <small className="input-help-text">
-                      Si no deseas modificar tu contraseña de acceso actual, mantén este campo totalmente vacío.
-                    </small>
-                  </div>
-                </div>
-              )}
-
-              {/* ALERTAS DE RESPUESTA */}
-              {message && <div className="perfil-alert-success">{message}</div>}
-              {errorMsg && <div className="perfil-alert-danger">{errorMsg}</div>}
-
-              {/* BOTÓN FLOTANTE INTEGRADO */}
-              <div className="perfil-form-actions">
-                <button type="submit" className="btn-guardar-perfil" disabled={saving}>
-                  {saving ? 'Guardando cambios...' : 'Guardar cambios'}
+          {tab === 'info' && (
+            <form className="mp-form" onSubmit={handleSave}>
+              <div className="mp-form-row">
+                <label>
+                  Nombre
+                  <input name="nombre" value={form.nombre} onChange={handleChange} />
+                </label>
+                <label>
+                  Apellido
+                  <input name="apellido" value={form.apellido} onChange={handleChange} />
+                </label>
+              </div>
+              <label>
+                Correo electrónico
+                <input type="email" value={form.correo} disabled style={{ opacity: 0.6, cursor: 'not-allowed' }} />
+              </label>
+              <label>
+                Teléfono
+                <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="+57 310 123 4567" />
+              </label>
+              <label>
+                Observaciones
+                <textarea name="observaciones" rows={3} value={form.observaciones} onChange={handleChange} placeholder="Notas adicionales..." />
+              </label>
+              <div className="mp-form-actions">
+                <button type="submit" className="mp-btn-save" disabled={saving}>
+                  {saving ? 'Guardando…' : 'Guardar cambios'}
                 </button>
               </div>
-
             </form>
-          </div>
-        </div>
+          )}
 
+          {tab === 'seguridad' && (
+            <form className="mp-form" onSubmit={handleChangePw}>
+              <h4 className="mp-section-title">Cambiar contraseña</h4>
+              <label>
+                Contraseña actual
+                <input
+                  type="password"
+                  name="passwordActual"
+                  value={pwForm.passwordActual}
+                  onChange={handlePwChange}
+                  required
+                />
+              </label>
+              <label>
+                Nueva contraseña
+                <input
+                  type="password"
+                  name="passwordNueva"
+                  value={pwForm.passwordNueva}
+                  onChange={handlePwChange}
+                  required
+                />
+                <PasswordStrength password={pwForm.passwordNueva} />
+              </label>
+              <label>
+                Confirmar nueva contraseña
+                <input
+                  type="password"
+                  name="passwordConfirm"
+                  value={pwForm.passwordConfirm}
+                  onChange={handlePwChange}
+                  required
+                />
+              </label>
+              <div className="mp-form-actions">
+                <button type="submit" className="mp-btn-save" disabled={saving}>
+                  {saving ? 'Guardando…' : 'Cambiar contraseña'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
-
-      {/* MODAL FULLSCREEN PARA VER FOTO DE PERFIL */}
-      {imageModal && (
-        <div className="image-modal-overlay" onClick={() => setImageModal(false)}>
-          <div className="image-modal-wrapper">
-            <img
-              src={preview || profile.fotoPerfil}
-              alt="Visualización ampliada"
-              className="image-modal-img"
-            />
-            <button className="close-image-modal">✕</button>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   )
 }

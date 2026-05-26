@@ -183,9 +183,9 @@ export default function Imagenes() {
           <tbody>
             {imagenes.length === 0 ? (
               <tr><td colSpan={6} className="imagenes-empty">📷 No hay imágenes registradas aún.</td></tr>
-            ) : imagenes.map((img) => (
+            ) : imagenes.map((img, idx) => (
               <tr key={img.idImagen}>
-                <td>{img.idImagen}</td>
+                <td>{idx + 1}</td>
                 <td>{img.rutaImagen}</td>
                 <td>{labelMonitoreo(img.monitoreo)}</td>
                 <td>{fmt(img.fechaRegistro)}</td>

@@ -66,7 +66,7 @@ const EyeOffIcon = () => (
   </svg>
 )
 
-export default function Login({ onGoRegister }) {
+export default function Login({ onGoRegister, onGoRecuperar }) {
   const { login } = useAuth()
 
   const [form,     setForm]     = useState({ email: '', password: '' })
@@ -85,7 +85,11 @@ export default function Login({ onGoRegister }) {
     try {
       await login(form.email, form.password)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Correo o contraseña incorrectos.')
+      if (!err.response) {
+        setError('No se pudo conectar con el servidor. Verifica que el backend esté encendido en http://localhost:3333.')
+      } else {
+        setError(err.response.data?.message || 'Correo o contraseña incorrectos.')
+      }
     } finally {
       setLoading(false)
     }
@@ -214,9 +218,9 @@ export default function Login({ onGoRegister }) {
                 />
                 Recordarme
               </label>
-              <button type="button" className="auth-forgot">
-                ¿Olvidaste tu contraseña?
-              </button>
+<button type="button" className="auth-forgot" onClick={onGoRecuperar}>
+  ¿Olvidaste tu contraseña?
+</button>
             </div>
 
             {error && <p className="auth-error">{error}</p>}

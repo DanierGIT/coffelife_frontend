@@ -27,6 +27,7 @@
 }
 
 .monitoreo-label input,
+.monitoreo-label select,
 .monitoreo-label textarea {
   padding: 11px 14px;
   border-radius: 10px;
@@ -40,6 +41,7 @@
 }
 
 .monitoreo-label input:focus,
+.monitoreo-label select:focus,
 .monitoreo-label textarea:focus {
   outline: none;
   border-color: #4caf50;

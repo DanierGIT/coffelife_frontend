@@ -1,142 +1,244 @@
-body {
-  background: #f5f7fb;
-  font-family: 'Inter', sans-serif;
+/* ══════════════════════════════════════════
+   Fincas.css  — mismos tokens que Administrador.css
+   ══════════════════════════════════════════ */
+
+/* ─── Formulario de fincas ─── */
+.finca-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* PAGE */
-.page {
-  padding: 30px;
+.finca-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-/* HEADER */
-.page-header h1 {
-  font-size: 26px;
+.finca-form-row input {
+  flex: 1;
+  min-width: 180px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.finca-form-row input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+/* ─── Mensaje de éxito ─── */
+.finca-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin: 0;
+  border: 1px solid #c8e6c9;
+}
+
+/* ─── Celda vacía ─── */
+.finca-empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 32px 16px !important;
+  font-size: 14px;
+}
+.finca-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-assign {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-assign:hover {
+  background: #1d4ed8;
+}
+
+.assignment-hint {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 12px;
   font-weight: 700;
 }
 
-.page-header p {
-  color: #6b7280;
-  margin-bottom: 20px;
+.assignment-hint.assigned {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
-/* CARD */
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-}
-
-/* FORM */
-.form input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  outline: none;
-  background: #fafafa;
-  transition: 0.2s;
-}
-
-.form input:focus {
-  border-color: #22c55e;
-  background: white;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-/* BUTTON */
-.btn-primary {
-  background: #22c55e;
-  color: white;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.btn-primary:hover {
-  background: #16a34a;
-}
-
-/* TABLE */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  text-align: left;
-  font-size: 13px;
-  color: #6b7280;
-  padding: 10px;
-}
-
-td {
-  padding: 12px;
-  border-top: 1px solid #eee;
+.modal-help {
+  margin: 0;
+  color: #4b5563;
   font-size: 14px;
 }
 
-.actions button {
-  margin-right: 6px;
-  padding: 6px 10px;
+.modal-form select {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+}
+
+.modal-form select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+.expert-status {
   border-radius: 8px;
-  border: none;
-  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.actions button:first-child {
-  background: #3b82f6;
-  color: white;
+.expert-status.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
 }
 
-.actions button:last-child {
-  background: #ef4444;
-  color: white;
+.expert-status.inactive {
+  background: #fce8e8;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+/* ── Añade esto a tu Fincas.css existente ── */
+
+/* Mapa interactivo (selector de coordenadas) */
+.map-wrapper {
+  margin: 12px 0;
 }
 
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
+.map-hint {
+  font-size: 13px;
+  color: #6B4226;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* Modal más ancho para que el mapa quepa bien */
+.modal-box--wide {
+  max-width: 720px;
+  width: 95%;
+}
+
+.map-tooltip-content {
+  font-size: 13px;
+  line-height: 1.6;
+  min-width: 140px;
+}
+
+.td-actions {
   display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.btn-icon {
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
 }
 
-.modal-card {
-  background: white;
-  width: 500px;
-  border-radius: 14px;
-  padding: 20px;
+.btn-icon:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
+.btn-icon-experto {
+  background: #2563eb;
+  color: #fff;
 }
 
-.modal-body input {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
+.btn-icon-experto:hover {
+  background: #1d4ed8;
+}
+
+.btn-icon-cultivo {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: #fff;
+}
+
+.btn-icon-editar {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn-icon-editar:hover {
+  background: #d97706;
+}
+
+.btn-ubicacion {
+  flex: 1;
+  min-width: 180px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 14px;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
+  border: 1.5px dashed #4caf50;
+  background: #f0fdf4;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-ubicacion:hover {
+  background: #dcfce7;
+  border-color: #2e7d32;
+}
+
+.cultivo-select {
+  flex: 1;
+  min-width: 180px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cultivo-select:focus {
+  outline: none;
+  border-color: #7b1fa2;
+  box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.12);
+  background: #fff;
 }

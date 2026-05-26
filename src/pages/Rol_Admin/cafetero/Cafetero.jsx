@@ -6,6 +6,8 @@
 
 import { useState, useEffect } from "react"
 import api from "../../../services/api"
+import PasswordStrength from "../../../components/PasswordStrength"
+import { validatePassword } from "../../../utils/passwordValidator"
 import "./styles/cafeteros.css"
 
 // ── Modal de edición ─────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ function EditModal({ cafetero, onClose, onSaved }) {
             Nueva contraseña
             <span className="modal-hint"> (dejar en blanco para no cambiarla)</span>
             <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" />
+            <PasswordStrength password={form.password} />
           </label>
 
           {error && <p className="modal-error">{error}</p>}
@@ -117,7 +120,7 @@ export default function Cafetero() {
 
   const [form, setForm] = useState({
     nombre: "", apellido: "", correo: "", telefono: "",
-    password: "", observaciones: "", activo: true,
+    password: "", confirmPassword: "", observaciones: "", activo: true,
   })
 
   const getCafeteros = async () => {
@@ -139,12 +142,24 @@ export default function Cafetero() {
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError("")
     setSuccess("")
+
+    const roleName = "cafetero"
+    const { isValid, errors: pwErrors } = validatePassword(form.password, roleName)
+    if (!isValid) {
+      setError(`Contraseña inválida: ${pwErrors.join(", ")}`)
+      return
+    }
+    if (form.password !== form.confirmPassword) {
+      setError("Las contraseñas no coinciden.")
+      return
+    }
+
+    setLoading(true)
     try {
       await api.post("/cafeteros", form)
-      setForm({ nombre: "", apellido: "", correo: "", telefono: "", password: "", observaciones: "", activo: true })
+      setForm({ nombre: "", apellido: "", correo: "", telefono: "", password: "", confirmPassword: "", observaciones: "", activo: true })
       setSuccess("Cafetero creado correctamente.")
       getCafeteros()
     } catch (err) {
@@ -154,13 +169,15 @@ export default function Cafetero() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este cafetero?")) return
+  const handleToggleActivo = async (cafetero) => {
+    const next = !cafetero.activo
+    const accion = next ? "activar" : "desactivar"
+    if (!window.confirm(`¿${accion} a ${cafetero.nombre}?`)) return
     try {
-      await api.delete(`/cafeteros/${id}`)
+      await api.put(`/cafeteros/${cafetero.idUsuario}`, { activo: next })
       getCafeteros()
     } catch (err) {
-      setError(err?.response?.data?.message || "No se pudo eliminar el cafetero.")
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -176,7 +193,13 @@ export default function Cafetero() {
           <input name="correo"        value={form.correo}        onChange={handleChange} placeholder="Correo"        type="email" required />
           <input name="telefono"      value={form.telefono}      onChange={handleChange} placeholder="Teléfono" />
           <input name="observaciones" value={form.observaciones} onChange={handleChange} placeholder="Observaciones" />
-          <input name="password"      value={form.password}      onChange={handleChange} placeholder="Contraseña"    type="password" required />
+          <div style={{ position: 'relative' }}>
+            <input name="password" value={form.password} onChange={handleChange} placeholder="Contraseña (mín. 6)" type="password" required />
+            <PasswordStrength password={form.password} role="cafetero" />
+          </div>
+          <div style={{ position: 'relative' }}>
+            <input name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" type="password" required />
+          </div>
           <select name="activo" value={String(form.activo)} onChange={handleChange} className="admin-form-select">
             <option value="true">Activo</option>
             <option value="false">Inactivo</option>
@@ -219,8 +242,19 @@ export default function Cafetero() {
                     </span>
                   </td>
                   <td>
-                    <button className="btn-edit"   onClick={() => setEditing(c)}>Editar</button>
-                    <button className="btn-delete" onClick={() => handleDelete(c.idUsuario)}>Eliminar</button>
+                    <button className="btn-edit" onClick={() => setEditing(c)}>Editar</button>
+                    <button
+                      onClick={() => handleToggleActivo(c)}
+                      style={{
+                        padding:'6px 14px', borderRadius:8, fontSize:13, fontWeight:500,
+                        cursor:'pointer', marginRight:0,
+                        background: c.activo ? '#fef3c7' : '#e8f5e9',
+                        color:      c.activo ? '#92400e' : '#2e7d32',
+                        border:     c.activo ? '1px solid #fde68a' : '1px solid #c8e6c9',
+                      }}
+                    >
+                      {c.activo ? 'Desactivar' : 'Activar'}
+                    </button>
                   </td>
                 </tr>
               ))

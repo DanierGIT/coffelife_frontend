@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PasswordStrength from "../../../../components/PasswordStrength";
 
 import {
 
@@ -146,13 +147,17 @@ function FormularioCafetero({
             onChange={handleChange}
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Contraseña"
-            value={formulario.password}
-            onChange={handleChange}
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type="password"
+              name="password"
+              placeholder="Contraseña"
+              value={formulario.password}
+              onChange={handleChange}
+              style={{ width: '100%' }}
+            />
+            <PasswordStrength password={formulario.password} />
+          </div>
 
           <textarea
             name="observaciones"
@@ -243,13 +248,17 @@ function FormularioCafetero({
                 onChange={handleChange}
               />
 
-              <input
-                type="password"
-                name="password"
-                placeholder="Nueva contraseña"
-                value={formulario.password}
-                onChange={handleChange}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Nueva contraseña"
+                  value={formulario.password}
+                  onChange={handleChange}
+                  style={{ width: '100%' }}
+                />
+                <PasswordStrength password={formulario.password} />
+              </div>
 
               <textarea
                 name="observaciones"

@@ -1,165 +1,151 @@
-/**
- * Dashboard.jsx
- * Conectado al backend: muestra contadores reales de usuarios, fincas,
- * monitoreos y expertos usando los endpoints del API.
- */
-
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import api from '../../../services/api'
 import './Dashboard.css'
 
-const UsersIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-)
+const getArrayData = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.data)) return data.data
+  return []
+}
 
 const FincaIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-    <polyline points="9 22 9 12 15 12 15 22"/>
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 )
 
-const MonitoreoIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 11l3 3L22 4"/>
-    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-  </svg>
-)
 
-const ExpertoIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="4"/>
-    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-    <polyline points="16 11 17.5 13 20 10"/>
-  </svg>
-)
+function AnimatedValue({ value, loading }) {
+  const [display, setDisplay] = useState(0)
 
-function StatCard({ icon, label, value, note, loading, color }) {
+  useEffect(() => {
+    if (loading || value === 0) {
+      setDisplay(value)
+      return
+    }
+    let start = 0
+    const duration = 800
+    const step = Math.max(1, Math.ceil(value / 30))
+    const interval = setInterval(() => {
+      start += step
+      if (start >= value) {
+        setDisplay(value)
+        clearInterval(interval)
+      } else {
+        setDisplay(start)
+      }
+    }, duration / 30)
+    return () => clearInterval(interval)
+  }, [value, loading])
+
+  return <>{loading ? '...' : display}</>
+}
+
+function StatCard({ icon, label, value, note, color, progress, progressLabel, onClick, loading }) {
+  const [hovered, setHovered] = useState(false)
+
   return (
-    <div className="dashboard-card">
+    <div
+      className={`dashboard-card${onClick ? ' clickable' : ''}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <div className="card-icon-wrap" style={{ background: color }}>
         {icon}
       </div>
       <p className="card-label">{label}</p>
-      <p className="card-value">{loading ? '…' : value}</p>
+      <p className="card-value">
+        <AnimatedValue value={value} loading={loading} />
+      </p>
       {note && <p className="card-note">{note}</p>}
+      {progress !== undefined && (
+        <div className="card-progress-bar">
+          <div className="card-progress-fill" style={{ width: `${Math.min(100, progress)}%` }} />
+        </div>
+      )}
+      {progressLabel && <p className="card-progress-label">{progressLabel}</p>}
     </div>
   )
 }
 
 export default function Dashboard() {
-  const [stats,   setStats]   = useState({ usuarios: 0, fincas: 0, monitoreos: 0, expertos: 0 })
+  const [stats, setStats] = useState({
+    fincas: 0,
+    fincasConUbicacion: 0,
+    cultivos: 0,
+  })
   const [loading, setLoading] = useState(true)
-  const [recent,  setRecent]  = useState([])
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    const fetchAll = async () => {
+      useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoading(true)
+      setError('')
+
       try {
-        const [usuarios, fincas, monitoreos, expertos] = await Promise.allSettled([
-          api.get('/usuarios'),
+        const [dashboardRes, fincasRes] = await Promise.allSettled([
+          api.get('/dashboard'),
           api.get('/fincas'),
-          api.get('/monitoreos'),
-          api.get('/expertos'),
         ])
 
-        const count = (r) => {
-          if (r.status !== 'fulfilled') return 0
-          const d = r.value.data
-          return Array.isArray(d) ? d.length : (d?.data?.length ?? 0)
-        }
+        if (dashboardRes.status === 'rejected') throw dashboardRes.reason
+
+        const resumen = dashboardRes.value.data?.resumen || {}
+        const fincas = fincasRes.status === 'fulfilled' ? getArrayData(fincasRes.value.data) : []
+        const fincasConUbicacion = fincas.filter((f) => f.latitud && f.longitud).length
 
         setStats({
-          usuarios:   count(usuarios),
-          fincas:     count(fincas),
-          monitoreos: count(monitoreos),
-          expertos:   count(expertos),
+          fincas: Number(resumen.totalFincas || 0),
+          fincasConUbicacion,
+          cultivos: Number(resumen.totalCultivos || 0),
         })
-
-        if (monitoreos.status === 'fulfilled') {
-          const arr = Array.isArray(monitoreos.value.data)
-            ? monitoreos.value.data
-            : (monitoreos.value.data?.data ?? [])
-          setRecent(arr.slice(-5).reverse())
-        }
-      } catch (e) {
-        console.error('Dashboard error', e)
+      } catch (err) {
+        setError(err?.response?.data?.message || 'No se pudo cargar el dashboard.')
       } finally {
         setLoading(false)
       }
     }
-    fetchAll()
+
+    fetchDashboard()
   }, [])
 
   return (
     <div className="dashboard">
       <h1 className="dashboard-title">Dashboard</h1>
-      <p className="dashboard-subtitle">Bienvenido al panel de administración de CoffeeLife</p>
+      <p className="dashboard-subtitle">Flujo general de administracion de CoffeeLife</p>
+
+      {error && <p className="dashboard-error">{error}</p>}
 
       <div className="dashboard-cards">
         <StatCard
-          icon={<UsersIcon />}
-          label="Usuarios"
-          value={stats.usuarios}
-          loading={loading}
-          color="rgba(76, 175, 80, 0.12)"
-        />
-        <StatCard
           icon={<FincaIcon />}
-          label="Fincas"
+          label="Fincas activas"
           value={stats.fincas}
+          note={`${stats.fincasConUbicacion} con ubicacion registrada`}
           loading={loading}
           color="rgba(239, 222, 192, 0.6)"
+          progress={stats.fincas ? (stats.fincasConUbicacion / stats.fincas) * 100 : 0}
+          progressLabel={`${Math.round((stats.fincasConUbicacion / Math.max(1, stats.fincas)) * 100)}% geolocalizadas`}
         />
         <StatCard
-          icon={<MonitoreoIcon />}
-          label="Monitoreos"
-          value={stats.monitoreos}
+          icon={
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
+              <circle cx="12" cy="11" r="3"/>
+            </svg>
+          }
+          label="Cultivos"
+          value={stats.cultivos}
           loading={loading}
           color="rgba(76, 175, 80, 0.12)"
-        />
-        <StatCard
-          icon={<ExpertoIcon />}
-          label="Expertos"
-          value={stats.expertos}
-          loading={loading}
-          color="rgba(239, 222, 192, 0.6)"
         />
       </div>
 
-      <div className="dashboard-section">
-        <h2 className="section-title">Monitoreos recientes</h2>
-        {loading ? (
-          <p className="empty-note">Cargando…</p>
-        ) : recent.length === 0 ? (
-          <div className="empty-state">
-            <p>No hay monitoreos registrados aún.</p>
-          </div>
-        ) : (
-          <table className="admin-table" style={{ marginTop: '1rem' }}>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Fecha monitoreo</th>
-                <th>Observaciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.map((m) => (
-                <tr key={m.idMonitoreo}>
-                  <td>{m.idMonitoreo}</td>
-                  <td>{m.fechaMonitoreo ? new Date(m.fechaMonitoreo).toLocaleDateString('es-CO') : '—'}</td>
-                  <td>{m.observaciones || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+
     </div>
   )
 }

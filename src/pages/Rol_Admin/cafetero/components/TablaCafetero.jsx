@@ -30,11 +30,11 @@ function TablaCafeteros({
 
       <tbody>
 
-        {cafeteros.map((cafetero) => (
+        {cafeteros.map((cafetero, idx) => (
 
           <tr key={cafetero.idUsuario}>
 
-            <td>{cafetero.idUsuario}</td>
+            <td>{idx + 1}</td>
 
             <td>{cafetero.nombre}</td>
 

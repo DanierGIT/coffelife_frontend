@@ -5,7 +5,7 @@ import './Monitoreos.css'
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 
 // ── Modal de edición ──────────────────────────────────────────────────────────
-function EditModal({ monitoreo, onClose, onSaved }) {
+function EditModal({ monitoreo, onClose, onSaved, cultivos, expertos }) {
   const [form, setForm] = useState({
     id_cultivo:      monitoreo.idCultivo      || monitoreo.id_cultivo      || '',
     id_experto:      monitoreo.idExperto       || monitoreo.id_experto       || '',
@@ -42,11 +42,25 @@ function EditModal({ monitoreo, onClose, onSaved }) {
         </div>
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="modal-row">
-            <label>ID Cultivo
-              <input name="id_cultivo" type="number" value={form.id_cultivo} onChange={handleChange} required />
+            <label>Cultivo
+              <select name="id_cultivo" value={form.id_cultivo} onChange={handleChange} required>
+                <option value="">Seleccionar cultivo...</option>
+                {cultivos.map((c) => (
+                  <option key={c.idCultivo} value={c.idCultivo}>
+                    {c.nombreCultivo}
+                  </option>
+                ))}
+              </select>
             </label>
-            <label>ID Experto
-              <input name="id_experto" type="number" value={form.id_experto} onChange={handleChange} required />
+            <label>Experto
+              <select name="id_experto" value={form.id_experto} onChange={handleChange} required>
+                <option value="">Seleccionar experto...</option>
+                {expertos.map((e) => (
+                  <option key={e.idUsuario} value={e.idUsuario}>
+                    {e.nombre} {e.apellido || ''}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
           <label>Fecha de monitoreo
@@ -71,6 +85,8 @@ function EditModal({ monitoreo, onClose, onSaved }) {
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function Monitoreos() {
   const [monitoreos,       setMonitoreos]       = useState([])
+  const [cultivos,         setCultivos]         = useState([])
+  const [expertos,         setExpertos]         = useState([])
   const [editingMonitoreo, setEditingMonitoreo] = useState(null)
   const [loading,          setLoading]          = useState(false)
   const [error,            setError]            = useState('')
@@ -92,7 +108,23 @@ export default function Monitoreos() {
     }
   }
 
-  useEffect(() => { getMonitoreos() }, [])
+  const getCatalogos = async () => {
+    try {
+      const [cultivosRes, expertosRes] = await Promise.all([
+        api.get('/cultivos'),
+        api.get('/expertos'),
+      ])
+      setCultivos(Array.isArray(cultivosRes.data) ? cultivosRes.data : (cultivosRes.data?.data ?? []))
+      setExpertos(Array.isArray(expertosRes.data) ? expertosRes.data : (expertosRes.data?.data ?? []))
+    } catch {
+      // silencioso
+    }
+  }
+
+  useEffect(() => {
+    getMonitoreos()
+    getCatalogos()
+  }, [])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -132,11 +164,25 @@ export default function Monitoreos() {
         <h2 className="admin-form-title">Registrar nuevo monitoreo</h2>
         <form className="monitoreo-form" onSubmit={handleCreate}>
           <div className="monitoreo-form-row">
-            <label className="monitoreo-label">ID Cultivo
-              <input name="id_cultivo" type="number" value={form.id_cultivo} onChange={handleChange} placeholder="Ej: 1" required />
+            <label className="monitoreo-label">Cultivo
+              <select name="id_cultivo" value={form.id_cultivo} onChange={handleChange} required>
+                <option value="">Seleccionar cultivo...</option>
+                {cultivos.map((c) => (
+                  <option key={c.idCultivo} value={c.idCultivo}>
+                    {c.nombreCultivo}
+                  </option>
+                ))}
+              </select>
             </label>
-            <label className="monitoreo-label">ID Experto
-              <input name="id_experto" type="number" value={form.id_experto} onChange={handleChange} placeholder="Ej: 3" required />
+            <label className="monitoreo-label">Experto
+              <select name="id_experto" value={form.id_experto} onChange={handleChange} required>
+                <option value="">Seleccionar experto...</option>
+                {expertos.map((e) => (
+                  <option key={e.idUsuario} value={e.idUsuario}>
+                    {e.nombre} {e.apellido || ''}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="monitoreo-label">Fecha de monitoreo
               <input name="fecha_monitoreo" type="date" value={form.fecha_monitoreo} onChange={handleChange} required />
@@ -166,13 +212,13 @@ export default function Monitoreos() {
           <tbody>
             {monitoreos.length === 0 ? (
               <tr><td colSpan={8} className="monitoreo-empty">🌱 No hay monitoreos registrados aún.</td></tr>
-            ) : monitoreos.map((m) => {
+            ) : monitoreos.map((m, idx) => {
               const id = m.idMonitoreo ?? m.id_monitoreo
               return (
                 <tr key={id}>
-                  <td>{id}</td>
-                  <td>{m.idCultivo           ?? m.id_cultivo}</td>
-                  <td>{m.idExperto            ?? m.id_experto}</td>
+                  <td>{idx + 1}</td>
+                  <td>{m.cultivo?.nombreCultivo || '—'}</td>
+                  <td>{m.experto ? `${m.experto.nombre || ''} ${m.experto.apellido || ''}`.trim() : '—'}</td>
                   <td>{fmt(m.fechaMonitoreo   ?? m.fecha_monitoreo)}</td>
                   <td className="monitoreo-obs">{m.observaciones || '—'}</td>
                   <td>{fmt(m.fechaRegistro      ?? m.fecha_registro)}</td>
@@ -193,6 +239,8 @@ export default function Monitoreos() {
           monitoreo={editingMonitoreo}
           onClose={() => setEditingMonitoreo(null)}
           onSaved={getMonitoreos}
+          cultivos={cultivos}
+          expertos={expertos}
         />
       )}
     </>

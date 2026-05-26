@@ -32,7 +32,7 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
   });
 
   useEffect(() => {
-    api.get("/cat_tipos_tratamiento")
+    api.get("/cat_tipos_tratamientos")
       .then((r) => {
         const datos = Array.isArray(r.data) ? r.data : r.data.data || [];
         const unicos = datos.filter(
@@ -152,10 +152,10 @@ function TablaTratamientos({ tratamientos, eliminar, editar }) {
             </td>
           </tr>
         ) : (
-          tratamientos.map((t) => (
+          tratamientos.map((t, idx) => (
             <tr key={t.idTratamiento}>
-              <td>{t.idTratamiento}</td>
-              <td>{t.tipoTratamiento?.nombreTipo || t.idTipoTratamiento}</td>
+              <td>{idx + 1}</td>
+              <td>{t.tipoTratamiento?.nombreTipo || '—'}</td>
               <td>{t.nombre}</td>
               <td>{t.descripcion}</td>
               <td className="acciones">
