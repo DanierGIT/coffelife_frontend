@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
@@ -18,100 +18,155 @@ const toFloat = (val) =>
     ? parseFloat(val)
     : null
 
-function MapPicker({ latitud, longitud, onChange }) {
+function UbicacionPickerModal({ 
+  latInicial, lngInicial, onConfirm, onCancel 
+}) {
+
+  const [lat, setLat] = useState(latInicial || '')
+  const [lng, setLng] = useState(lngInicial || '')
 
   const center =
-    latitud && longitud
-      ? [parseFloat(latitud), parseFloat(longitud)]
+    lat && lng
+      ? [parseFloat(lat), parseFloat(lng)]
       : [4.5709, -74.2973]
 
   function ClickHandler() {
-
     useMapEvents({
       click(e) {
-
-        onChange(
-          e.latlng.lat.toFixed(6),
-          e.latlng.lng.toFixed(6)
-        )
+        setLat(e.latlng.lat.toFixed(6))
+        setLng(e.latlng.lng.toFixed(6))
       },
     })
-
     return null
   }
 
   return (
-    <div className="map-wrapper">
-
-      <p className="map-hint">
-        📍 Haz clic en el mapa para seleccionar la ubicación
-      </p>
-
-      <MapContainer
-        center={center}
-        zoom={latitud && longitud ? 13 : 6}
-        style={{
-          height: '260px',
-          width: '100%',
-          borderRadius: '10px',
-        }}
+    <div
+      className="modal-overlay"
+      onClick={onCancel}
+    >
+      <div
+        className="modal-box"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '600px' }}
       >
+        <h2>Seleccionar ubicación</h2>
 
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; OpenStreetMap'
-        />
-
-        <ClickHandler />
-
-        {latitud && longitud && (
-          <Marker
-            position={[
-              parseFloat(latitud),
-              parseFloat(longitud),
-            ]}
+        <div className="finca-form-row" style={{ marginTop: '16px' }}>
+          <input
+            placeholder="Latitud"
+            value={lat}
+            onChange={(e) => setLat(e.target.value)}
+            type="number"
+            step="any"
           />
-        )}
+          <input
+            placeholder="Longitud"
+            value={lng}
+            onChange={(e) => setLng(e.target.value)}
+            type="number"
+            step="any"
+          />
+        </div>
 
-      </MapContainer>
+        <div className="map-wrapper" style={{ marginTop: '12px' }}>
+          <MapContainer
+            center={center}
+            zoom={lat && lng ? 13 : 6}
+            style={{
+              height: '280px',
+              width: '100%',
+              borderRadius: '10px',
+            }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; OpenStreetMap'
+            />
+            <ClickHandler />
+            {lat && lng && (
+              <Marker
+                position={[parseFloat(lat), parseFloat(lng)]}
+              />
+            )}
+          </MapContainer>
+        </div>
 
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            marginTop: '20px',
+          }}
+        >
+          <button
+            className="btn-primary"
+            onClick={() => onConfirm(lat, lng)}
+          >
+            Confirmar
+          </button>
+          <button
+            className="btn-secondary"
+            onClick={onCancel}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
 
-function MapaFinca({ latitud, longitud }) {
+function MapaGeneral({ fincas }) {
 
-  if (!latitud || !longitud) return null
+  const fincasConCoords = fincas.filter(
+    (f) => f.latitud && f.longitud
+  )
+
+  if (fincasConCoords.length === 0) return null
+
+  const center = [
+    parseFloat(fincasConCoords[0].latitud),
+    parseFloat(fincasConCoords[0].longitud),
+  ]
 
   return (
-    <MapContainer
-      center={[
-        parseFloat(latitud),
-        parseFloat(longitud),
-      ]}
-      zoom={13}
-      style={{
-        height: '140px',
-        width: '100%',
-        borderRadius: '8px',
-        marginTop: '6px',
-      }}
-      dragging={false}
-      scrollWheelZoom={false}
-      doubleClickZoom={false}
-      zoomControl={false}
-    >
-
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-      <Marker
-        position={[
-          parseFloat(latitud),
-          parseFloat(longitud),
-        ]}
-      />
-
-    </MapContainer>
+    <div className="map-wrapper">
+      <MapContainer
+        center={center}
+        zoom={7}
+        style={{
+          height: '400px',
+          width: '100%',
+          borderRadius: '12px',
+        }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap'
+        />
+        {fincasConCoords.map((f) => (
+          <Marker
+            key={f.idFinca}
+            position={[
+              parseFloat(f.latitud),
+              parseFloat(f.longitud),
+            ]}
+          >
+            <Tooltip direction="top" offset={[0, -10]} permanent={false}>
+              <div className="map-tooltip-content">
+                <strong>{f.nombreFinca}</strong><br />
+                {f.municipio}, {f.departamento}<br />
+                Cultivos: {f.totalCultivos ?? 0}<br />
+                {f.nombreExperto
+                  ? `Experto: ${f.nombreExperto}`
+                  : 'Sin experto asignado'}
+              </div>
+            </Tooltip>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   )
 }
 
@@ -129,6 +184,16 @@ export default function Fincas() {
   const [selectedExperto, setSelectedExperto] = useState('')
   const [showAsignarModal, setShowAsignarModal] = useState(false)
 
+  const [showCultivoModal, setShowCultivoModal] = useState(false)
+  const [selectedFincaForCultivo, setSelectedFincaForCultivo] = useState(null)
+  const [estadosCultivo, setEstadosCultivo] = useState([])
+  const [cultivoLoading, setCultivoLoading] = useState(false)
+  const [cultivoForm, setCultivoForm] = useState({
+    nombre_cultivo: '',
+    tipo_cultivo: '',
+    id_estado_cultivo: '',
+  })
+
   const [form, setForm] = useState({
     nombre_finca: '',
     municipio: '',
@@ -138,6 +203,11 @@ export default function Fincas() {
     altitud_msnm: '',
     area_hectareas: '',
   })
+
+  const [showUbicacionModal, setShowUbicacionModal] = useState(false)
+  const [ubicacionTarget, setUbicacionTarget] = useState('create')
+  const [ubicacionLat, setUbicacionLat] = useState('')
+  const [ubicacionLng, setUbicacionLng] = useState('')
 
   const [editingFinca, setEditingFinca] = useState(null)
   const [editForm, setEditForm] = useState({
@@ -154,9 +224,10 @@ export default function Fincas() {
 
     try {
 
-      const [fincasRes, asignacionesRes] = await Promise.all([
+      const [fincasRes, asignacionesRes, cultivosRes] = await Promise.all([
         api.get('/fincas'),
         api.get('/asignaciones_expertos'),
+        api.get('/cultivos?limit=1000'),
       ])
 
       const fincasData = Array.isArray(fincasRes.data)
@@ -167,25 +238,34 @@ export default function Fincas() {
         ? asignacionesRes.data
         : (asignacionesRes.data?.data ?? [])
 
-      console.log('getFincas - fincasData:', fincasData)
-      console.log('getFincas - asignaciones:', asignaciones)
+      const cultivosData = Array.isArray(cultivosRes.data)
+        ? cultivosRes.data
+        : (cultivosRes.data?.data ?? [])
+
+      const cultivosPorFinca = {}
+      cultivosData.forEach((c) => {
+        const id = c.idFinca
+        cultivosPorFinca[id] = (cultivosPorFinca[id] || 0) + 1
+      })
 
       const fincasConExpertos = fincasData.map((finca) => {
         const asignacion = asignaciones.find(
           (a) => Number(a.idFinca) === Number(finca.idFinca)
         )
+        const result = {
+          ...finca,
+          totalCultivos: cultivosPorFinca[finca.idFinca] || 0,
+        }
         if (asignacion?.experto) {
           return {
-            ...finca,
+            ...result,
             nombreExperto: `${asignacion.experto.nombre} ${asignacion.experto.apellido}`,
-            idAsignacion: asignacion.idAsignacion,       // para hacer PUT si ya existe
+            idAsignacion: asignacion.idAsignacion,
             idExpertoAsignado: asignacion.experto.idUsuario,
           }
         }
-        return { ...finca, nombreExperto: null, idAsignacion: null, idExpertoAsignado: null }
+        return { ...result, nombreExperto: null, idAsignacion: null, idExpertoAsignado: null }
       })
-
-      console.log('getFincas - fincasConExpertos:', fincasConExpertos)
 
       setFincas(fincasConExpertos)
 
@@ -213,10 +293,29 @@ export default function Fincas() {
     }
   }
 
+  const getEstadosCultivo = async () => {
+
+    try {
+
+      const res = await api.get('/cat_estados_cultivo')
+
+      const data = Array.isArray(res.data)
+        ? res.data
+        : (res.data?.data ?? [])
+
+      setEstadosCultivo(data)
+
+    } catch (error) {
+
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
 
     getFincas()
     getExpertos()
+    getEstadosCultivo()
 
   }, [])
 
@@ -236,22 +335,21 @@ export default function Fincas() {
     })
   }
 
-  const handleMapClick = (lat, lng) => {
-
-    setForm((f) => ({
-      ...f,
-      latitud: lat,
-      longitud: lng,
-    }))
+  const openUbicacionPicker = (target) => {
+    const isCreate = target === 'create'
+    setUbicacionLat(isCreate ? form.latitud : editForm.latitud)
+    setUbicacionLng(isCreate ? form.longitud : editForm.longitud)
+    setUbicacionTarget(target)
+    setShowUbicacionModal(true)
   }
 
-  const handleEditMapClick = (lat, lng) => {
-
-    setEditForm((f) => ({
-      ...f,
-      latitud: lat,
-      longitud: lng,
-    }))
+  const handleUbicacionConfirm = (lat, lng) => {
+    if (ubicacionTarget === 'create') {
+      setForm((f) => ({ ...f, latitud: lat, longitud: lng }))
+    } else {
+      setEditForm((f) => ({ ...f, latitud: lat, longitud: lng }))
+    }
+    setShowUbicacionModal(false)
   }
 
   const handleCreate = async (e) => {
@@ -388,6 +486,45 @@ export default function Fincas() {
     }
   }
 
+  const openCultivoModal = (finca) => {
+    setSelectedFincaForCultivo(finca)
+    setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '', id_estado_cultivo: '' })
+    setShowCultivoModal(true)
+  }
+
+  const handleCultivoChange = (e) => {
+    setCultivoForm({ ...cultivoForm, [e.target.name]: e.target.value })
+  }
+
+  const handleCreateCultivo = async (e) => {
+    e.preventDefault()
+    if (!cultivoForm.nombre_cultivo.trim() || !cultivoForm.tipo_cultivo.trim()) {
+      alert('Nombre y tipo de cultivo son obligatorios')
+      return
+    }
+    setCultivoLoading(true)
+    try {
+      const payload = {
+        id_finca: selectedFincaForCultivo.idFinca,
+        nombre_cultivo: cultivoForm.nombre_cultivo.trim(),
+        tipo_cultivo: cultivoForm.tipo_cultivo.trim(),
+        id_estado_cultivo: cultivoForm.id_estado_cultivo
+          ? Number(cultivoForm.id_estado_cultivo)
+          : undefined,
+      }
+      await api.post('/cultivos', payload)
+      setShowCultivoModal(false)
+      setSelectedFincaForCultivo(null)
+      setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '', id_estado_cultivo: '' })
+      alert('Cultivo registrado correctamente.')
+    } catch (err) {
+      console.log(err.response?.data)
+      alert(err?.response?.data?.message || 'No se pudo registrar el cultivo.')
+    } finally {
+      setCultivoLoading(false)
+    }
+  }
+
   const handleAsignarExperto = async () => {
 
     if (!selectedExperto || !selectedFinca) {
@@ -491,40 +628,34 @@ export default function Fincas() {
           <div className="finca-form-row">
 
             <input
-              name="latitud"
-              value={form.latitud}
-              onChange={handleChange}
-              placeholder="Latitud"
-            />
-
-            <input
-              name="longitud"
-              value={form.longitud}
-              onChange={handleChange}
-              placeholder="Longitud"
-            />
-
-            <input
               name="altitud_msnm"
               value={form.altitud_msnm}
               onChange={handleChange}
-              placeholder="Altitud"
+              placeholder="Altitud (msnm)"
             />
 
             <input
               name="area_hectareas"
               value={form.area_hectareas}
               onChange={handleChange}
-              placeholder="Área"
+              placeholder="Área (hectáreas)"
             />
 
-          </div>
+            <button
+              type="button"
+              className="btn-ubicacion"
+              onClick={() => openUbicacionPicker('create')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              {form.latitud && form.longitud
+                ? `Ubicación: ${form.latitud}, ${form.longitud}`
+                : 'Seleccionar ubicación'}
+            </button>
 
-          <MapPicker
-            latitud={form.latitud}
-            longitud={form.longitud}
-            onChange={handleMapClick}
-          />
+          </div>
 
           {error && (
             <p className="modal-error">
@@ -569,7 +700,7 @@ export default function Fincas() {
               <th>Departamento</th>
               <th>Altitud</th>
               <th>Área</th>
-              <th>Ubicación</th>
+              <th>Cultivos</th>
               <th>Acciones</th>
             </tr>
 
@@ -580,7 +711,7 @@ export default function Fincas() {
             {fincas.length === 0 ? (
 
               <tr>
-                <td colSpan={8}>
+                <td colSpan={8} className="finca-empty">
                   No hay fincas registradas
                 </td>
               </tr>
@@ -606,51 +737,44 @@ export default function Fincas() {
                     {f.areaHectareas ?? '—'}
                   </td>
 
-                  <td className="td-map">
+                  <td>{f.totalCultivos ?? 0}</td>
 
-                    {f.latitud && f.longitud ? (
-
-                      <MapaFinca
-                        latitud={f.latitud}
-                        longitud={f.longitud}
-                      />
-
-                    ) : (
-
-                      <span>
-                        Sin coordenadas
-                      </span>
-
-                    )}
-
-                  </td>
-
-                  <td>
+                  <td className="td-actions">
 
                     <button
-                      className="btn-primary"
+                      className="btn-icon btn-icon-experto"
                       onClick={() => {
                         setSelectedFinca(f)
                         setShowAsignarModal(true)
                       }}
+                      title={f.nombreExperto ? `Experto: ${f.nombreExperto}` : 'Asignar experto'}
                     >
-                      {f.nombreExperto
-                        ? `Experto: ${f.nombreExperto}`
-                        : 'Asignar experto'}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
                     </button>
 
                     <button
-                      className="btn-edit"
+                      className="btn-icon btn-icon-cultivo"
+                      onClick={() => openCultivoModal(f)}
+                      title="Registrar cultivo"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
+                        <circle cx="12" cy="11" r="3"/>
+                      </svg>
+                    </button>
+
+                    <button
+                      className="btn-icon btn-icon-editar"
                       onClick={() => openEditModal(f)}
+                      title="Editar finca"
                     >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDelete(f.idFinca)}
-                    >
-                      Eliminar
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
                     </button>
 
                   </td>
@@ -664,6 +788,13 @@ export default function Fincas() {
 
         </table>
 
+      </div>
+
+      <div className="admin-form-card">
+        <h2 className="admin-form-title">
+          Mapa de fincas registradas
+        </h2>
+        <MapaGeneral fincas={fincas} />
       </div>
 
       {showAsignarModal && (
@@ -800,40 +931,34 @@ export default function Fincas() {
               <div className="finca-form-row">
 
                 <input
-                  name="latitud"
-                  value={editForm.latitud}
-                  onChange={handleEditChange}
-                  placeholder="Latitud"
-                />
-
-                <input
-                  name="longitud"
-                  value={editForm.longitud}
-                  onChange={handleEditChange}
-                  placeholder="Longitud"
-                />
-
-                <input
                   name="altitud_msnm"
                   value={editForm.altitud_msnm}
                   onChange={handleEditChange}
-                  placeholder="Altitud"
+                  placeholder="Altitud (msnm)"
                 />
 
                 <input
                   name="area_hectareas"
                   value={editForm.area_hectareas}
                   onChange={handleEditChange}
-                  placeholder="Área"
+                  placeholder="Área (hectáreas)"
                 />
 
-              </div>
+                <button
+                  type="button"
+                  className="btn-ubicacion"
+                  onClick={() => openUbicacionPicker('edit')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  {editForm.latitud && editForm.longitud
+                    ? `Ubicación: ${editForm.latitud}, ${editForm.longitud}`
+                    : 'Seleccionar ubicación'}
+                </button>
 
-              <MapPicker
-                latitud={editForm.latitud}
-                longitud={editForm.longitud}
-                onChange={handleEditMapClick}
-              />
+              </div>
 
               <div style={{
                 display: 'flex',
@@ -857,6 +982,113 @@ export default function Fincas() {
                   onClick={() =>
                     setEditingFinca(null)
                   }
+                >
+                  Cancelar
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {showUbicacionModal && (
+        <UbicacionPickerModal
+          latInicial={ubicacionLat}
+          lngInicial={ubicacionLng}
+          onConfirm={handleUbicacionConfirm}
+          onCancel={() => setShowUbicacionModal(false)}
+        />
+      )}
+
+      {showCultivoModal && (
+
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCultivoModal(false)}
+        >
+
+          <div
+            className="modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            <h2>
+              Registrar cultivo
+            </h2>
+
+            <p className="modal-help">
+              Finca: <strong>{selectedFincaForCultivo?.nombreFinca}</strong>
+            </p>
+
+            <form onSubmit={handleCreateCultivo}>
+
+              <div className="finca-form-row" style={{ marginTop: '16px' }}>
+
+                <input
+                  name="nombre_cultivo"
+                  value={cultivoForm.nombre_cultivo}
+                  onChange={handleCultivoChange}
+                  placeholder="Nombre del cultivo"
+                  required
+                />
+
+                <input
+                  name="tipo_cultivo"
+                  value={cultivoForm.tipo_cultivo}
+                  onChange={handleCultivoChange}
+                  placeholder="Tipo de cultivo"
+                  required
+                />
+
+                <select
+                  name="id_estado_cultivo"
+                  value={cultivoForm.id_estado_cultivo}
+                  onChange={handleCultivoChange}
+                  className="cultivo-select"
+                >
+                  <option value="">
+                    --- Sin estado ---
+                  </option>
+                  {estadosCultivo.map((est) => (
+                    <option
+                      key={est.idEstado}
+                      value={est.idEstado}
+                    >
+                      {est.nombreEstado}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                marginTop: '20px',
+              }}>
+
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={cultivoLoading}
+                >
+                  {cultivoLoading
+                    ? 'Guardando...'
+                    : 'Guardar cultivo'}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setShowCultivoModal(false)
+                    setSelectedFincaForCultivo(null)
+                  }}
                 >
                   Cancelar
                 </button>

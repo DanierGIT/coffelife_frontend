@@ -26,38 +26,38 @@ const ALL_ITEMS = [
       </svg>
     ),
   },
-  {
-    key: 'administrador',
-    label: 'Administrador',
-    roles: ['administrador'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
-  },
-  {
-    key: 'experto',
-    label: 'Experto',
-    roles: ['administrador'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    ),
-  },
-  {
-    key: 'cafetero',
-    label: 'Cafetero',
-    roles: ['administrador', 'experto'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-        <line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
-      </svg>
-    ),
-  },
+  // {
+  //   key: 'administrador',
+  //   label: 'Administrador',
+  //   roles: ['administrador'],
+  //   icon: (
+  //     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  //       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  //     </svg>
+  //   ),
+  // },
+  // {
+  //   key: 'experto',
+  //   label: 'Experto',
+  //   roles: ['administrador'],
+  //   icon: (
+  //     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  //       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+  //     </svg>
+  //   ),
+  // },
+  // {
+  //   key: 'cafetero',
+  //   label: 'Cafetero',
+  //   roles: ['administrador', 'experto'],
+  //   icon: (
+  //     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  //       <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+  //       <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+  //       <line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
+  //     </svg>
+  //   ),
+  // },
   {
     key: 'fincas',
     label: 'Fincas',
@@ -93,17 +93,17 @@ const ALL_ITEMS = [
       </svg>
     ),
   },
-  {
-    key: 'usuarios',
-    label: 'Usuarios',
-    roles: ['administrador'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    ),
-  },
+  // {
+  //   key: 'usuarios',
+  //   label: 'Usuarios',
+  //   roles: ['administrador'],
+  //   icon: (
+  //     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  //       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+  //       <circle cx="12" cy="7" r="4" />
+  //     </svg>
+  //   ),
+  // },
   {
     key: 'prioridades',
     label: 'Prioridades',
@@ -157,17 +157,17 @@ const ALL_ITEMS = [
       </svg>
     ),
   },
-  {
-    key: 'cultivos',
-    label: 'Cultivos',
-    roles: ['administrador', 'experto', 'cafetero'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
-        <circle cx="12" cy="11" r="3"/>
-      </svg>
-    ),
-  },
+  // {
+  //   key: 'cultivos',
+  //   label: 'Cultivos',
+  //   roles: ['administrador', 'experto', 'cafetero'],
+  //   icon: (
+  //     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  //       <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
+  //       <circle cx="12" cy="11" r="3"/>
+  //     </svg>
+  //   ),
+  // },
   {
     key: 'aplicacion',
     label: 'Aplicación Tratamientos',
@@ -189,9 +189,18 @@ const CAT_ITEMS = [
   { key: 'tipos',       label: 'Tipos de Recomendación' },
 ]
 
+const USU_ITEMS = [
+  { key: 'administrador', label: 'Administrador' },
+  { key: 'experto',       label: 'Experto' },
+  { key: 'cafetero',      label: 'Cafetero' },
+]
+
 export default function Sidebar({ activePage, onNavigate }) {
   const { user, logout } = useAuth()
   const [catOpen, setCatOpen] = useState(activePage === 'categorias')
+  const [usuOpen, setUsuOpen] = useState(
+    activePage === 'administrador' || activePage === 'experto' || activePage === 'cafetero'
+  )
 
   const rawRole = (
   user?.rol?.nombreRol ||
@@ -221,6 +230,10 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
     : (user?.correo ?? 'Usuario')
 
   const isCategoriasActive = activePage === 'categorias'
+  const isUsuariosActive =
+    activePage === 'administrador' ||
+    activePage === 'experto' ||
+    activePage === 'cafetero'
 
   return (
     <aside className="sidebar">
@@ -250,17 +263,64 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
       <hr className="sidebar-divider" />
 
       <nav className="sidebar-nav">
-        {NAV_ITEMS.map(item => (
-          <button
-            key={item.key}
-            className={`sidebar-nav-item${activePage === item.key ? ' active' : ''}`}
-            onClick={() => { onNavigate(item.key); setCatOpen(false) }}
-            title={item.label}
-          >
-            <span className="sidebar-nav-icon">{item.icon}</span>
-            <span className="sidebar-nav-label">{item.label}</span>
-          </button>
-        ))}
+        {NAV_ITEMS.map(item => {
+          if (item.key === 'perfil') {
+            return (
+              <React.Fragment key="perfil-y-usuarios">
+                <button
+                  className={`sidebar-nav-item${activePage === 'perfil' ? ' active' : ''}`}
+                  onClick={() => { onNavigate('perfil'); setCatOpen(false); setUsuOpen(false) }}
+                  title="Mi Perfil"
+                >
+                  <span className="sidebar-nav-icon">{item.icon}</span>
+                  <span className="sidebar-nav-label">{item.label}</span>
+                </button>
+                {role === 'administrador' && (
+                  <>
+                    <button
+                      className={`sidebar-nav-item${isUsuariosActive ? ' active' : ''}`}
+                      onClick={() => setUsuOpen(!usuOpen)}
+                      title="Usuarios"
+                    >
+                      <span className="sidebar-nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </span>
+                      <span className="sidebar-nav-label">Usuarios</span>
+                      <span className={`sidebar-arrow${usuOpen ? ' open' : ''}`}>▾</span>
+                    </button>
+                    {usuOpen && (
+                      <div className="sidebar-submenu">
+                        {USU_ITEMS.map(sub => (
+                          <button
+                            key={sub.key}
+                            className={`sidebar-submenu-item${activePage === sub.key ? ' active' : ''}`}
+                            onClick={() => { onNavigate(sub.key); setCatOpen(false) }}
+                          >
+                            {sub.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </React.Fragment>
+            )
+          }
+          return (
+            <button
+              key={item.key}
+              className={`sidebar-nav-item${activePage === item.key ? ' active' : ''}`}
+              onClick={() => { onNavigate(item.key); setCatOpen(false); setUsuOpen(false) }}
+              title={item.label}
+            >
+              <span className="sidebar-nav-icon">{item.icon}</span>
+              <span className="sidebar-nav-label">{item.label}</span>
+            </button>
+          )
+        })}
 
         {role === 'administrador' && (
           <>
