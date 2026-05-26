@@ -11,7 +11,7 @@ import '../Administrador/Administrador.css'
 // ── Modal editar ─────────────────────────────────────────────────────────────
 function EditModal({ rol, onClose, onSaved }) {
   const [form, setForm] = useState({
-    nombre_rol:  rol.nombreRol  || rol.nombre_rol  || rol.nombre || '',
+    nombre:      rol.nombreRol  || rol.nombre_rol  || rol.nombre || '',
     descripcion: rol.descripcion || '',
   })
   const [loading, setLoading] = useState(false)
@@ -21,7 +21,7 @@ function EditModal({ rol, onClose, onSaved }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.nombre_rol.trim()) return setError('El nombre del rol es obligatorio.')
+    if (!form.nombre.trim()) return setError('El nombre del rol es obligatorio.')
     setError('')
     setLoading(true)
     try {
@@ -46,7 +46,7 @@ function EditModal({ rol, onClose, onSaved }) {
         <form className="modal-form" onSubmit={handleSubmit}>
           <label>
             Nombre del rol
-            <input name="nombre_rol" value={form.nombre_rol} onChange={handleChange} required />
+            <input name="nombre" value={form.nombre} onChange={handleChange} required />
           </label>
           <label>
             Descripción
@@ -69,7 +69,7 @@ function EditModal({ rol, onClose, onSaved }) {
 export default function Roles() {
   const [roles,       setRoles]       = useState([])
   const [editingRol,  setEditingRol]  = useState(null)
-  const [form,        setForm]        = useState({ nombre_rol: '', descripcion: '' })
+  const [form, setForm] = useState({ nombre: '', descripcion: '' })
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState('')
   const [success,     setSuccess]     = useState('')
@@ -90,13 +90,13 @@ export default function Roles() {
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    if (!form.nombre_rol.trim()) return setError('El nombre del rol es obligatorio.')
+    if (!form.nombre.trim()) return setError('El nombre del rol es obligatorio.')
     setError('')
     setSuccess('')
     setLoading(true)
     try {
       await api.post('/cat_roles', form)
-      setForm({ nombre_rol: '', descripcion: '' })
+      setForm({ nombre: '', descripcion: '' })
       setSuccess('Rol creado correctamente.')
       cargarRoles()
     } catch (err) {
@@ -127,8 +127,8 @@ export default function Roles() {
         <form onSubmit={handleCreate}>
           <div className="admin-form">
             <input
-              name="nombre_rol"
-              value={form.nombre_rol}
+              name="nombre"
+              value={form.nombre}
               onChange={handleChange}
               placeholder="Nombre del rol *"
               required
