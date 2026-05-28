@@ -73,6 +73,7 @@ export default function Roles() {
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState('')
   const [success,     setSuccess]     = useState('')
+  const [showCrearModal, setShowCrearModal] = useState(false)
 
   const cargarRoles = async () => {
     try {
@@ -98,6 +99,7 @@ export default function Roles() {
       await api.post('/cat_roles', form)
       setForm({ nombre: '', descripcion: '' })
       setSuccess('Rol creado correctamente.')
+      setShowCrearModal(false)
       cargarRoles()
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo crear el rol.')
@@ -119,35 +121,34 @@ export default function Roles() {
 
   return (
     <>
-      <h1 className="admin-page-title">Roles</h1>
-
-      {/* ── Formulario crear ── */}
-      <div className="admin-form-card">
-        <h2 className="admin-form-title">Crear nuevo rol</h2>
-        <form onSubmit={handleCreate}>
-          <div className="admin-form">
-            <input
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              placeholder="Nombre del rol *"
-              required
-            />
-            <input
-              name="descripcion"
-              value={form.descripcion}
-              onChange={handleChange}
-              placeholder="Descripción"
-            />
-          </div>
-          {error   && <p className="modal-error"   style={{ marginTop:10 }}>{error}</p>}
-          {success && <p style={{ marginTop:10, color:'#2e7d32', fontSize:13 }}>✅ {success}</p>}
-          <div className="admin-form-actions" style={{ marginTop:14 }}>
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Creando...' : 'Crear rol'}
-            </button>
-          </div>
-        </form>
+      <div className="page-header">
+        <h1>Roles</h1>
+        <p>Roles del sistema</p>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar rol
+        </button>
       </div>
 
       {/* ── Tabla ── */}
@@ -175,6 +176,33 @@ export default function Roles() {
           </tbody>
         </table>
       </div>
+
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h2>Crear nuevo rol</h2>
+            <form className="modal-form" onSubmit={handleCreate}>
+              <label>
+                Nombre del rol
+                <input name="nombre" value={form.nombre} onChange={handleChange} required />
+              </label>
+              <label>
+                Descripción
+                <input name="descripcion" value={form.descripcion} onChange={handleChange} />
+              </label>
+              {error && <p className="modal-error">{error}</p>}
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Creando...' : 'Crear rol'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {editingRol && (
         <EditModal

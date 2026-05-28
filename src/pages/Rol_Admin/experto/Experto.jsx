@@ -110,6 +110,7 @@ export default function Experto() {
   const [loading,         setLoading]         = useState(false)
   const [error,           setError]           = useState('')
   const [success,         setSuccess]         = useState('')
+  const [showCrearModal,  setShowCrearModal]  = useState(false)
 
   const obtenerExpertos = async () => {
     try {
@@ -156,6 +157,7 @@ export default function Experto() {
       })
       setForm(EMPTY_FORM)
       setSuccess('Experto creado correctamente.')
+      setShowCrearModal(false)
       obtenerExpertos()
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo crear el experto.')
@@ -178,42 +180,36 @@ export default function Experto() {
 
   return (
     <>
-      <h1 className="admin-page-title">Expertos</h1>
-
-      {/* ── Formulario crear ── */}
-      <div className="admin-form-card">
-        <h2 className="admin-form-title">Registrar nuevo experto</h2>
-        <form onSubmit={handleCreate}>
-          <div className="admin-form">
-            <input name="nombre"   value={form.nombre}   onChange={handleChange} placeholder="Nombre *"     required />
-            <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido"              />
-            <input name="correo"   value={form.correo}   onChange={handleChange} placeholder="Correo *"     required />
-            <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono"              />
-            <div style={{ position: 'relative' }}>
-              <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña *" required />
-              <PasswordStrength password={form.password} role="experto" />
-            </div>
-            <div style={{ position: 'relative' }}>
-              <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña *" required />
-            </div>
-            <select name="activo" value={String(form.activo)} onChange={handleChange}
-              style={{ flex:1, minWidth:140, padding:'11px 14px', borderRadius:10, border:'1.5px solid #d1d5db',
-                       fontSize:14, background:'#fafafa', color:'#111827' }}>
-              <option value="true">Activo</option>
-              <option value="false">Inactivo</option>
-            </select>
-          </div>
-          {error   && <p className="modal-error"   style={{ marginTop:10 }}>{error}</p>}
-          {success && <p style={{ marginTop:10, color:'#2e7d32', fontSize:13 }}>✅ {success}</p>}
-          <div className="admin-form-actions" style={{ marginTop:14 }}>
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Registrando...' : 'Registrar experto'}
-            </button>
-          </div>
-        </form>
+      <div className="page-header">
+        <h1>Expertos</h1>
+        <p>Usuarios expertos del sistema</p>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar experto
+        </button>
       </div>
 
-      {/* ── Tabla ── */}
       <div className="admin-table-card">
         <table className="admin-table">
           <thead>
@@ -266,6 +262,48 @@ export default function Experto() {
           onClose={() => setEditingExperto(null)}
           onSaved={obtenerExpertos}
         />
+      )}
+
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => { setShowCrearModal(false); setError(''); }}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Crear experto</h2>
+              <button className="modal-close" onClick={() => { setShowCrearModal(false); setError(''); }}>x</button>
+            </div>
+            <form className="modal-form" onSubmit={handleCreate}>
+              <div className="modal-row">
+                <label>Nombre   <input name="nombre"   value={form.nombre}   onChange={handleChange} placeholder="Nombre" required /></label>
+                <label>Apellido <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido" /></label>
+              </div>
+              <div className="modal-row">
+                <label>Correo   <input name="correo"   type="email" value={form.correo}   onChange={handleChange} placeholder="Correo" required /></label>
+                <label>Teléfono <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" /></label>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label>Contraseña <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña" required /></label>
+                <PasswordStrength password={form.password} role="experto" />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label>Confirmar contraseña <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" required /></label>
+              </div>
+              <label>Observaciones <textarea name="observaciones" value={form.observaciones} onChange={handleChange} placeholder="Observaciones" style={{ padding:'11px 14px', borderRadius:10, border:'1.5px solid #d1d5db', fontSize:14, background:'#fafafa', resize:'vertical', fontFamily:'inherit' }} /></label>
+              <label>Estado
+                <select name="activo" value={String(form.activo)} onChange={handleChange} style={{ padding:'11px 14px', borderRadius:10, border:'1.5px solid #d1d5db', fontSize:14, background:'#fafafa' }}>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </label>
+              {error && <p className="modal-error">{error}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => { setShowCrearModal(false); setError(''); }}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Creando…' : 'Crear experto'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </>
   )

@@ -69,12 +69,17 @@
 }
 
 @media (max-width: 768px) {
+  .tabla {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .tabla th,
   .tabla td {
     padding: 10px;
-    font-size: 13px;
+    font-size: 12px;
+    white-space: nowrap;
   }
-
   .acciones {
     flex-direction: column;
   }

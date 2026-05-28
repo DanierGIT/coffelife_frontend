@@ -447,3 +447,36 @@
   color: #b91c1c;
   background: #fce8e8;
 }
+
+/* ─── Back button pill ─── */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
+  font-family: inherit;
+  align-self: flex-start;
+}
+
+.back-btn:hover {
+  background: #c8e6c9;
+  box-shadow: 0 2px 8px rgba(46,125,50,0.18);
+  border-color: #a5d6a7;
+}
+
+.back-btn svg {
+  flex-shrink: 0;
+}
+
+/* ─── CultivosExperto page ─── */
+.cult-exp-page .back-btn {
+  margin-bottom: 0;
+}

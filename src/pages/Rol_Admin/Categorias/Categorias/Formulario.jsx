@@ -120,16 +120,18 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Eliminar este registro?')) return
+  const handleToggleActivo = async (item) => {
+    const nextState = item.activo === undefined ? false : !item.activo
+    const accion = nextState ? 'activar' : 'desactivar'
+    if (!window.confirm(`¿${accion} este registro?`)) return
     setError('')
     setSuccess('')
     try {
-      await deleteData(endpoint, id)
-      setSuccess('Registro eliminado.')
+      await updateData(endpoint, item[idField], { activo: nextState })
+      setSuccess(`Registro ${accion}do correctamente.`)
       fetchData()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar.')
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -194,10 +196,10 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
                     </button>
                     <button
                       type="button"
-                      className="delete-btn"
-                      onClick={() => handleDelete(getId(row))}
+                      className={row.activo === false ? 'edit-btn' : 'delete-btn'}
+                      onClick={() => handleToggleActivo(row)}
                     >
-                      Eliminar
+                      {row.activo === false ? 'Activar' : 'Desactivar'}
                     </button>
                   </td>
                 </tr>

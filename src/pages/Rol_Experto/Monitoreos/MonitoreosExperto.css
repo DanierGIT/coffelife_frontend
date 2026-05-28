@@ -149,18 +149,29 @@
 .mon-estado.completado { background: #dcfce7; color: #16a34a; }
 .mon-estado.pendiente  { background: #fef3c7; color: #d97706; }
 
-.mon-btn-del {
-  background: #fee2e2;
+.btn-toggle {
+  padding: 5px 12px;
   border: none;
-  padding: 6px;
   border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  color: #dc2626;
-  display: flex;
-  align-items: center;
   transition: background 0.15s;
 }
-.mon-btn-del:hover { background: #fca5a5; }
+.btn-toggle.toggle-on {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.btn-toggle.toggle-on:hover {
+  background: #bbf7d0;
+}
+.btn-toggle.toggle-off {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.btn-toggle.toggle-off:hover {
+  background: #fca5a5;
+}
 
 .mon-exp-empty {
   padding: 32px;

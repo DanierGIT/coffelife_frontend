@@ -9,6 +9,7 @@ import api from "../../../services/api"
 import PasswordStrength from "../../../components/PasswordStrength"
 import { validatePassword } from "../../../utils/passwordValidator"
 import "./styles/cafeteros.css"
+import "../Administrador/Administrador.css"
 
 // ── Modal de edición ─────────────────────────────────────────────────────────
 function EditModal({ cafetero, onClose, onSaved }) {
@@ -117,6 +118,7 @@ export default function Cafetero() {
   const [loading,         setLoading]   = useState(false)
   const [error,           setError]     = useState("")
   const [success,         setSuccess]   = useState("")
+  const [showCrearModal,  setShowCrearModal] = useState(false)
 
   const [form, setForm] = useState({
     nombre: "", apellido: "", correo: "", telefono: "",
@@ -161,6 +163,7 @@ export default function Cafetero() {
       await api.post("/cafeteros", form)
       setForm({ nombre: "", apellido: "", correo: "", telefono: "", password: "", confirmPassword: "", observaciones: "", activo: true })
       setSuccess("Cafetero creado correctamente.")
+      setShowCrearModal(false)
       getCafeteros()
     } catch (err) {
       setError(err?.response?.data?.message || "No se pudo crear el cafetero.")
@@ -183,37 +186,34 @@ export default function Cafetero() {
 
   return (
     <div className="admin-page">
-      <h1 className="admin-page-title">Cafeteros</h1>
-
-      <div className="admin-form-card">
-        <h2 className="admin-form-title">Nuevo cafetero</h2>
-        <form className="admin-form" onSubmit={handleCreate}>
-          <input name="nombre"        value={form.nombre}        onChange={handleChange} placeholder="Nombre"        required />
-          <input name="apellido"      value={form.apellido}      onChange={handleChange} placeholder="Apellido"      required />
-          <input name="correo"        value={form.correo}        onChange={handleChange} placeholder="Correo"        type="email" required />
-          <input name="telefono"      value={form.telefono}      onChange={handleChange} placeholder="Teléfono" />
-          <input name="observaciones" value={form.observaciones} onChange={handleChange} placeholder="Observaciones" />
-          <div style={{ position: 'relative' }}>
-            <input name="password" value={form.password} onChange={handleChange} placeholder="Contraseña (mín. 6)" type="password" required />
-            <PasswordStrength password={form.password} role="cafetero" />
-          </div>
-          <div style={{ position: 'relative' }}>
-            <input name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" type="password" required />
-          </div>
-          <select name="activo" value={String(form.activo)} onChange={handleChange} className="admin-form-select">
-            <option value="true">Activo</option>
-            <option value="false">Inactivo</option>
-          </select>
-
-          {error   && <p className="modal-error" style={{ marginTop: 8 }}>{error}</p>}
-          {success && <p style={{ marginTop: 8, color: "#2e7d32", fontSize: 13 }}>✅ {success}</p>}
-
-          <div className="admin-form-actions">
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "Creando..." : "Crear"}
-            </button>
-          </div>
-        </form>
+      <div className="page-header">
+        <h1>Cafeteros</h1>
+        <p>Usuarios cafeteros del sistema</p>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar cafetero
+        </button>
       </div>
 
       <div className="admin-table-card">
@@ -269,6 +269,46 @@ export default function Cafetero() {
           onClose={() => setEditing(null)}
           onSaved={getCafeteros}
         />
+      )}
+
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => { setShowCrearModal(false); setError(''); }}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Crear cafetero</h2>
+              <button className="modal-close" onClick={() => { setShowCrearModal(false); setError(''); }}>x</button>
+            </div>
+            <form className="modal-form" onSubmit={handleCreate}>
+              <div className="modal-row">
+                <label>Nombre   <input name="nombre"   value={form.nombre}   onChange={handleChange} placeholder="Nombre" required /></label>
+                <label>Apellido <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido" required /></label>
+              </div>
+              <label>Correo   <input name="correo"   type="email" value={form.correo}   onChange={handleChange} placeholder="Correo" required /></label>
+              <label>Teléfono <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" /></label>
+              <label>Observaciones <textarea name="observaciones" value={form.observaciones} onChange={handleChange} placeholder="Observaciones" style={{ padding:'11px 14px', borderRadius:10, border:'1.5px solid #d1d5db', fontSize:14, background:'#fafafa', resize:'vertical', fontFamily:'inherit', width:'100%' }} /></label>
+              <label>Estado
+                <select name="activo" value={String(form.activo)} onChange={handleChange} style={{ padding:'11px 14px', borderRadius:10, border:'1.5px solid #d1d5db', fontSize:14, background:'#fafafa' }}>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </label>
+              <div style={{ position: 'relative' }}>
+                <label>Contraseña <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña (mín. 6)" required /></label>
+                <PasswordStrength password={form.password} role="cafetero" />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label>Confirmar contraseña <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" required /></label>
+              </div>
+              {error && <p className="modal-error">{error}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => { setShowCrearModal(false); setError(''); }}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Creando…' : 'Crear cafetero'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   )

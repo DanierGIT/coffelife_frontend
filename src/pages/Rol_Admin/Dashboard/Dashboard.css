@@ -3,16 +3,43 @@
    ══════════════════════════════════════════ */
 
 .dashboard-title {
-  margin: 0 0 4px;
-  font-size: 28px;
+  margin: 0;
+  font-size: 24px;
   font-weight: 700;
   color: #1b5e20;
 }
 
 .dashboard-subtitle {
-  margin: 0 0 28px;
+  margin: 4px 0 0;
   color: #6b7280;
-  font-size: 15px;
+  font-size: 14px;
+}
+
+.dashboard-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 40px 20px 32px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.welcome-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 16px;
 }
 
 /* ─── Tarjetas ─── */
@@ -21,6 +48,19 @@
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 20px;
   margin-bottom: 36px;
+}
+
+.dashboard-cards.centered {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dashboard-cards.centered > * {
+  flex: 0 1 220px;
 }
 
 .dashboard-card {
@@ -82,6 +122,7 @@
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
 .card-value {
@@ -89,6 +130,29 @@
   font-size: 32px;
   font-weight: 700;
   color: #1b5e20;
+  text-align: center;
+}
+
+.card-note {
+  margin: 0;
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.card-progress-label {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.card-value {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1b5e20;
+  text-align: center;
 }
 
 .card-note {
@@ -244,11 +308,35 @@
   align-items: center;
   justify-content: center;
   color: #2e7d32;
-  margin-bottom: 4px;
+  margin: 0 auto 4px;
 }
 
 @media (max-width: 900px) {
   .dashboard-flow {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-title {
+    font-size: 20px;
+  }
+  .dashboard-welcome {
+    padding: 28px 16px 24px;
+    margin-bottom: 24px;
+  }
+  .welcome-avatar {
+    width: 52px;
+    height: 52px;
+  }
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .dashboard-cards.centered > * {
+    flex: 0 1 100%;
+  }
+  .card-value {
+    font-size: 26px;
   }
 }

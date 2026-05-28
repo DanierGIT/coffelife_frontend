@@ -68,18 +68,20 @@ export default function CatNivelesRoya() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Eliminar este nivel de roya?')) return
+  const handleToggleActivo = async (item) => {
+    const nextState = item.activo === undefined ? false : !item.activo
+    const accion = nextState ? 'activar' : 'desactivar'
+    if (!window.confirm(`¿${accion} este nivel de roya?`)) return
 
     setError('')
     setSuccess('')
 
     try {
-      await api.delete(`/cat_niveles_roya/${id}`)
-      setSuccess('Nivel de roya eliminado.')
+      await api.put(`/cat_niveles_roya/${item.idNivel}`, { activo: nextState })
+      setSuccess(`Nivel de roya ${accion}do correctamente.`)
       cargarNiveles()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar.')
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -154,10 +156,10 @@ export default function CatNivelesRoya() {
 
                       <button
                         type="button"
-                        className="delete-btn"
-                        onClick={() => handleDelete(nivel.idNivel)}
+                        className={nivel.activo === false ? 'edit-btn' : 'delete-btn'}
+                        onClick={() => handleToggleActivo(nivel)}
                       >
-                        Eliminar
+                        {nivel.activo === false ? 'Activar' : 'Desactivar'}
                       </button>
                     </td>
                   </tr>

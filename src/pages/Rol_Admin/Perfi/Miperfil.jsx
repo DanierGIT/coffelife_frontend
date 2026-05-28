@@ -85,6 +85,7 @@ export default function MiPerfil() {
   const [pwForm, setPwForm] = useState({
     passwordActual: '', passwordNueva: '', passwordConfirm: '',
   })
+  const [pwCurrentError, setPwCurrentError] = useState('')
 
   useEffect(() => {
     api.get('/mi-perfil')
@@ -115,7 +116,10 @@ export default function MiPerfil() {
   }, [user])
 
   const handleChange   = (e) => setForm({ ...form, [e.target.name]: e.target.value })
-  const handlePwChange = (e) => setPwForm({ ...pwForm, [e.target.name]: e.target.value })
+  const handlePwChange = (e) => {
+    setPwForm({ ...pwForm, [e.target.name]: e.target.value })
+    if (e.target.name === 'passwordActual') setPwCurrentError('')
+  }
 
   const handleFotoChange = (e) => {
     const file = e.target.files[0]
@@ -161,17 +165,25 @@ export default function MiPerfil() {
 
   const handleChangePw = async (e) => {
     e.preventDefault()
-    if (pwForm.passwordNueva !== pwForm.passwordConfirm) {
-      setError('Las contraseñas nuevas no coinciden.')
+    setError('')
+    setSuccess('')
+    if (!pwForm.passwordActual.trim()) {
+      setError('Debes ingresar tu contraseña actual.')
       return
     }
     if (pwForm.passwordNueva.length < 6) {
       setError('La nueva contraseña debe tener al menos 6 caracteres.')
       return
     }
+    if (pwForm.passwordNueva === pwForm.passwordActual) {
+      setError('La nueva contraseña debe ser diferente a la actual.')
+      return
+    }
+    if (pwForm.passwordNueva !== pwForm.passwordConfirm) {
+      setError('Las contraseñas nuevas no coinciden.')
+      return
+    }
     setSaving(true)
-    setError('')
-    setSuccess('')
     try {
       await api.post('/mi-perfil/cambiar-password', {
         passwordActual: pwForm.passwordActual,
@@ -184,7 +196,20 @@ export default function MiPerfil() {
         setSuccess('')
       }, 1500)
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo cambiar la contraseña.')
+      const status = err?.response?.status
+      const msg = err?.response?.data?.message || err?.response?.data?.error || ''
+      if (status === 401 || status === 400) {
+        setPwCurrentError(msg || 'Contraseña actual incorrecta.')
+        setError('')
+      } else if (msg) {
+        setError(msg)
+      } else if (status === 422) {
+        setError('La nueva contraseña no cumple los requisitos.')
+      } else if (status === 404) {
+        setError('El servicio de cambio de contraseña no está disponible.')
+      } else {
+        setError('No se pudo cambiar la contraseña. Intenta de nuevo.')
+      }
     } finally {
       setSaving(false)
     }
@@ -226,8 +251,8 @@ export default function MiPerfil() {
       {panelOpen && error   && <div className="mp-alert mp-alert--error"><span>⚠</span>{error}</div>}
       {panelOpen && success && <div className="mp-alert mp-alert--success"><span>✓</span>{success}</div>}
 
-      {/* ── Escenario animado ── */}
-      <div className={`mp-stage${panelOpen ? ' mp-stage--open' : ''}`}>
+      {/* ── Tarjeta de perfil + Panel ── */}
+      <div className={`mp-body${panelOpen ? ' mp-body--open' : ''}`}>
 
         {/* ── Tarjeta de perfil ── */}
         <aside className="mp-sidebar">
@@ -335,7 +360,7 @@ export default function MiPerfil() {
               </button>
               <button
                 className={`mp-tab${tab === 'seguridad' ? ' active' : ''}`}
-                onClick={() => { setTab('seguridad'); setError(''); setSuccess('') }}
+                onClick={() => { setTab('seguridad'); setError(''); setSuccess(''); setPwCurrentError('') }}
               >
                 Seguridad
               </button>
@@ -420,19 +445,41 @@ export default function MiPerfil() {
               </div>
 
               <div className="mp-field">
-                <label>Contraseña actual</label>
-                <input type="password" name="passwordActual" value={pwForm.passwordActual} onChange={handlePwChange} placeholder="••••••••" required />
+                <label>Contraseña actual <span className="mp-req">*</span></label>
+                <input
+                  type="password"
+                  name="passwordActual"
+                  value={pwForm.passwordActual}
+                  onChange={handlePwChange}
+                  placeholder="••••••••"
+                  className={pwCurrentError ? 'mp-input-error' : ''}
+                  required
+                />
+                {pwCurrentError && <span className="mp-pw-hint mp-pw-hint--error">{pwCurrentError}</span>}
               </div>
 
               <div className="mp-field">
-                <label>Nueva contraseña</label>
-                <input type="password" name="passwordNueva" value={pwForm.passwordNueva} onChange={handlePwChange} placeholder="••••••••" required />
+                <label>Nueva contraseña <span className="mp-req">*</span></label>
+                <input type="password" name="passwordNueva" value={pwForm.passwordNueva} onChange={handlePwChange} placeholder="••••••••" minLength={6} required />
                 <PasswordStrength password={pwForm.passwordNueva} />
               </div>
 
               <div className="mp-field">
-                <label>Confirmar nueva contraseña</label>
-                <input type="password" name="passwordConfirm" value={pwForm.passwordConfirm} onChange={handlePwChange} placeholder="••••••••" required />
+                <label>Confirmar nueva contraseña <span className="mp-req">*</span></label>
+                <div className="mp-pw-confirm-wrap">
+                  <input type="password" name="passwordConfirm" value={pwForm.passwordConfirm} onChange={handlePwChange} placeholder="••••••••" required />
+                  {pwForm.passwordConfirm && (
+                    <span className={`mp-pw-match-icon${pwForm.passwordNueva === pwForm.passwordConfirm ? ' mp-pw-match' : ''}`}>
+                      {pwForm.passwordNueva === pwForm.passwordConfirm ? '✓' : '✗'}
+                    </span>
+                  )}
+                </div>
+                {pwForm.passwordConfirm && pwForm.passwordNueva !== pwForm.passwordConfirm && (
+                  <span className="mp-pw-hint mp-pw-hint--error">Las contraseñas no coinciden</span>
+                )}
+                {pwForm.passwordConfirm && pwForm.passwordNueva === pwForm.passwordConfirm && (
+                  <span className="mp-pw-hint mp-pw-hint--ok">Las contraseñas coinciden</span>
+                )}
               </div>
 
               <div className="mp-form-actions">

@@ -4,6 +4,7 @@ import L from 'leaflet'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import './Fincas.css'
+import '../Administrador/Administrador.css'
 
 delete L.Icon.Default.prototype._getIconUrl
 
@@ -178,16 +179,24 @@ export default function Fincas() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showMap, setShowMap] = useState(true)
 
   const [expertos, setExpertos] = useState([])
+  const [cafeteros, setCafeteros] = useState([])
   const [selectedFinca, setSelectedFinca] = useState(null)
   const [selectedExperto, setSelectedExperto] = useState('')
   const [showAsignarModal, setShowAsignarModal] = useState(false)
+  const [showCafeteroModal, setShowCafeteroModal] = useState(false)
+  const [selectedCafetero, setSelectedCafetero] = useState('')
+  const [showDetalleModal, setShowDetalleModal] = useState(false)
+  const [detalleFinca, setDetalleFinca] = useState(null)
 
   const [showCultivoModal, setShowCultivoModal] = useState(false)
   const [selectedFincaForCultivo, setSelectedFincaForCultivo] = useState(null)
   const [estadosCultivo, setEstadosCultivo] = useState([])
   const [cultivoLoading, setCultivoLoading] = useState(false)
+  const [cultivosFinca, setCultivosFinca] = useState([])
+  const [editandoCultivo, setEditandoCultivo] = useState(null)
   const [cultivoForm, setCultivoForm] = useState({
     nombre_cultivo: '',
     tipo_cultivo: '',
@@ -210,6 +219,7 @@ export default function Fincas() {
   const [ubicacionLng, setUbicacionLng] = useState('')
 
   const [editingFinca, setEditingFinca] = useState(null)
+  const [showCrearModal, setShowCrearModal] = useState(false)
   const [editForm, setEditForm] = useState({
     nombre_finca: '',
     municipio: '',
@@ -224,10 +234,11 @@ export default function Fincas() {
 
     try {
 
-      const [fincasRes, asignacionesRes, cultivosRes] = await Promise.all([
+      const [fincasRes, asignacionesRes, cultivosRes, cafeterosRes] = await Promise.all([
         api.get('/fincas'),
         api.get('/asignaciones_expertos'),
         api.get('/cultivos?limit=1000'),
+        api.get('/cafeteros'),
       ])
 
       const fincasData = Array.isArray(fincasRes.data)
@@ -248,13 +259,23 @@ export default function Fincas() {
         cultivosPorFinca[id] = (cultivosPorFinca[id] || 0) + 1
       })
 
-      const fincasConExpertos = fincasData.map((finca) => {
+      const cafeterosData = Array.isArray(cafeterosRes.data)
+        ? cafeterosRes.data
+        : (cafeterosRes.data?.data ?? [])
+
+      const fincasConAsignaciones = fincasData.map((finca) => {
         const asignacion = asignaciones.find(
           (a) => Number(a.idFinca) === Number(finca.idFinca)
+        )
+        const cafetero = cafeterosData.find(
+          (c) => Number(c.idUsuario) === Number(finca.idUsuario)
         )
         const result = {
           ...finca,
           totalCultivos: cultivosPorFinca[finca.idFinca] || 0,
+          activo: finca.activo !== undefined ? finca.activo : true,
+          nombreCafetero: cafetero ? `${cafetero.nombre} ${cafetero.apellido}` : null,
+          idCafeteroAsignado: finca.idUsuario || null,
         }
         if (asignacion?.experto) {
           return {
@@ -267,7 +288,7 @@ export default function Fincas() {
         return { ...result, nombreExperto: null, idAsignacion: null, idExpertoAsignado: null }
       })
 
-      setFincas(fincasConExpertos)
+      setFincas(fincasConAsignaciones)
 
     } catch {
 
@@ -289,6 +310,16 @@ export default function Fincas() {
 
     } catch (error) {
 
+      console.log(error)
+    }
+  }
+
+  const getCafeteros = async () => {
+    try {
+      const res = await api.get('/cafeteros')
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      setCafeteros(data)
+    } catch (error) {
       console.log(error)
     }
   }
@@ -315,6 +346,7 @@ export default function Fincas() {
 
     getFincas()
     getExpertos()
+    getCafeteros()
     getEstadosCultivo()
 
   }, [])
@@ -391,7 +423,7 @@ export default function Fincas() {
       })
 
       setSuccess('Finca registrada correctamente.')
-
+      setShowCrearModal(false)
       getFincas()
 
     } catch (err) {
@@ -486,10 +518,53 @@ export default function Fincas() {
     }
   }
 
-  const openCultivoModal = (finca) => {
+  const handleToggleActivo = async (finca) => {
+    try {
+      const nuevoEstado = !finca.activo
+      await api.put(`/fincas/${finca.idFinca}`, { activo: nuevoEstado })
+      setFincas((prev) =>
+        prev.map((f) =>
+          f.idFinca === finca.idFinca ? { ...f, activo: nuevoEstado } : f
+        )
+      )
+    } catch (err) {
+      setError(
+        err?.response?.data?.message ||
+        'No se pudo cambiar el estado de la finca.'
+      )
+    }
+  }
+
+  const cargarCultivosFinca = async (idFinca) => {
+    try {
+      const res = await api.get('/cultivos?limit=1000')
+      const todos = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      setCultivosFinca(todos.filter((c) => Number(c.idFinca) === Number(idFinca)))
+    } catch {
+      setCultivosFinca([])
+    }
+  }
+
+  const openCultivoModal = async (finca) => {
     setSelectedFincaForCultivo(finca)
+    setEditandoCultivo(null)
     setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '', id_estado_cultivo: '' })
     setShowCultivoModal(true)
+    await cargarCultivosFinca(finca.idFinca)
+  }
+
+  const handleEditCultivo = (cultivo) => {
+    setEditandoCultivo(cultivo)
+    setCultivoForm({
+      nombre_cultivo: cultivo.nombreCultivo || cultivo.nombre_cultivo || '',
+      tipo_cultivo: cultivo.tipoCultivo || cultivo.tipo_cultivo || '',
+      id_estado_cultivo: cultivo.idEstado ? String(cultivo.idEstado) : (cultivo.id_estado_cultivo ? String(cultivo.id_estado_cultivo) : ''),
+    })
+  }
+
+  const handleCancelEditCultivo = () => {
+    setEditandoCultivo(null)
+    setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '', id_estado_cultivo: '' })
   }
 
   const handleCultivoChange = (e) => {
@@ -508,69 +583,94 @@ export default function Fincas() {
         id_finca: selectedFincaForCultivo.idFinca,
         nombre_cultivo: cultivoForm.nombre_cultivo.trim(),
         tipo_cultivo: cultivoForm.tipo_cultivo.trim(),
-        id_estado_cultivo: cultivoForm.id_estado_cultivo
+        id_estado: cultivoForm.id_estado_cultivo
           ? Number(cultivoForm.id_estado_cultivo)
           : undefined,
       }
-      await api.post('/cultivos', payload)
-      setShowCultivoModal(false)
-      setSelectedFincaForCultivo(null)
+      if (editandoCultivo) {
+        await api.put(`/cultivos/${editandoCultivo.idCultivo}`, payload)
+      } else {
+        await api.post('/cultivos', payload)
+      }
       setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '', id_estado_cultivo: '' })
-      alert('Cultivo registrado correctamente.')
+      setEditandoCultivo(null)
+      await cargarCultivosFinca(selectedFincaForCultivo.idFinca)
+      getFincas()
     } catch (err) {
       console.log(err.response?.data)
-      alert(err?.response?.data?.message || 'No se pudo registrar el cultivo.')
+      alert(err?.response?.data?.message || 'No se pudo guardar el cultivo.')
     } finally {
       setCultivoLoading(false)
     }
   }
 
+  const handleDeleteCultivo = async (idCultivo) => {
+    if (!window.confirm('¿Eliminar este cultivo?')) return
+    try {
+      await api.delete(`/cultivos/${idCultivo}`)
+      setCultivosFinca((prev) => prev.filter((c) => c.idCultivo !== idCultivo))
+      getFincas()
+    } catch (err) {
+      alert(err?.response?.data?.message || 'No se pudo eliminar el cultivo.')
+    }
+  }
+
   const handleAsignarExperto = async () => {
 
-    if (!selectedExperto || !selectedFinca) {
-      alert('Selecciona un experto')
-      return
-    }
+    if (!selectedFinca) return
 
     try {
 
-      const payload = {
-        idExperto: Number(selectedExperto),
-        idFinca: selectedFinca.idFinca,
-        fechaAsignada: new Date().toISOString().split('T')[0],
-      }
+      if (!selectedExperto) {
 
-      // Si la finca ya tiene asignacion -> PUT (editar), si no -> POST (crear nueva)
-      if (selectedFinca.idAsignacion) {
-        await api.put(`/asignaciones_expertos/${selectedFinca.idAsignacion}`, payload)
-      } else {
-        await api.post('/asignaciones_expertos', payload)
-      }
+        if (selectedFinca.idAsignacion) {
+          await api.delete(`/asignaciones_expertos/${selectedFinca.idAsignacion}`)
+        }
 
-      const expertoSeleccionado = expertos.find(
-        (exp) => exp.idUsuario == selectedExperto
-      )
-
-      const nombreExperto = `${expertoSeleccionado?.nombre} ${expertoSeleccionado?.apellido}`
-
-      // Actualizar boton de forma inmediata
-      setFincas((prev) =>
-        prev.map((finca) =>
-          finca.idFinca === selectedFinca.idFinca
-            ? { ...finca, nombreExperto, idExpertoAsignado: Number(selectedExperto) }
-            : finca
+        setFincas((prev) =>
+          prev.map((finca) =>
+            finca.idFinca === selectedFinca.idFinca
+              ? { ...finca, nombreExperto: null, idExpertoAsignado: null, idAsignacion: null }
+              : finca
+          )
         )
-      )
+
+      } else {
+
+        const payload = {
+          idExperto: Number(selectedExperto),
+          idFinca: selectedFinca.idFinca,
+          fechaAsignada: new Date().toISOString().split('T')[0],
+        }
+
+        if (selectedFinca.idAsignacion) {
+          await api.put(`/asignaciones_expertos/${selectedFinca.idAsignacion}`, payload)
+        } else {
+          await api.post('/asignaciones_expertos', payload)
+        }
+
+        const expertoSeleccionado = expertos.find(
+          (exp) => exp.idUsuario == selectedExperto
+        )
+
+        const nombreExperto = `${expertoSeleccionado?.nombre} ${expertoSeleccionado?.apellido}`
+
+        setFincas((prev) =>
+          prev.map((finca) =>
+            finca.idFinca === selectedFinca.idFinca
+              ? { ...finca, nombreExperto, idExpertoAsignado: Number(selectedExperto) }
+              : finca
+          )
+        )
+      }
 
       setShowAsignarModal(false)
       setSelectedExperto('')
       setSelectedFinca(null)
 
-      // Refetch para sincronizar idAsignacion actualizado desde el servidor
       await getFincas()
 
     } catch (error) {
-
       console.error('Error asignando experto:', error.response?.data || error)
       alert(
         error.response?.data?.message ||
@@ -579,129 +679,111 @@ export default function Fincas() {
     }
   }
 
+  const handleAsignarCafetero = async () => {
+    if (!selectedFinca) return
+    try {
+      if (!selectedCafetero) {
+        await api.put(`/fincas/${selectedFinca.idFinca}`, { id_usuario: null })
+        setFincas((prev) =>
+          prev.map((f) =>
+            f.idFinca === selectedFinca.idFinca
+              ? { ...f, nombreCafetero: null, idCafeteroAsignado: null, id_usuario: null }
+              : f
+          )
+        )
+      } else {
+        await api.put(`/fincas/${selectedFinca.idFinca}`, { id_usuario: Number(selectedCafetero) })
+        const cafetero = cafeteros.find((c) => c.idUsuario == selectedCafetero)
+        const nombreCafetero = cafetero ? `${cafetero.nombre} ${cafetero.apellido}` : null
+        setFincas((prev) =>
+          prev.map((f) =>
+            f.idFinca === selectedFinca.idFinca
+              ? { ...f, nombreCafetero, idCafeteroAsignado: Number(selectedCafetero), id_usuario: Number(selectedCafetero) }
+              : f
+          )
+        )
+      }
+      setShowCafeteroModal(false)
+      setSelectedCafetero('')
+      setSelectedFinca(null)
+      await getFincas()
+    } catch (error) {
+      console.error('Error asignando cafetero:', error.response?.data || error)
+      alert(error.response?.data?.message || 'No se pudo asignar el cafetero.')
+    }
+  }
+
   return (
     <>
 
-      <h1 className="admin-page-title">
-        Fincas
-      </h1>
+      <div className="page-header">
+        <h1>Fincas</h1>
+        <p>Gestión de fincas registradas</p>
+      </div>
 
       <div className="admin-form-card">
-
-        <h2 className="admin-form-title">
-          Registrar nueva finca
-        </h2>
-
-        <form
-          className="finca-form"
-          onSubmit={handleCreate}
-        >
-
-          <div className="finca-form-row">
-
-            <input
-              name="nombre_finca"
-              value={form.nombre_finca}
-              onChange={handleChange}
-              placeholder="Nombre de la finca"
-              required
-            />
-
-            <input
-              name="municipio"
-              value={form.municipio}
-              onChange={handleChange}
-              placeholder="Municipio"
-              required
-            />
-
-            <input
-              name="departamento"
-              value={form.departamento}
-              onChange={handleChange}
-              placeholder="Departamento"
-              required
-            />
-
+        <div className="map-card-header">
+          <div className="map-card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#2e7d32" stroke="#2e7d32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>Mapa de fincas registradas</span>
+            <span className="map-card-badge">{fincas.length} fincas</span>
           </div>
-
-          <div className="finca-form-row">
-
-            <input
-              name="altitud_msnm"
-              value={form.altitud_msnm}
-              onChange={handleChange}
-              placeholder="Altitud (msnm)"
-            />
-
-            <input
-              name="area_hectareas"
-              value={form.area_hectareas}
-              onChange={handleChange}
-              placeholder="Área (hectáreas)"
-            />
-
-            <button
-              type="button"
-              className="btn-ubicacion"
-              onClick={() => openUbicacionPicker('create')}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-              {form.latitud && form.longitud
-                ? `Ubicación: ${form.latitud}, ${form.longitud}`
-                : 'Seleccionar ubicación'}
-            </button>
-
-          </div>
-
-          {error && (
-            <p className="modal-error">
-              {error}
-            </p>
-          )}
-
-          {success && (
-            <p className="finca-success">
-              {success}
-            </p>
-          )}
-
-          <div className="admin-form-actions">
-
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={loading}
-            >
-              {loading
-                ? 'Registrando...'
-                : 'Registrar finca'}
-            </button>
-
-          </div>
-
-        </form>
-
+          <button className="btn-primary" onClick={() => setShowMap(!showMap)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            {showMap ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+                Ocultar mapa
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Mostrar mapa
+              </>
+            )}
+          </button>
+        </div>
+        {showMap && <MapaGeneral fincas={fincas} />}
       </div>
 
       <div className="admin-table-card">
+
+        <div className="map-card-header">
+          <div className="map-card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#2e7d32" stroke="#2e7d32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Fincas registradas</span>
+            <span className="map-card-badge">{fincas.length} fincas</span>
+          </div>
+          <button className="btn-primary" onClick={() => setShowCrearModal(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Agregar finca
+          </button>
+        </div>
 
         <table className="admin-table">
 
           <thead>
 
             <tr>
-              <th>#</th>
+              <th style={{ width: '50px' }}>#</th>
               <th>Nombre</th>
-              <th>Municipio</th>
-              <th>Departamento</th>
-              <th>Altitud</th>
-              <th>Área</th>
-              <th>Cultivos</th>
-              <th>Acciones</th>
+              <th style={{ width: '110px' }}>Estado</th>
+              <th style={{ width: '220px' }}>Acciones</th>
             </tr>
 
           </thead>
@@ -711,7 +793,7 @@ export default function Fincas() {
             {fincas.length === 0 ? (
 
               <tr>
-                <td colSpan={8} className="finca-empty">
+                <td colSpan={4} className="finca-empty">
                   No hay fincas registradas
                 </td>
               </tr>
@@ -720,31 +802,40 @@ export default function Fincas() {
 
               fincas.map((f, idx) => (
 
-                <tr key={f.idFinca}>
+                <tr key={f.idFinca} className={!f.activo ? 'fila-inactiva' : ''}>
 
                   <td>{idx + 1}</td>
-                  <td>{f.nombreFinca}</td>
-                  <td>{f.municipio}</td>
-                  <td>{f.departamento}</td>
-
                   <td>
-                    {f.altitudMsnm
-                      ? `${f.altitudMsnm} m`
-                      : '—'}
+                    <span className="finca-nombre-link" onClick={() => { setDetalleFinca(f); setShowDetalleModal(true) }}>
+                      {f.nombreFinca}
+                    </span>
                   </td>
 
                   <td>
-                    {f.areaHectareas ?? '—'}
+                    <span className={`estado-badge ${f.activo ? 'badge-active' : 'badge-inactive'}`}>
+                      <span className="badge-dot" />
+                      {f.activo ? 'Activo' : 'Inactivo'}
+                    </span>
                   </td>
-
-                  <td>{f.totalCultivos ?? 0}</td>
 
                   <td className="td-actions">
+
+                    <button
+                      className="btn-icon btn-icon-ver"
+                      onClick={() => { setDetalleFinca(f); setShowDetalleModal(true) }}
+                      title="Ver detalle de la finca"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
 
                     <button
                       className="btn-icon btn-icon-experto"
                       onClick={() => {
                         setSelectedFinca(f)
+                        setSelectedExperto(f.idExpertoAsignado ? String(f.idExpertoAsignado) : '')
                         setShowAsignarModal(true)
                       }}
                       title={f.nombreExperto ? `Experto: ${f.nombreExperto}` : 'Asignar experto'}
@@ -752,6 +843,23 @@ export default function Fincas() {
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </button>
+
+                    <button
+                      className="btn-icon btn-icon-cafetero"
+                      onClick={() => {
+                        setSelectedFinca(f)
+                        setSelectedCafetero(f.idCafeteroAsignado ? String(f.idCafeteroAsignado) : '')
+                        setShowCafeteroModal(true)
+                      }}
+                      title={f.nombreCafetero ? `Cafetero: ${f.nombreCafetero}` : 'Asignar cafetero'}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                       </svg>
                     </button>
 
@@ -777,6 +885,26 @@ export default function Fincas() {
                       </svg>
                     </button>
 
+                    <button
+                      className={`btn-icon btn-icon-toggle ${f.activo ? 'desactivar' : 'activar'}`}
+                      onClick={() => handleToggleActivo(f)}
+                      title={f.activo ? 'Desactivar finca' : 'Activar finca'}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {f.activo ? (
+                          <>
+                            <rect x="1" y="5" width="22" height="14" rx="7" ry="7"/>
+                            <circle cx="16" cy="12" r="3"/>
+                          </>
+                        ) : (
+                          <>
+                            <rect x="1" y="5" width="22" height="14" rx="7" ry="7"/>
+                            <circle cx="8" cy="12" r="3"/>
+                          </>
+                        )}
+                      </svg>
+                    </button>
+
                   </td>
 
                 </tr>
@@ -790,12 +918,38 @@ export default function Fincas() {
 
       </div>
 
-      <div className="admin-form-card">
-        <h2 className="admin-form-title">
-          Mapa de fincas registradas
-        </h2>
-        <MapaGeneral fincas={fincas} />
-      </div>
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h2>Registrar nueva finca</h2>
+            <form className="finca-form" onSubmit={handleCreate}>
+              <div className="finca-form-row">
+                <input name="nombre_finca" value={form.nombre_finca} onChange={handleChange} placeholder="Nombre de la finca" required />
+                <input name="municipio" value={form.municipio} onChange={handleChange} placeholder="Municipio" required />
+                <input name="departamento" value={form.departamento} onChange={handleChange} placeholder="Departamento" required />
+              </div>
+              <div className="finca-form-row">
+                <input name="altitud_msnm" value={form.altitud_msnm} onChange={handleChange} placeholder="Altitud (msnm)" />
+                <input name="area_hectareas" value={form.area_hectareas} onChange={handleChange} placeholder="Área (hectáreas)" />
+                <button type="button" className="btn-ubicacion" onClick={() => openUbicacionPicker('create')}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  {form.latitud && form.longitud ? `Ubicación: ${form.latitud}, ${form.longitud}` : 'Seleccionar ubicación'}
+                </button>
+              </div>
+              {error && <p className="modal-error">{error}</p>}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Registrando...' : 'Registrar finca'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showAsignarModal && (
 
@@ -821,21 +975,28 @@ export default function Fincas() {
               </strong>
             </p>
 
+            {selectedFinca?.nombreExperto ? (
+              <p className="experto-actual">
+                Experto actual: <strong>{selectedFinca.nombreExperto}</strong>
+              </p>
+            ) : (
+              <p className="experto-sin-asignar">
+                Esta finca no tiene experto asignado
+              </p>
+            )}
+
             <select
               value={selectedExperto}
               onChange={(e) =>
                 setSelectedExperto(e.target.value)
               }
-              style={{
-                width: '100%',
-                padding: '10px',
-                marginTop: '20px',
-                marginBottom: '20px',
-              }}
+              className="experto-select"
             >
 
               <option value="">
-                Selecciona un experto
+                {selectedFinca?.nombreExperto
+                  ? 'Cambiar experto...'
+                  : 'Selecciona un experto'}
               </option>
 
               {expertos.map((exp) => (
@@ -851,18 +1012,13 @@ export default function Fincas() {
 
             </select>
 
-            <div
-              style={{
-                display: 'flex',
-                gap: '10px',
-              }}
-            >
+            <div className="experto-modal-actions">
 
               <button
                 className="btn-primary"
                 onClick={handleAsignarExperto}
               >
-                Guardar asignación
+                {selectedExperto ? 'Guardar asignación' : 'Dejar sin experto'}
               </button>
 
               <button
@@ -871,6 +1027,66 @@ export default function Fincas() {
                   setShowAsignarModal(false)
                 }
               >
+                Cancelar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {showCafeteroModal && selectedFinca && (
+
+        <div className="modal-overlay" onClick={() => setShowCafeteroModal(false)}>
+
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+
+            <h2>
+              Asignar cafetero — {selectedFinca.nombre_finca}
+            </h2>
+
+            {selectedFinca.nombreCafetero ? (
+              <p className="cafetero-asignado">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Cafetero <strong>{selectedFinca.nombreCafetero}</strong> asignado
+              </p>
+            ) : (
+              <p className="cafetero-sin-asignar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Esta finca no tiene cafetero asignado
+              </p>
+            )}
+
+            <select
+              className="experto-select"
+              value={selectedCafetero}
+              onChange={(e) => setSelectedCafetero(e.target.value)}
+            >
+              <option value="">Seleccione un cafetero</option>
+              {cafeteros.map((c) => (
+                <option key={c.idUsuario} value={c.idUsuario}>
+                  {c.nombre} {c.apellido}
+                </option>
+              ))}
+            </select>
+
+            <div className="experto-modal-actions">
+
+              <button className="btn-primary" onClick={handleAsignarCafetero}>
+                {selectedCafetero ? 'Guardar asignación' : 'Dejar sin cafetero'}
+              </button>
+
+              <button className="btn-secondary" onClick={() => setShowCafeteroModal(false)}>
                 Cancelar
               </button>
 
@@ -996,6 +1212,81 @@ export default function Fincas() {
 
       )}
 
+      {showDetalleModal && detalleFinca && (
+
+        <div className="modal-overlay" onClick={() => setShowDetalleModal(false)}>
+
+          <div className="modal-box modal-box--detalle" onClick={(e) => e.stopPropagation()}>
+
+            <div className="detalle-header">
+              <h2>{detalleFinca.nombreFinca}</h2>
+              <span className={`estado-badge ${detalleFinca.activo ? 'badge-active' : 'badge-inactive'}`}>
+                <span className="badge-dot" />
+                {detalleFinca.activo ? 'Activo' : 'Inactivo'}
+              </span>
+            </div>
+
+            <div className="detalle-grid">
+
+              <div className="detalle-field">
+                <span className="detalle-label">Municipio</span>
+                <span className="detalle-value">{detalleFinca.municipio || '—'}</span>
+              </div>
+
+              <div className="detalle-field">
+                <span className="detalle-label">Departamento</span>
+                <span className="detalle-value">{detalleFinca.departamento || '—'}</span>
+              </div>
+
+              <div className="detalle-field">
+                <span className="detalle-label">Altitud</span>
+                <span className="detalle-value">
+                  {detalleFinca.altitudMsnm ? `${detalleFinca.altitudMsnm} m.s.n.m.` : '—'}
+                </span>
+              </div>
+
+              <div className="detalle-field">
+                <span className="detalle-label">Área</span>
+                <span className="detalle-value">
+                  {detalleFinca.areaHectareas ? `${detalleFinca.areaHectareas} ha` : '—'}
+                </span>
+              </div>
+
+              <div className="detalle-field">
+                <span className="detalle-label">Cultivos registrados</span>
+                <span className="detalle-value">{detalleFinca.totalCultivos ?? 0}</span>
+              </div>
+
+              <div className="detalle-field">
+                <span className="detalle-label">Experto asignado</span>
+                <span className="detalle-value">
+                  {detalleFinca.nombreExperto || 'Sin asignar'}
+                </span>
+              </div>
+
+              {detalleFinca.latitud && detalleFinca.longitud && (
+                <div className="detalle-field detalle-field-full">
+                  <span className="detalle-label">Coordenadas</span>
+                  <span className="detalle-value">
+                    {detalleFinca.latitud}, {detalleFinca.longitud}
+                  </span>
+                </div>
+              )}
+
+            </div>
+
+            <div className="detalle-actions">
+              <button className="btn-secondary" onClick={() => setShowDetalleModal(false)}>
+                Cerrar
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
       {showUbicacionModal && (
         <UbicacionPickerModal
           latInicial={ubicacionLat}
@@ -1013,21 +1304,79 @@ export default function Fincas() {
         >
 
           <div
-            className="modal-box"
+            className="modal-box modal-box--cultivos"
             onClick={(e) => e.stopPropagation()}
           >
 
             <h2>
-              Registrar cultivo
+              {editandoCultivo ? 'Editar cultivo' : 'Registrar cultivo'}
             </h2>
 
             <p className="modal-help">
               Finca: <strong>{selectedFincaForCultivo?.nombreFinca}</strong>
             </p>
 
+            {/* Lista de cultivos existentes */}
+            {cultivosFinca.length > 0 && (
+              <div className="cultivos-lista">
+                <p className="cultivos-lista-titulo">Cultivos registrados</p>
+                <table className="cultivos-tabla">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Tipo</th>
+                      <th>Estado</th>
+                      <th style={{ width: '80px' }}>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cultivosFinca.map((c) => (
+                      <tr key={c.idCultivo} className={editandoCultivo?.idCultivo === c.idCultivo ? 'cultivo-fila-editando' : ''}>
+                        <td>{c.nombreCultivo || c.nombre_cultivo || '—'}</td>
+                        <td>{c.tipoCultivo || c.tipo_cultivo || '—'}</td>
+                        <td>
+                          <span className={`cultivo-estado-badge estado-${(c.estadoCultivo?.nombreEstado || c.estado_cultivo?.nombreEstado || '').toLowerCase()}`}>
+                            {c.estadoCultivo?.nombreEstado || c.estado_cultivo?.nombreEstado || '—'}
+                          </span>
+                        </td>
+                        <td className="cultivo-acciones">
+                          <button
+                            className="cultivo-btn cultivo-btn-editar"
+                            onClick={() => handleEditCultivo(c)}
+                            title="Editar cultivo"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                          </button>
+                          <button
+                            className="cultivo-btn cultivo-btn-eliminar"
+                            onClick={() => handleDeleteCultivo(c.idCultivo)}
+                            title="Eliminar cultivo"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {cultivosFinca.length === 0 && (
+              <p className="cultivos-sin-registros">No hay cultivos registrados en esta finca</p>
+            )}
+
+            <div className="cultivos-divider" />
+
             <form onSubmit={handleCreateCultivo}>
 
-              <div className="finca-form-row" style={{ marginTop: '16px' }}>
+              <div className="finca-form-row">
 
                 <input
                   name="nombre_cultivo"
@@ -1066,12 +1415,7 @@ export default function Fincas() {
 
               </div>
 
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                marginTop: '20px',
-              }}>
-
+              <div className="cultivo-form-actions">
                 <button
                   type="submit"
                   className="btn-primary"
@@ -1079,8 +1423,20 @@ export default function Fincas() {
                 >
                   {cultivoLoading
                     ? 'Guardando...'
-                    : 'Guardar cultivo'}
+                    : editandoCultivo
+                      ? 'Actualizar cultivo'
+                      : 'Guardar cultivo'}
                 </button>
+
+                {editandoCultivo && (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleCancelEditCultivo}
+                  >
+                    Cancelar edición
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -1088,11 +1444,11 @@ export default function Fincas() {
                   onClick={() => {
                     setShowCultivoModal(false)
                     setSelectedFincaForCultivo(null)
+                    setEditandoCultivo(null)
                   }}
                 >
-                  Cancelar
+                  Cerrar
                 </button>
-
               </div>
 
             </form>

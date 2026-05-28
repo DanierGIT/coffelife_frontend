@@ -18,10 +18,10 @@ import Fincas          from './pages/Rol_Admin/Fincas/Fincas'
 import Monitoreos      from './pages/Rol_Admin/Monitoreos/Monitoreos'
 import Categorias      from './pages/Rol_Admin/Categorias/Categorias/Categorias'
 import Usuarios        from './pages/Rol_Admin/Usuarios/Usuarios'
-import Prioridades     from './pages/Rol_Admin/Prioridades/Prioridades'
-import AnalisisIA      from './pages/Rol_Admin/AnalisisIA/AnalisisIA'
+// import Prioridades     from './pages/Rol_Admin/Prioridades/Prioridades'
+// import AnalisisIA      from './pages/Rol_Admin/AnalisisIA/AnalisisIA'
 import Recomendaciones from './pages/Rol_Admin/Recomendaciones/Recomendaciones'
-import Imagenes        from './pages/Rol_Admin/Imagenes/Imagenes'
+// import Imagenes        from './pages/Rol_Admin/Imagenes/Imagenes'
 import Tratamientos    from './pages/Rol_Admin/Tratamientos/Tratamientos'
 import Aplicacion      from './pages/Rol_Admin/AplicacionTratamientos/Aplicacion'
 import Cultivos        from './pages/Rol_Admin/Cultivos/Cultivos'
@@ -38,6 +38,8 @@ import HistorialExperto      from './pages/Rol_Experto/Historial/HistorialExpert
 import ProductoresExperto    from './pages/Rol_Experto/Productores/ProductoresExperto'
 import ReportesExperto       from './pages/Rol_Experto/Reportes/ReportesExperto'
 import PerfilExperto         from './pages/Rol_Experto/Perfil/PerfilExperto'
+import CultivosExperto       from './pages/Rol_Experto/Cultivos/CultivosExperto'
+import DetalleCultivoExperto from './pages/Rol_Experto/DetalleCultivo/DetalleCultivoExperto'
 
 const normalizeRole = (role) => {
   const value = (role ?? '').toString().toLowerCase().trim()
@@ -72,10 +74,10 @@ function AdminApp() {
     monitoreos:      <Monitoreos />,
     categorias:      <Categorias subPage={catSubPage} />,
     usuarios:        <Usuarios />,
-    prioridades:     <Prioridades />,
-    analisisIA:      <AnalisisIA />,
+    // prioridades:     <Prioridades />,
+    // analisisIA:      <AnalisisIA />,
     recomendaciones: <Recomendaciones />,
-    imagenes:        <Imagenes />,
+    // imagenes:        <Imagenes />,
     tratamientos:    <Tratamientos />,
     aplicacion:      <Aplicacion />,
     cultivos:        <Cultivos />,
@@ -93,23 +95,44 @@ function AdminApp() {
 // ─────────────────────────────────────────────
 function ExpertoApp() {
   const [activePage, setActivePage] = useState('dashboard')
+  const [selectedFinca, setSelectedFinca] = useState(null)
+  const [selectedCultivo, setSelectedCultivo] = useState(null)
 
-  const PAGES = {
-    dashboard:       <DashboardExperto />,
-    escaner:         <EscanerIA />,
-    monitoreos:      <MonitoreosExperto />,
-    mapa:            <MapaRiesgo />,
-    tratamientos:    <TratamientosExperto />,
-    recomendaciones: <RecomendacionesExperto />,
-    historial:       <HistorialExperto />,
-    productores:     <ProductoresExperto />,
-    reportes:        <ReportesExperto />,
-    perfil:          <PerfilExperto />,
+  const handleNavigate = (page, data) => {
+    setActivePage(page)
+    if (page === 'detalle_cultivo') {
+      setSelectedCultivo(data || null)
+    } else {
+      setSelectedFinca(data || null)
+    }
+  }
+
+  const renderPage = () => {
+    const p = { onNavigate: handleNavigate, finca: selectedFinca, cultivo: selectedCultivo }
+    switch (activePage) {
+      case 'dashboard':       return <DashboardExperto onNavigate={handleNavigate} />
+      case 'escaner':         return <EscanerIA {...p} />
+      case 'monitoreos':      return <MonitoreosExperto {...p} />
+      case 'mapa':            return <MapaRiesgo {...p} />
+      case 'tratamientos':    return <TratamientosExperto {...p} />
+      case 'recomendaciones': return <RecomendacionesExperto {...p} />
+      case 'historial':       return <HistorialExperto {...p} />
+      case 'cultivos':        return <CultivosExperto {...p} />
+      case 'detalle_cultivo': return <DetalleCultivoExperto {...p} />
+      case 'productores':     return <ProductoresExperto />
+      case 'reportes':        return <ReportesExperto {...p} />
+      case 'perfil':          return <PerfilExperto />
+      default:                return <DashboardExperto />
+    }
   }
 
   return (
-    <ExpertoLayout activePage={activePage} onNavigate={setActivePage}>
-      {PAGES[activePage] ?? <DashboardExperto />}
+    <ExpertoLayout
+      activePage={activePage}
+      onNavigate={handleNavigate}
+      selectedFinca={selectedFinca}
+    >
+      {renderPage()}
     </ExpertoLayout>
   )
 }

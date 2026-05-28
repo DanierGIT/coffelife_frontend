@@ -27,7 +27,8 @@ api.interceptors.response.use(
       url.includes('/login') ||
       url.includes('/register') ||
       url.includes('/recuperar-password') ||
-      url.includes('/restablecer-password')
+      url.includes('/restablecer-password') ||
+      url.includes('/mi-perfil')
 
     if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem('cl_token')

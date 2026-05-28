@@ -68,3 +68,27 @@
   margin: 0;
   border: 1px solid #c8e6c9;
 }
+
+.btn-toggle {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-toggle.toggle-on {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.btn-toggle.toggle-on:hover {
+  background: #bbf7d0;
+}
+.btn-toggle.toggle-off {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.btn-toggle.toggle-off:hover {
+  background: #fca5a5;
+}
