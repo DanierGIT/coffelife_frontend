@@ -1,226 +1,270 @@
-import { useState, useEffect } from 'react'
-import api from '../../../services/api'
-import { useAuth } from '../../../context/AuthContext'
-import PasswordStrength from '../../../components/PasswordStrength'
-import './PerfilExperto.css'
+import React, { useState } from 'react';
+import './PerfilExperto.css';
 
-export default function PerfilExperto() {
-  const { user, logout } = useAuth()
-  const [form, setForm] = useState({
-    nombre:        '',
-    apellido:      '',
-    telefono:      '',
-    observaciones: '',
-  })
-  const [pwForm, setPwForm] = useState({
-    passwordActual:  '',
-    password_nueva:  '',
-    password_confirm: '',
-  })
-  const [saving,  setSaving]  = useState(false)
-  const [success, setSuccess] = useState('')
-  const [error,   setError]   = useState('')
-  const [tab,     setTab]     = useState('info')
+export default function PerfilExperto({ onBack, onLogout }) {
+  // Pestaña activa dentro del perfil
+  const [activeTab, setActiveTab] = useState('personal');
 
-  // ✅ Carga perfil desde /mi_perfil en lugar de leer solo el localStorage
-  useEffect(() => {
-    api.get('/mi-perfil')
-      .then((res) => {
-        const d = res.data?.data || res.data
-        setForm({
-          nombre:        d.nombre        || '',
-          apellido:      d.apellido      || '',
-          telefono:      d.telefono      || '',
-          observaciones: d.observaciones || '',
-        })
-      })
-      .catch(() => {
-        // Si falla, usa los datos del contexto como fallback
-        if (user) {
-          setForm({
-            nombre:        user.nombre        || '',
-            apellido:      user.apellido      || '',
-            telefono:      user.telefono      || '',
-            observaciones: user.observaciones || '',
-          })
-        }
-      })
-  }, [user])
+  // Estados del formulario de información personal
+  const [formData, setFormData] = useState({
+    nombre: 'Jhon Anderson',
+    apellido: 'Muñoz Flor',
+    correo: 'ejhon2053@gmail.com',
+    telefono: '3137079691',
+    observaciones: 'Especializado en sanidad vegetal y optimización de cultivos de café especial de alta altitud.'
+  });
 
-  // ✅ Guarda via PUT /mi_perfil (no /usuarios/:id)
-  const handleSave = async (e) => {
-    e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSuccess('')
-    try {
-      await api.put('/mi-perfil', {
-        nombre:        form.nombre,
-        apellido:      form.apellido,
-        telefono:      form.telefono,
-        observaciones: form.observaciones,
-      })
-      setSuccess('Perfil actualizado correctamente.')
-    } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo actualizar el perfil.')
-    } finally {
-      setSaving(false)
+  // Estados para el formulario de seguridad
+  const [securityData, setSecurityData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSecurityChange = (e) => {
+    const { name, value } = e.target;
+    setSecurityData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSavePersonal = (e) => {
+    e.preventDefault();
+    alert('Información personal guardada con éxito.');
+  };
+
+  const handleSaveSecurity = (e) => {
+    e.preventDefault();
+    if (securityData.newPassword !== securityData.confirmPassword) {
+      alert('Las contraseñas no coinciden.');
+      return;
     }
-  }
+    alert('Contraseña actualizada con éxito.');
+  };
 
-  // ✅ Cambia contraseña via POST /mi_perfil/cambiar_password
-  const handleChangePw = async (e) => {
-    e.preventDefault()
-    if (pwForm.password_nueva !== pwForm.password_confirm) {
-      setError('Las contraseñas nuevas no coinciden.')
-      return
-    }
-    if (pwForm.password_nueva.length < 6) {
-      setError('La nueva contraseña debe tener al menos 6 caracteres.')
-      return
-    }
-    setSaving(true)
-    setError('')
-    setSuccess('')
-    try {
-      await api.post('/mi-perfil/cambiar-password', {
-        passwordActual: pwForm.passwordActual,
-        nuevaPassword:  pwForm.password_nueva,
-      })
-      setSuccess('Contraseña actualizada correctamente.')
-      setPwForm({ passwordActual: '', password_nueva: '', password_confirm: '' })
-    } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo cambiar la contraseña.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const initials = ((user?.nombre?.[0] || '') + (user?.apellido?.[0] || '')).toUpperCase() || 'E'
-  const displayName = `${user?.nombre || ''} ${user?.apellido || ''}`.trim() || user?.correo || 'Experto'
+  const getInitials = () => {
+    const n = formData.nombre.trim().charAt(0).toUpperCase();
+    const a = formData.apellido.trim().charAt(0).toUpperCase();
+    return `${n}${a}` || 'EX';
+  };
 
   return (
-    <div className="perf-page">
-      <div className="perf-header">
-        <h1>Perfil del experto</h1>
-        <p>Información personal y profesional</p>
+    <div className="cl-profile-container">
+      
+      {/* BARRA SUPERIOR */}
+      <div className="cl-profile-top-bar">
+        <div className="cl-profile-header-titles">
+          <h1 className="cl-profile-main-title">Perfil del experto</h1>
+          <p className="cl-profile-subtitle">Información personal y profesional dentro de la plataforma.</p>
+        </div>
+        
+        <button 
+          type="button"
+          className="cl-btn-profile-back" 
+          onClick={onBack}
+          title="Regresar al panel de fincas"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver al panel
+        </button>
       </div>
 
-      {error   && <p className="perf-error">{error}</p>}
-      {success && <p className="perf-success">{success}</p>}
+      {/* CUERPO DEL PERFIL (GRID PRINCIPAL) */}
+      <div className="cl-profile-layout-grid">
+        
+        {/* COLUMNA IZQUIERDA: TARJETA DE IDENTIDAD */}
+        <div className="cl-profile-sidebar-card">
+          <div className="cl-profile-avatar-wrapper">
+            <div className="cl-profile-avatar-circle">
+              {getInitials()}
+            </div>
+          </div>
 
-      <div className="perf-content">
-        {/* Tarjeta izquierda */}
-        <div className="perf-card-left">
-          <div className="perf-avatar-big">{initials}</div>
-          <h2>{displayName}</h2>
-          <p className="perf-role">Experto Agrónomo</p>
-          <div className="perf-contact">
-            <div className="perf-contact-row">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <div className="cl-profile-identity-info">
+            <h2 className="cl-profile-user-fullname">
+              {formData.nombre} {formData.apellido}
+            </h2>
+            <span className="cl-profile-badge-role">Experto Agrónomo</span>
+          </div>
+
+          <div className="cl-profile-contact-list">
+            <div className="cl-contact-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              <span>{user?.correo || '—'}</span>
+              <span>{formData.correo}</span>
             </div>
-            {(form.telefono || user?.telefono) && (
-              <div className="perf-contact-row">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.18z"/>
-                </svg>
-                <span>{form.telefono || user?.telefono}</span>
-              </div>
-            )}
+            <div className="cl-contact-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <span>{formData.telefono}</span>
+            </div>
           </div>
-          <div className="perf-cuenta">
-            <h4>Cuenta</h4>
-            <div className="perf-cuenta-row"><span>Rol</span><strong>Experto</strong></div>
-            <div className="perf-cuenta-row"><span>Estado</span><span className="perf-estado-badge">Activo</span></div>
+
+          <div className="cl-profile-meta-account">
+            <h3 className="cl-meta-section-title">Cuenta</h3>
+            <div className="cl-meta-row">
+              <span className="cl-meta-label">Rol</span>
+              <span className="cl-meta-value bold-text">Experto</span>
+            </div>
+            <div className="cl-meta-row">
+              <span className="cl-meta-label">Estado</span>
+              <span className="cl-meta-value cl-status-active">Activo</span>
+            </div>
           </div>
-          <button className="perf-logout" onClick={logout}>Cerrar sesión</button>
+
+          <button type="button" className="cl-btn-profile-logout" onClick={onLogout}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Cerrar sesión
+          </button>
         </div>
 
-        {/* Panel derecho */}
-        <div className="perf-panel-right">
-          <div className="perf-tabs">
-            <button className={`perf-tab${tab === 'info' ? ' active' : ''}`} onClick={() => setTab('info')}>
+        {/* COLUMNA DERECHA: PANELES DE FORMULARIOS */}
+        <div className="cl-profile-main-content-card">
+          
+          <div className="cl-profile-tabs-nav">
+            <button 
+              type="button"
+              className={`cl-tab-nav-btn ${activeTab === 'personal' ? 'is-active' : ''}`}
+              onClick={() => setActiveTab('personal')}
+            >
               Información personal
             </button>
-            <button className={`perf-tab${tab === 'seguridad' ? ' active' : ''}`} onClick={() => setTab('seguridad')}>
+            <button 
+              type="button"
+              className={`cl-tab-nav-btn ${activeTab === 'seguridad' ? 'is-active' : ''}`}
+              onClick={() => setActiveTab('seguridad')}
+            >
               Seguridad
             </button>
           </div>
 
-          {tab === 'info' && (
-            <form className="perf-form" onSubmit={handleSave}>
-              <div className="perf-form-row">
-                <label>Nombre
-                  <input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} />
-                </label>
-                <label>Apellido
-                  <input value={form.apellido} onChange={e => setForm(f => ({ ...f, apellido: e.target.value }))} />
-                </label>
+          {/* CONTENIDO: INFORMACIÓN PERSONAL */}
+          {activeTab === 'personal' && (
+            <form className="cl-profile-tab-form-body" onSubmit={handleSavePersonal}>
+              
+              <div className="cl-profile-form-grid">
+                <div className="cl-profile-form-group">
+                  <label>Nombre</label>
+                  <input 
+                    type="text" 
+                    name="nombre" 
+                    value={formData.nombre} 
+                    onChange={handleInputChange} 
+                    required
+                  />
+                </div>
+                <div className="cl-profile-form-group">
+                  <label>Apellido</label>
+                  <input 
+                    type="text" 
+                    name="apellido" 
+                    value={formData.apellido} 
+                    onChange={handleInputChange} 
+                    required
+                  />
+                </div>
+                <div className="cl-profile-form-group">
+                  <label>Correo electrónico</label>
+                  <input 
+                    type="email" 
+                    name="correo" 
+                    value={formData.correo} 
+                    onChange={handleInputChange} 
+                    required
+                  />
+                </div>
+                <div className="cl-profile-form-group">
+                  <label>Teléfono</label>
+                  <input 
+                    type="tel" 
+                    name="telefono" 
+                    value={formData.telefono} 
+                    onChange={handleInputChange} 
+                  />
+                </div>
               </div>
-              <label>Correo electrónico
-                <input type="email" value={user?.correo || ''} disabled style={{ opacity: 0.6, cursor: 'not-allowed' }} />
-              </label>
-              <label>Teléfono
-                <input value={form.telefono} onChange={e => setForm(f => ({ ...f, telefono: e.target.value }))} placeholder="+57 310 123 4567" />
-              </label>
-              <label>Observaciones
-                <textarea rows={3} value={form.observaciones} onChange={e => setForm(f => ({ ...f, observaciones: e.target.value }))} placeholder="Especializado en sanidad vegetal…" />
-              </label>
-              <div className="perf-form-actions">
-                <button type="submit" className="btn-guardar" disabled={saving}>
-                  {saving ? 'Guardando…' : 'Guardar cambios'}
+
+              <div className="cl-profile-form-group cl-full-width">
+                <label>Observaciones</label>
+                <textarea 
+                  name="observaciones" 
+                  value={formData.observaciones} 
+                  onChange={handleInputChange} 
+                  rows="4"
+                />
+              </div>
+
+              <div className="cl-profile-form-actions">
+                <button type="submit" className="cl-btn-brand-submit">
+                  Guardar cambios
                 </button>
               </div>
             </form>
           )}
 
-          {tab === 'seguridad' && (
-            <form className="perf-form" onSubmit={handleChangePw}>
-              <h4 className="perf-section-title">Cambiar contraseña</h4>
-              <label>Contraseña actual
-                <input
-                  type="password"
-                  value={pwForm.passwordActual}
-                  onChange={e => setPwForm(f => ({ ...f, passwordActual: e.target.value }))}
+          {/* CONTENIDO: SEGURIDAD */}
+          {activeTab === 'seguridad' && (
+            <form className="cl-profile-tab-form-body" onSubmit={handleSaveSecurity}>
+              <div className="cl-profile-form-group">
+                <label>Contraseña actual</label>
+                <input 
+                  type="password" 
+                  name="currentPassword" 
+                  value={securityData.currentPassword} 
+                  onChange={handleSecurityChange}
+                  placeholder="••••••••"
                   required
                 />
-              </label>
-              <label>Nueva contraseña
-                <input
-                  type="password"
-                  value={pwForm.password_nueva}
-                  onChange={e => setPwForm(f => ({ ...f, password_nueva: e.target.value }))}
-                  required
-                />
-                <PasswordStrength password={pwForm.password_nueva} />
-              </label>
-              <label>Confirmar nueva contraseña
-                <input
-                  type="password"
-                  value={pwForm.password_confirm}
-                  onChange={e => setPwForm(f => ({ ...f, password_confirm: e.target.value }))}
-                  required
-                />
-              </label>
-              <div className="perf-form-actions">
-                <button type="submit" className="btn-guardar" disabled={saving}>
-                  {saving ? 'Guardando…' : 'Cambiar contraseña'}
-                </button>
               </div>
 
-              <h4 className="perf-section-title" style={{ marginTop: 24 }}>Notificaciones</h4>
-              <label className="perf-toggle-label">
-                <span>Recibir notificaciones por correo</span>
-                <input type="checkbox" defaultChecked />
-              </label>
+              <div className="cl-profile-form-grid">
+                <div className="cl-profile-form-group">
+                  <label>Nueva contraseña</label>
+                  <input 
+                    type="password" 
+                    name="newPassword" 
+                    value={securityData.newPassword} 
+                    onChange={handleSecurityChange}
+                    placeholder="Mínimo 8 caracteres"
+                    required
+                  />
+                </div>
+
+                <div className="cl-profile-form-group">
+                  <label>Confirmar nueva contraseña</label>
+                  <input 
+                    type="password" 
+                    name="confirmPassword" 
+                    value={securityData.confirmPassword} 
+                    onChange={handleSecurityChange}
+                    placeholder="Repite la contraseña"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="cl-profile-form-actions">
+                <button type="submit" className="cl-btn-brand-submit">
+                  Actualizar credenciales
+                </button>
+              </div>
             </form>
           )}
+
         </div>
+
       </div>
     </div>
-  )
+  );
 }

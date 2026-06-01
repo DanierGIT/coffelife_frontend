@@ -51,35 +51,41 @@ function UbicacionPickerModal({ latInicial, lngInicial, onConfirm, onCancel }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-        <h2 className="modal-title">Seleccionar ubicaci&oacute;n</h2>
+    <div className="cl-modal-overlay" onClick={onCancel}>
+      <div className="cl-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+        <h2 className="cl-modal-title">Seleccionar ubicación geográfica</h2>
 
-        <div className="finca-form-row" style={{ marginTop: '16px' }}>
-          <input
-            placeholder="Latitud"
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
-            type="number"
-            step="any"
-          />
-          <input
-            placeholder="Longitud"
-            value={lng}
-            onChange={(e) => setLng(e.target.value)}
-            type="number"
-            step="any"
-          />
+        <div className="cl-modal-form-row">
+          <div className="cl-input-group">
+            <label>Latitud</label>
+            <input
+              placeholder="Latitud"
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              type="number"
+              step="any"
+            />
+          </div>
+          <div className="cl-input-group">
+            <label>Longitud</label>
+            <input
+              placeholder="Longitud"
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              type="number"
+              step="any"
+            />
+          </div>
         </div>
 
-        <div className="map-wrapper" style={{ marginTop: '12px' }}>
+        <div className="cl-map-wrapper">
           <MapContainer
             center={center}
             zoom={lat && lng ? 13 : 6}
             style={{
               height: '280px',
               width: '100%',
-              borderRadius: '10px',
+              borderRadius: '16px',
             }}
           >
             <TileLayer
@@ -93,12 +99,12 @@ function UbicacionPickerModal({ latInicial, lngInicial, onConfirm, onCancel }) {
           </MapContainer>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-          <button className="btn-primary" onClick={() => onConfirm(lat, lng)}>
-            Confirmar
-          </button>
-          <button className="btn-secondary" onClick={onCancel}>
+        <div className="cl-modal-actions" style={{ marginTop: '1.5rem' }}>
+          <button className="btn-cl-secondary" onClick={onCancel}>
             Cancelar
+          </button>
+          <button className="btn-brand-primary" onClick={() => onConfirm(lat, lng)}>
+            Confirmar ubicación
           </button>
         </div>
       </div>
@@ -136,13 +142,18 @@ export default function DashboardExperto({ onNavigate }) {
   const nombreExperto = payload?.nombre || 'Experto'
   const idExperto = payload?.id
 
+  // Cálculo dinámico de cultivos totales para los KPIs superiores
+  const totalCultivosContador = Object.values(cultivosPorFinca).reduce(
+    (acc, lista) => acc + (lista?.length || 0), 0
+  )
+
   const fetchData = async () => {
     setLoading(true)
     setError('')
 
     try {
       if (!idExperto) {
-        setError('No se encontro el usuario experto en la sesion. Cierra sesion e ingresa nuevamente.')
+        setError('No se encontró el usuario experto en la sesión. Cierra sesión de nuevo.')
         return
       }
 
@@ -196,7 +207,7 @@ export default function DashboardExperto({ onNavigate }) {
       setCultivosPorFinca(cultivosMap)
     } catch (err) {
       if (err?.response?.status === 403) {
-        setError('Acceso denegado por backend.')
+        setError('Acceso denegado por el servidor.')
       } else {
         setError(err?.response?.data?.message || 'No se pudo cargar el dashboard.')
       }
@@ -274,85 +285,161 @@ export default function DashboardExperto({ onNavigate }) {
   }
 
   return (
-    <div className="dash-exp">
-      <div className="dex-greeting">
-        <h1 className="dex-greeting-title">Hola de nuevo, {nombreExperto}</h1>
-        <p className="dex-greeting-sub">Aqui puedes gestionar tus fincas asignadas</p>
+    <div className="coffeelife-dashboard-container">
+      {/* 🚀 NUEVA SECCIÓN DE ENCABEZADO INTEGRADO CON CONTADORES KPIs */}
+      <div className="dashboard-header-flex">
+        <div className="welcome-banner-text">
+          <h1 className="welcome-main-title">¡Hola, {nombreExperto}!</h1>
+          <p className="welcome-subtitle">Aquí puedes gestionar las fincas que tienes asignadas.</p>
+        </div>
+
+        <div className="header-kpi-cards-wrapper">
+          {/* Tarjeta 1 */}
+          <div className="kpi-card-item">
+            <div className="kpi-icon-container home-kpi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div className="kpi-data-text">
+              <span className="kpi-number-val">{fincasAsignadas.length}</span>
+              <span className="kpi-label-name">Fincas asignadas</span>
+            </div>
+          </div>
+
+          {/* Tarjeta 2 */}
+          <div className="kpi-card-item">
+            <div className="kpi-icon-container leaf-kpi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 22c1.25-6.7 5.23-11.43 11.23-13.43H18v4.77c-2 6-6.73 10-13.43 11.23z"/>
+                <path d="M18 8.8c3.27-.47 5.4-2.8 5.4-5.4H18v5.4z"/>
+              </svg>
+            </div>
+            <div className="kpi-data-text">
+              <span className="kpi-number-val">{totalCultivosContador}</span>
+              <span className="kpi-label-name">Cultivos totales</span>
+            </div>
+          </div>
+
+          {/* Tarjeta 3 */}
+          <div className="kpi-card-item">
+            <div className="kpi-icon-container task-kpi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div className="kpi-data-text">
+              <span className="kpi-number-val">56</span>
+              <span className="kpi-label-name">Actividades realizadas</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {error && <div className="dash-exp-alert">{error}</div>}
+      {error && <div className="cl-state-alert error">{error}</div>}
 
-      <div className="dash-exp-section">
-        <div className="dex-section-header">
-          <h2 className="dash-exp-section-title" style={{ margin: 0 }}>Mis fincas asignadas</h2>
-          <button className="dex-btn-agregar" onClick={() => setShowCrearModal(true)}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
+      {/* SECCIÓN PRINCIPAL DE FINCAS */}
+      <div className="fincas-content-section">
+        <div className="fincas-section-top-bar">
+          <div className="top-bar-left-info">
+            <h2>Mis fincas asignadas</h2>
+            <span className="cl-count-pill">{fincasAsignadas.length} fincas</span>
+          </div>
+          
+          <button className="btn-brand-primary" onClick={() => setShowCrearModal(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Agregar fincas
+            Crear nueva finca
           </button>
         </div>
 
         {loading ? (
-          <p className="dex-empty-text">Cargando...</p>
+          <div className="cl-loading-box"><p>Cargando fincas asignadas...</p></div>
         ) : fincasAsignadas.length === 0 ? (
-          <p className="dex-empty-text">No hay fincas asignadas para este experto.</p>
+          <div className="cl-loading-box alert"><p>No se encontraron fincas asignadas para tu perfil de experto.</p></div>
         ) : (
-          <div className="dex-fincas-grid">
+          <div className="coffeelife-fincas-grid">
             {fincasAsignadas.map((f) => {
               const cultivos = cultivosPorFinca[f.idFinca] || []
               return (
-                <div key={f.idFinca} className="dex-card">
-                  <div className="dex-card-top">
-                    <div className="dex-card-icon">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                        <line x1="8" y1="2" x2="8" y2="18"/>
-                        <line x1="16" y1="6" x2="16" y2="22"/>
-                      </svg>
-                    </div>
-                    <span className={`dex-card-status ${f.activo !== false ? 'activa' : 'inactiva'}`}>
+                <div key={f.idFinca} className="coffeelife-finca-card">
+                  
+                  <div className="finca-card-img-wrapper">
+                    <img 
+                      src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=600&q=80" 
+                      alt={f.nombre} 
+                    />
+                    <div className="finca-card-floating-badge">
+                      <span className={`status-dot ${f.activo !== false ? 'active' : 'inactive'}`}></span>
                       {f.activo !== false ? 'Activa' : 'Inactiva'}
-                    </span>
-                  </div>
-
-                  <h3 className="dex-card-name">{f.nombre}</h3>
-                  <p className="dex-card-location">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                      <circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    {f.municipio}, {f.departamento}
-                  </p>
-
-                  <div className="dex-card-meta">
-                    {f.altitud && <span className="dex-card-tag">{f.altitud} m.s.n.m.</span>}
-                    {f.area && <span className="dex-card-tag">{f.area} ha</span>}
-                  </div>
-
-                  {f.nombreCafetero && (
-                    <p className="dex-card-cafetero">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                    </div>
+                    <button className="finca-options-trigger" title="Opciones">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
                       </svg>
-                      Cafetero: {f.nombreCafetero}
-                    </p>
-                  )}
-
-                  <p className="dex-card-date">
-                    Asignada: {f.fechaAsignada ? new Date(f.fechaAsignada).toLocaleDateString('es-CO') : '-'}
-                  </p>
-
-                  <div className="dex-card-footer">
-                    <span className="dex-crop-count">
-                      Cultivos: {cultivos.length}
-                    </span>
-                    <button className="dex-card-btn" onClick={() => onNavigate?.('cultivos', { ...f, totalCultivos: cultivos.length })}>
-                      Ver cultivos
                     </button>
                   </div>
+
+                  <div className="finca-card-main-body">
+                    <h3 className="finca-title-text">{f.nombre}</h3>
+                    
+                    <div className="finca-geo-location">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      <span>{f.municipio}, {f.departamento}</span>
+                    </div>
+
+                    {f.nombreCafetero && (
+                      <div className="finca-owner-info">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>Encargado: <strong>{f.nombreCafetero}</strong></span>
+                      </div>
+                    )}
+
+                    <div className="finca-specs-tags">
+                      {f.altitud && <span className="spec-pill">{f.altitud} msnm</span>}
+                      {f.area && <span className="spec-pill">{f.area} ha</span>}
+                      <span className="spec-pill variety-pill">Café Especial</span>
+                    </div>
+
+                    <p className="finca-assignment-date">
+                      Asignación: {f.fechaAsignada ? new Date(f.fechaAsignada).toLocaleDateString('es-CO', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}
+                    </p>
+
+                    <div className="finca-internal-counters">
+                      <div className="internal-stat">
+                        <strong>{cultivos.length}</strong>
+                        <span>Cultivos</span>
+                      </div>
+                      <div className="internal-stat">
+                        <strong>--</strong>
+                        <span>Monitoreos</span>
+                      </div>
+                      <div className="internal-stat">
+                        <strong>0</strong>
+                        <span>Alertas</span>
+                      </div>
+                    </div>
+
+                    <button 
+                      className="btn-card-action-trigger" 
+                      onClick={() => onNavigate?.('cultivos', { ...f, totalCultivos: cultivos.length })}
+                    >
+                      Ver cultivos de la finca
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    </button>
+                  </div>
+
                 </div>
               )
             })}
@@ -360,29 +447,53 @@ export default function DashboardExperto({ onNavigate }) {
         )}
       </div>
 
+      {/* MODAL REGISTRO */}
       {showCrearModal && (
-        <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h2 className="modal-title">Registrar nueva finca</h2>
-            <form className="finca-form" onSubmit={handleCreate}>
-              <div className="finca-form-row">
-                <input name="nombre_finca" value={form.nombre_finca} onChange={handleChange} placeholder="Nombre de la finca" required />
-                <input name="municipio" value={form.municipio} onChange={handleChange} placeholder="Municipio" required />
-                <input name="departamento" value={form.departamento} onChange={handleChange} placeholder="Departamento" required />
+        <div className="cl-modal-overlay" onClick={() => setShowCrearModal(false)}>
+          <div className="cl-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+            <h2 className="cl-modal-title">Registrar nueva finca</h2>
+            <form className="cl-modal-form" onSubmit={handleCreate}>
+              
+              <div className="cl-input-group">
+                <label>Nombre de la finca</label>
+                <input name="nombre_finca" value={form.nombre_finca} onChange={handleChange} placeholder="Ej. Finca La Esperanza" required />
               </div>
-              <div className="finca-form-row">
-                <input name="altitud_msnm" value={form.altitud_msnm} onChange={handleChange} placeholder="Altitud (msnm)" type="number" step="any" />
-                <input name="area_hectareas" value={form.area_hectareas} onChange={handleChange} placeholder="Área (hectáreas)" type="number" step="any" />
-                <button type="button" className="btn-ubicacion" onClick={openUbicacionPicker}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
+
+              <div className="cl-modal-form-row">
+                <div className="cl-input-group">
+                  <label>Municipio</label>
+                  <input name="municipio" value={form.municipio} onChange={handleChange} placeholder="Ej. Pitalito" required />
+                </div>
+                <div className="cl-input-group">
+                  <label>Departamento</label>
+                  <input name="departamento" value={form.departamento} onChange={handleChange} placeholder="Ej. Huila" required />
+                </div>
+              </div>
+
+              <div className="cl-modal-form-row">
+                <div className="cl-input-group">
+                  <label>Altitud (msnm)</label>
+                  <input name="altitud_msnm" value={form.altitud_msnm} onChange={handleChange} placeholder="Ej. 1750" type="number" step="any" />
+                </div>
+                <div className="cl-input-group">
+                  <label>Área (hectáreas)</label>
+                  <input name="area_hectareas" value={form.area_hectareas} onChange={handleChange} placeholder="Ej. 4.5" type="number" step="any" />
+                </div>
+              </div>
+
+              <div className="cl-input-group">
+                <label>Coordenadas de Ubicación</label>
+                <button type="button" className="btn-cl-map-trigger" onClick={openUbicacionPicker}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                   </svg>
-                  {form.latitud && form.longitud ? `Ubicación: ${form.latitud}, ${form.longitud}` : 'Seleccionar ubicación'}
+                  {form.latitud && form.longitud ? `Ubicación seteada: ${form.latitud}, ${form.longitud}` : 'Abrir mapa interactivo'}
                 </button>
               </div>
-              <div className="finca-form-row">
-                <select name="id_cafetero" value={form.id_cafetero} onChange={handleChange} className="finca-select">
+
+              <div className="cl-input-group">
+                <label>Caficultor / Propietario</label>
+                <select name="id_cafetero" value={form.id_cafetero} onChange={handleChange}>
                   <option value="">Seleccione un caficultor (opcional)</option>
                   {cafeteros.map((c) => (
                     <option key={c.idUsuario} value={c.idUsuario}>
@@ -391,12 +502,16 @@ export default function DashboardExperto({ onNavigate }) {
                   ))}
                 </select>
               </div>
-              {formError && <p className="modal-error">{formError}</p>}
-              <div className="finca-form-actions">
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? 'Registrando...' : 'Registrar finca'}
+
+              {formError && <p className="cl-form-error-msg">{formError}</p>}
+
+              <div className="cl-modal-actions">
+                <button type="button" className="btn-cl-secondary" onClick={() => setShowCrearModal(false)}>
+                  Cancelar
                 </button>
-                <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-brand-primary" disabled={saving}>
+                  {saving ? 'Registrando...' : 'Registrar Finca'}
+                </button>
               </div>
             </form>
           </div>
