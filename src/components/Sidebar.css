@@ -16,6 +16,7 @@
   z-index: 100;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   overflow: hidden;        /* el sidebar no hace scroll, solo el nav */
+  transition: transform 0.25s ease;
 }
 
 /* ─── Logo ─── */
@@ -293,4 +294,35 @@
   height: auto;
   object-fit: contain;
   padding: 4px 0;
+}
+
+/* ─── Botón cerrar (móvil) ─── */
+.sidebar-close {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #658c21;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.sidebar-close:hover {
+  background: rgba(0,0,0,0.08);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-close {
+    display: block;
+  }
 }
