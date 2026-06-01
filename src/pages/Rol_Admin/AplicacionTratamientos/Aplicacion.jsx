@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './aplicacion.css'
 import api from '../../../services/api'
+import '../Administrador/Administrador.css'
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -31,6 +32,7 @@ export default function Aplicacion() {
   const [exito, setExito] = useState('')
   const [modalAbierto, setModalAbierto] = useState(false)
   const [idEditar, setIdEditar] = useState(null)
+  const [showCrearModal, setShowCrearModal] = useState(false)
 
   const [formModal, setFormModal] = useState({
     idTratamiento: '',
@@ -96,6 +98,7 @@ export default function Aplicacion() {
       })
 
       setExito('Aplicacion registrada correctamente.')
+      setShowCrearModal(false)
       limpiarFormulario()
       await cargarAplicaciones()
     } catch (err) {
@@ -171,89 +174,42 @@ export default function Aplicacion() {
 
   return (
     <div className="rl-container">
-      <h1 className="rl-title">Aplicacion de Tratamientos</h1>
-
-      <div className="rl-card">
-        <p className="rl-label">Nueva Aplicacion</p>
-
-        <div className="rl-form" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-          <div className="rl-field">
-            <label>Tratamiento</label>
-            <select value={idTratamiento} onChange={(e) => setIdTratamiento(e.target.value)}>
-              <option value="">Seleccionar tratamiento...</option>
-
-              {tratamientos.map((tratamiento) => (
-                <option key={tratamiento.idTratamiento} value={tratamiento.idTratamiento}>
-                  {getTratamientoLabel(tratamiento)}
-                </option>
-              ))}
-            </select>
-
-            {tratamientos.length === 0 && (
-              <small className="rl-help">
-                No hay tratamientos registrados. Primero crea un tratamiento en el modulo Tratamientos.
-              </small>
-            )}
-          </div>
-
-          <div className="rl-field">
-            <label>Usuario</label>
-            <select value={idUsuario} onChange={(e) => setIdUsuario(e.target.value)}>
-              <option value="">Seleccionar usuario...</option>
-
-              {usuarios.map((usuario) => (
-                <option key={usuario.idUsuario ?? usuario.id} value={usuario.idUsuario ?? usuario.id}>
-                  {usuario.nombre ?? usuario.correo} {usuario.apellido ?? ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="rl-field">
-            <label>Dosis</label>
-            <input
-              type="text"
-              placeholder="Ej: 20ml"
-              value={dosis}
-              onChange={(e) => setDosis(e.target.value)}
-            />
-          </div>
-
-          <div className="rl-field">
-            <label>Frecuencia</label>
-            <input
-              type="text"
-              placeholder="Ej: Cada 7 dias"
-              value={frecuencia}
-              onChange={(e) => setFrecuencia(e.target.value)}
-            />
-          </div>
-
-          <div className="rl-field" style={{ gridColumn: '1 / -1' }}>
-            <label>Observaciones</label>
-            <textarea
-              placeholder="Observaciones opcionales"
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="rl-actions">
-          <button className="rl-btn" onClick={guardar} disabled={cargando}>
-            {cargando ? 'Guardando...' : 'Guardar'}
-          </button>
-        </div>
-
-        {error && <p className="rl-error">{error}</p>}
-        {exito && <p className="rl-success">{exito}</p>}
+      <div className="page-header">
+        <h1>Aplicación de Tratamientos</h1>
+        <p>Registro de aplicación de tratamientos</p>
       </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar aplicacion
+        </button>
+      </div>
+
+
 
       <div className="rl-card">
         <p className="rl-label">Aplicaciones Registradas</p>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table className="rl-table">
+        <table className="rl-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -298,7 +254,6 @@ export default function Aplicacion() {
               )}
             </tbody>
           </table>
-        </div>
       </div>
 
       {modalAbierto && (
@@ -376,6 +331,55 @@ export default function Aplicacion() {
               <button className="btn-cancelar" onClick={cerrarModal}>Cancelar</button>
               <button className="btn-guardar" onClick={actualizar} disabled={cargando}>
                 {cargando ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Nueva Aplicacion</h3>
+              <button className="modal-close" onClick={() => setShowCrearModal(false)}>x</button>
+            </div>
+            <div className="modal-form">
+              <label>Tratamiento
+                <select value={idTratamiento} onChange={(e) => setIdTratamiento(e.target.value)}>
+                  <option value="">Seleccionar tratamiento...</option>
+                  {tratamientos.map((tratamiento) => (
+                    <option key={tratamiento.idTratamiento} value={tratamiento.idTratamiento}>
+                      {getTratamientoLabel(tratamiento)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>Usuario
+                <select value={idUsuario} onChange={(e) => setIdUsuario(e.target.value)}>
+                  <option value="">Seleccionar usuario...</option>
+                  {usuarios.map((usuario) => (
+                    <option key={usuario.idUsuario ?? usuario.id} value={usuario.idUsuario ?? usuario.id}>
+                      {usuario.nombre ?? usuario.correo} {usuario.apellido ?? ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>Dosis
+                <input type="text" placeholder="Ej: 20ml" value={dosis} onChange={(e) => setDosis(e.target.value)} />
+              </label>
+              <label>Frecuencia
+                <input type="text" placeholder="Ej: Cada 7 dias" value={frecuencia} onChange={(e) => setFrecuencia(e.target.value)} />
+              </label>
+              <label>Observaciones
+                <textarea placeholder="Observaciones opcionales" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} />
+              </label>
+            </div>
+            {error && <p className="rl-error" style={{ marginTop: '10px' }}>{error}</p>}
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
+              <button className="btn-primary" onClick={guardar} disabled={cargando}>
+                {cargando ? 'Guardando...' : 'Guardar'}
               </button>
             </div>
           </div>

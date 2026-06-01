@@ -3,6 +3,7 @@ import api from "../../../services/api";
 import "./styles/tratamientos.css";
 import "./styles/formulario.css";
 import "./styles/tabla.css";
+import "../Administrador/Administrador.css";
 
 // ─── Servicio inline (usa el api centralizado del proyecto) ───
 const obtenerTratamientos = async () => {
@@ -86,6 +87,7 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
         await crearTratamiento(payload);
       }
       await cargarDatos();
+      if (!tratamientoEditar) { limpiarEdicion?.(); }
       setFormulario({ id_tipo_tratamiento: "", nombre: "", descripcion: "" });
     } catch (error) {
       console.error("ERROR GUARDANDO:", error);
@@ -175,6 +177,7 @@ function Tratamientos() {
   const [tratamientos,      setTratamientos]      = useState([]);
   const [tratamientoEditar, setTratamientoEditar] = useState(null);
   const [modalAbierto,      setModalAbierto]      = useState(false);
+  const [showCrearModal, setShowCrearModal] = useState(false);
 
   const cargarDatos = async () => {
     const datos = await obtenerTratamientos();
@@ -201,21 +204,34 @@ function Tratamientos() {
 
   return (
     <div className="contenedor-tratamientos">
-
-      <div className="encabezado">
+      <div className="page-header">
         <h1>Tratamientos</h1>
-        <p>Gestión completa de tratamientos</p>
+        <p>Tratamientos disponibles para cultivos</p>
       </div>
-
-      <div className="card">
-        <div className="card-header">
-          <h2>Nuevo Tratamiento</h2>
-        </div>
-        <FormularioTratamiento
-          cargarDatos={cargarDatos}
-          tratamientoEditar={null}
-          limpiarEdicion={limpiarEdicion}
-        />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar tratamiento
+        </button>
       </div>
 
       <div className="card">
@@ -241,6 +257,20 @@ function Tratamientos() {
               cargarDatos={cargarDatos}
               tratamientoEditar={tratamientoEditar}
               limpiarEdicion={limpiarEdicion}
+            />
+          </div>
+        </div>
+      )}
+
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <button className="cerrar-modal" onClick={() => setShowCrearModal(false)}>✕</button>
+            <h2>Nuevo Tratamiento</h2>
+            <FormularioTratamiento
+              cargarDatos={cargarDatos}
+              tratamientoEditar={null}
+              limpiarEdicion={() => setShowCrearModal(false)}
             />
           </div>
         </div>

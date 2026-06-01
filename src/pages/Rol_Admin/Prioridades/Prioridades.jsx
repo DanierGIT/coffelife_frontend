@@ -16,6 +16,7 @@ export default function Prioridades() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showCrearModal, setShowCrearModal] = useState(false)
 
   const cargarPrioridades = async () => {
     try {
@@ -58,6 +59,7 @@ export default function Prioridades() {
       setNombre('')
       setNivelOrden('')
       setSuccess('Prioridad creada correctamente.')
+      setShowCrearModal(false)
       cargarPrioridades()
     } catch (err) {
       const backendMessage = err?.response?.data?.message
@@ -95,36 +97,39 @@ export default function Prioridades() {
 
   return (
     <div className="prioridades-container">
-      <div className="prioridades-header">
-        <h1>Gestion de Prioridades</h1>
-      </div>
-
-      <form className="prioridad-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Nombre prioridad"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
-
-        <input
-          type="number"
-          placeholder="Nivel"
-          value={nivelOrden}
-          min="1"
-          max="3"
-          onChange={(e) => {
-            const value = e.target.value
-            if (value === '' || ['1', '2', '3'].includes(value)) {
-              setNivelOrden(value)
-            }
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px',
+        }}
+      >
+        <h1 style={{ margin: 0 }}>Gestion de Prioridades</h1>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
           }}
-        />
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Creando...' : 'Crear Prioridad'}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar prioridad
         </button>
-      </form>
+      </div>
 
       {error && <p className="modal-error">{error}</p>}
       {success && <p className="finca-success">{success}</p>}
@@ -172,6 +177,33 @@ export default function Prioridades() {
           </tbody>
         </table>
       </div>
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h2>Crear prioridad</h2>
+            <form className="modal-form" onSubmit={handleSubmit}>
+              <div className="modal-row">
+                <label>Nombre
+                  <input type="text" placeholder="Nombre prioridad" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+                </label>
+                <label>Nivel
+                  <input type="number" placeholder="Nivel" value={nivelOrden} min="1" max="3" onChange={(e) => {
+                    const value = e.target.value
+                    if (value === '' || ['1', '2', '3'].includes(value)) { setNivelOrden(value) }
+                  }} required />
+                </label>
+              </div>
+              {error && <p className="modal-error">{error}</p>}
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Creando...' : 'Crear prioridad'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

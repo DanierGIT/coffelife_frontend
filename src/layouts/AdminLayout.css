@@ -4,7 +4,7 @@
 
 .admin-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background: #f4f6f9;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -14,6 +14,28 @@
   margin-left: 240px;
   flex: 1;
   padding: 32px 36px;
-  min-height: 100vh;
   background: #f4f6f9;
+  overflow: hidden auto;
+  max-height: 100vh;
+  min-width: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .admin-content {
+    padding: 28px 24px;
+  }
+}
+
+@media (max-width: 992px) {
+  .admin-content {
+    padding: 24px 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-content {
+    margin-left: 0;
+    padding: 20px 14px;
+  }
 }

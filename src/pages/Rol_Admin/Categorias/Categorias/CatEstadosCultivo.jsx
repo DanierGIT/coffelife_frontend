@@ -68,18 +68,20 @@ export default function CatEstadosCultivo() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Eliminar este estado de cultivo?')) return
+  const handleToggleActivo = async (item) => {
+    const nextState = item.activo === undefined ? false : !item.activo
+    const accion = nextState ? 'activar' : 'desactivar'
+    if (!window.confirm(`¿${accion} este estado de cultivo?`)) return
 
     setError('')
     setSuccess('')
 
     try {
-      await api.delete(`/cat_estados_cultivo/${id}`)
-      setSuccess('Estado de cultivo eliminado.')
+      await api.put(`/cat_estados_cultivo/${item.idEstado}`, { activo: nextState })
+      setSuccess(`Estado de cultivo ${accion}do correctamente.`)
       cargarEstados()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar.')
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -154,10 +156,10 @@ export default function CatEstadosCultivo() {
 
                       <button
                         type="button"
-                        className="delete-btn"
-                        onClick={() => handleDelete(estado.idEstado)}
+                        className={estado.activo === false ? 'edit-btn' : 'delete-btn'}
+                        onClick={() => handleToggleActivo(estado)}
                       >
-                        Eliminar
+                        {estado.activo === false ? 'Activar' : 'Desactivar'}
                       </button>
                     </td>
                   </tr>

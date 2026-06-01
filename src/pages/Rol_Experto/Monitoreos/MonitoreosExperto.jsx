@@ -61,15 +61,21 @@ export default function MonitoreosExperto() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Eliminar este monitoreo?')) return
+  const handleToggleActivo = async (m) => {
+    const nuevoActivo = m.activo === undefined || m.activo === null ? false : !m.activo
     try {
-      await api.delete(`/monitoreos/${id}`)
-      getMonitoreos()
+      await api.put(`/monitoreos/${m.idMonitoreo}`, { activo: nuevoActivo })
+      setMonitoreos((prev) =>
+        prev.map((mon) =>
+          mon.idMonitoreo === m.idMonitoreo ? { ...mon, activo: nuevoActivo } : mon
+        )
+      )
     } catch {
-      setError('No se pudo eliminar.')
+      setError('No se pudo cambiar el estado.')
     }
   }
+
+  const activo = (m) => m.activo !== undefined && m.activo !== null ? m.activo : true
 
   const filtered = monitoreos.filter(m => {
     if (filtros.finca !== 'Todos' && String(m.idFinca) !== filtros.finca) return false
@@ -158,10 +164,12 @@ export default function MonitoreosExperto() {
                       </span>
                     </td>
                     <td>
-                      <button className="mon-btn-del" onClick={() => handleDelete(m.idMonitoreo)} title="Eliminar">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                        </svg>
+                      <button
+                        className={`btn-toggle ${activo(m) ? 'toggle-on' : 'toggle-off'}`}
+                        onClick={() => handleToggleActivo(m)}
+                        title={activo(m) ? 'Desactivar' : 'Activar'}
+                      >
+                        {activo(m) ? 'Activo' : 'Inactivo'}
                       </button>
                     </td>
                   </tr>

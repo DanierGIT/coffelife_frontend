@@ -3,10 +3,9 @@
    ════════════════════════════════════════ */
 
 .rl-container {
-  padding: 32px;
+  padding: 0 32px 32px;
   font-family: 'Lato', sans-serif;
   background: #f5f7f2;
-  min-height: 100vh;
 }
 
 /* ─────────────────────────────
@@ -28,6 +27,8 @@
   padding: 24px;
   margin-bottom: 24px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .rl-label {
@@ -162,7 +163,6 @@
 .rl-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px;
 }
 
 .rl-table thead {
@@ -170,20 +170,18 @@
 }
 
 .rl-table th {
-  padding: 14px;
+  padding: 10px 8px;
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #1b5e20;
-  white-space: nowrap;
 }
 
 .rl-table td {
-  padding: 14px;
+  padding: 10px 8px;
   border-bottom: 1px solid #eeeeee;
-  font-size: 14px;
+  font-size: 13px;
   color: #374151;
-  white-space: nowrap;
 }
 
 .rl-table tbody tr:hover {
@@ -192,9 +190,91 @@
 
 .rl-empty {
   text-align: center;
-  padding: 24px !important;
   color: #9ca3af;
-  font-size: 14px;
+  padding: 40px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .rl-container {
+    padding: 0 24px 24px;
+  }
+  .rl-title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 992px) {
+  .rl-container {
+    padding: 0 20px 20px;
+  }
+  .rl-title {
+    font-size: 22px;
+  }
+  .rl-card {
+    padding: 18px;
+  }
+  .rl-form {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .rl-container {
+    padding: 0 14px 14px;
+  }
+  .rl-title {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .rl-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  .rl-table th {
+    padding: 6px 5px;
+    font-size: 10px;
+  }
+  .rl-table td {
+    padding: 6px 5px;
+    font-size: 11px;
+    word-break: break-word;
+  }
+  .modal-box {
+    max-width: 95%;
+    padding: 24px 18px;
+    margin: 0 10px;
+  }
+  .acciones {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .btn-editar,
+  .btn-eliminar {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rl-container {
+    padding: 0 8px 8px;
+  }
+  .rl-title {
+    font-size: 16px;
+  }
+  .rl-card {
+    padding: 10px;
+  }
+  .rl-table th,
+  .rl-table td {
+    padding: 4px 3px;
+    font-size: 9px;
+    word-break: break-word;
+  }
+  .modal-box {
+    padding: 16px 12px;
+  }
 }
 
 /* ─────────────────────────────

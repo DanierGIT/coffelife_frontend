@@ -98,6 +98,7 @@ export default function Administrador() {
   const [fetching,     setFetching]     = useState(true)   // ← nuevo: carga inicial
   const [error,        setError]        = useState('')
   const [success,      setSuccess]      = useState('')
+  const [showCrearModal, setShowCrearModal] = useState(false)
 
   const [form, setForm] = useState({
     nombre: '', apellido: '', correo: '', telefono: '', password: '', confirmPassword: '',
@@ -145,6 +146,7 @@ export default function Administrador() {
       await api.post('/usuarios', { ...form, id_rol: idRol })
       setForm({ nombre: '', apellido: '', correo: '', telefono: '', password: '', confirmPassword: '' })
       setSuccess('Administrador creado correctamente.')
+      setShowCrearModal(false)
       getAdmins()
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo crear el administrador.')
@@ -167,30 +169,34 @@ export default function Administrador() {
 
   return (
     <>
-      <h1 className="admin-page-title">Administradores</h1>
-
-      <div className="admin-form-card">
-        <h2 className="admin-form-title">Crear administrador</h2>
-        <form className="admin-form" onSubmit={handleCreate}>
-          <input name="nombre"   value={form.nombre}   onChange={handleChange} placeholder="Nombre"   required />
-          <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido" required />
-          <input name="correo"   value={form.correo}   onChange={handleChange} placeholder="Correo"   required />
-          <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" />
-          <div style={{ position: 'relative' }}>
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder={`Contraseña (mín. 10)`} required />
-            <PasswordStrength password={form.password} role="administrador" />
-          </div>
-          <div style={{ position: 'relative' }}>
-            <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" required />
-          </div>
-          {error   && <p className="modal-error"   style={{marginTop:8}}>{error}</p>}
-          {success && <p className="finca-success" style={{marginTop:8}}>{success}</p>}
-          <div className="admin-form-actions">
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Creando…' : 'Crear'}
-            </button>
-          </div>
-        </form>
+      <div className="page-header">
+        <h1>Administradores</h1>
+        <p>Usuarios administradores del sistema</p>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <button
+          className="btn-primary"
+          onClick={() => setShowCrearModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            border: 'none',
+            padding: '10px 22px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Agregar administrador
+        </button>
       </div>
 
       <div className="admin-table-card">
@@ -248,6 +254,37 @@ export default function Administrador() {
           onClose={() => setEditingAdmin(null)}
           onSaved={getAdmins}
         />
+      )}
+
+      {showCrearModal && (
+        <div className="modal-overlay" onClick={() => { setShowCrearModal(false); setError(''); }}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Crear administrador</h2>
+              <button className="modal-close" onClick={() => { setShowCrearModal(false); setError(''); }}>x</button>
+            </div>
+            <form className="modal-form" onSubmit={handleCreate}>
+              <div className="modal-row">
+                <label>Nombre   <input name="nombre"   value={form.nombre}   onChange={handleChange} placeholder="Nombre" required /></label>
+                <label>Apellido <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido" required /></label>
+              </div>
+              <label>Correo   <input name="correo"   value={form.correo}   onChange={handleChange} placeholder="Correo" required /></label>
+              <label>Teléfono <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" /></label>
+              <div style={{ position: 'relative' }}>
+                <label>Contraseña <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña (mín. 10)" required /></label>
+                <PasswordStrength password={form.password} role="administrador" />
+              </div>
+              <label>Confirmar contraseña <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirmar contraseña" required /></label>
+              {error && <p className="modal-error">{error}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => { setShowCrearModal(false); setError(''); }}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Creando…' : 'Crear administrador'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </>
   )

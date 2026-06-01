@@ -3,6 +3,7 @@ import api from "../../../services/api";
 import PasswordStrength from "../../../components/PasswordStrength";
 import { validatePassword, PASSWORD_RULES } from "../../../utils/passwordValidator";
 import "./Usuarios.css";
+import "../Administrador/Administrador.css";
 
 function EditModal({ usuario, onClose, onSaved, roles }) {
   const [form, setForm] = useState({
@@ -341,9 +342,10 @@ export default function Usuarios() {
 
   return (
     <>
-      <h1 className="admin-page-title">
-        Usuarios
-      </h1>
+      <div className="page-header">
+        <h1>Usuarios</h1>
+        <p>Gestión de usuarios del sistema</p>
+      </div>
 
       <div className="admin-form-card">
         <h2 className="admin-form-title">

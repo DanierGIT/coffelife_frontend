@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../../services/api'
+import { useAuth } from '../../../context/AuthContext'
 import './Dashboard.css'
 
 const getArrayData = (data) => {
@@ -73,10 +74,12 @@ function StatCard({ icon, label, value, note, color, progress, progressLabel, on
 }
 
 export default function Dashboard() {
+  const { user } = useAuth()
   const [stats, setStats] = useState({
     fincas: 0,
     fincasConUbicacion: 0,
-    cultivos: 0,
+    expertosActivos: 0,
+    expertosInactivos: 0,
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -87,9 +90,10 @@ export default function Dashboard() {
       setError('')
 
       try {
-        const [dashboardRes, fincasRes] = await Promise.allSettled([
+        const [dashboardRes, fincasRes, expertosRes] = await Promise.allSettled([
           api.get('/dashboard'),
           api.get('/fincas'),
+          api.get('/expertos'),
         ])
 
         if (dashboardRes.status === 'rejected') throw dashboardRes.reason
@@ -98,10 +102,20 @@ export default function Dashboard() {
         const fincas = fincasRes.status === 'fulfilled' ? getArrayData(fincasRes.value.data) : []
         const fincasConUbicacion = fincas.filter((f) => f.latitud && f.longitud).length
 
+        const expertosData = expertosRes.status === 'fulfilled'
+          ? (Array.isArray(expertosRes.value.data) ? expertosRes.value.data : (expertosRes.value.data?.data ?? []))
+          : []
+        const expertosActivos = expertosData.filter((e) => {
+          const a = e.activo
+          return a === undefined || a === null || a === true || a === 1 || a === '1' || a === 'true'
+        }).length
+        const expertosInactivos = expertosData.length - expertosActivos
+
         setStats({
           fincas: Number(resumen.totalFincas || 0),
           fincasConUbicacion,
-          cultivos: Number(resumen.totalCultivos || 0),
+          expertosActivos,
+          expertosInactivos,
         })
       } catch (err) {
         setError(err?.response?.data?.message || 'No se pudo cargar el dashboard.')
@@ -115,12 +129,20 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1 className="dashboard-title">Dashboard</h1>
-      <p className="dashboard-subtitle">Flujo general de administracion de CoffeeLife</p>
+      <div className="dashboard-welcome">
+        <div className="welcome-avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </div>
+        <h1 className="dashboard-title">Bienvenido de nuevo, {user?.nombre || 'Admin'}</h1>
+        <p className="dashboard-subtitle">Panel de control — CoffeeLife</p>
+      </div>
 
       {error && <p className="dashboard-error">{error}</p>}
 
-      <div className="dashboard-cards">
+      <div className="dashboard-cards centered">
         <StatCard
           icon={<FincaIcon />}
           label="Fincas activas"
@@ -134,14 +156,17 @@ export default function Dashboard() {
         <StatCard
           icon={
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
-              <circle cx="12" cy="11" r="3"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
           }
-          label="Cultivos"
-          value={stats.cultivos}
+          label="Expertos activos"
+          value={stats.expertosActivos}
           loading={loading}
           color="rgba(76, 175, 80, 0.12)"
+          note={`${stats.expertosInactivos} inactivos`}
         />
       </div>
 

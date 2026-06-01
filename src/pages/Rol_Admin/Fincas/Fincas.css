@@ -188,6 +188,15 @@
   background: #1d4ed8;
 }
 
+.btn-icon-cafetero {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.btn-icon-cafetero:hover {
+  background: #5b21b6;
+}
+
 .btn-icon-cultivo {
   background: linear-gradient(135deg, #4caf50, #2e7d32);
   color: #fff;
@@ -241,4 +250,427 @@
   border-color: #7b1fa2;
   box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.12);
   background: #fff;
+}
+
+/* ─── Header de la tabla ─── */
+.admin-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+}
+
+/* ─── Header del mapa ─── */
+.map-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #e8f5e9;
+}
+
+.admin-table-card {
+  padding: 20px 24px;
+}
+
+.map-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.map-card-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+/* ─── Badge de estado ─── */
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.badge-active   { background: #e8f5e9; color: #2e7d32; }
+.badge-inactive { background: #f3f4f6; color: #6b7280; }
+
+/* ─── Botón ojo para ver detalle ─── */
+.btn-icon-ver {
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-icon-ver:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.finca-nombre-link {
+  color: #1b5e20;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.finca-nombre-link:hover {
+  color: #4caf50;
+  text-decoration: underline;
+}
+
+/* ─── Modal de detalle de finca ─── */
+.modal-box--detalle {
+  max-width: 560px;
+}
+
+.detalle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.detalle-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.detalle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detalle-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detalle-field-full {
+  grid-column: 1 / -1;
+}
+
+.detalle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.detalle-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.detalle-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* ─── Modal asignar experto ─── */
+.experto-actual {
+  font-size: 14px;
+  color: #2e7d32;
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0 0;
+}
+
+.experto-sin-asignar {
+  font-size: 14px;
+  color: #b91c1c;
+  background: #fce8e8;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0 0;
+}
+
+.experto-select {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  margin-top: 16px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.experto-select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+/* ─── Mensajes de asignacion de cafetero ─── */
+.cafetero-asignado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e8f5e9;
+  color: #166534;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin: 0 0 16px;
+  border: 1px solid #c8e6c9;
+}
+
+.cafetero-sin-asignar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff3e0;
+  color: #bf360c;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin: 0 0 16px;
+  border: 1px solid #ffe0b2;
+}
+
+.experto-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ─── Botón toggle activar/desactivar ─── */
+.btn-icon-toggle {
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-icon-toggle:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.btn-icon-toggle.activar {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.btn-icon-toggle.desactivar {
+  background: #fce8e8;
+  color: #b91c1c;
+}
+
+/* ─── Fila de finca inactiva ─── */
+.fila-inactiva td {
+  opacity: 0.6;
+}
+
+/* ══════════════════════════════════════════
+   Modal de cultivos
+   ══════════════════════════════════════════ */
+
+.modal-box--cultivos {
+  max-width: 640px;
+}
+
+.cultivos-lista {
+  margin: 16px 0 0;
+}
+
+.cultivos-lista-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 8px;
+}
+
+.cultivos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.cultivos-tabla th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.cultivos-tabla td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.cultivos-tabla tbody tr:hover {
+  background: #f9fafb;
+}
+
+.cultivo-fila-editando {
+  background: #f0fdf4 !important;
+}
+
+.cultivos-sin-registros {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  padding: 16px 0;
+  margin: 0;
+}
+
+.cultivos-divider {
+  height: 1px;
+  background: #ece5da;
+  margin: 16px 0;
+}
+
+.cultivo-acciones {
+  display: flex;
+  gap: 4px;
+}
+
+.cultivo-btn {
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.cultivo-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.cultivo-btn-editar {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.cultivo-btn-eliminar {
+  background: #fce8e8;
+  color: #b91c1c;
+}
+
+.cultivo-estado-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.estado-saludable,
+.estado-bueno {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.estado-regular,
+.estado-enfermo {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.estado-malo,
+.estado-critico {
+  background: #fce8e8;
+  color: #b91c1c;
+}
+
+.cultivo-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .finca-form-row input,
+  .btn-ubicacion,
+  .cultivo-select {
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 768px) {
+  .finca-form-row {
+    flex-direction: column;
+  }
+  .finca-form-row input,
+  .btn-ubicacion,
+  .cultivo-select {
+    min-width: unset;
+    width: 100%;
+  }
+  .td-actions {
+    flex-wrap: nowrap;
+  }
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+  }
 }

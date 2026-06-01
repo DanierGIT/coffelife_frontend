@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./cultivos.css";
 import api from "../../../services/api";
+import "../Administrador/Administrador.css";
 
 export default function Cultivos() {
 
@@ -81,7 +82,10 @@ export default function Cultivos() {
 
   return (
     <div className="rl-container">
-      <h1 className="rl-title">Gestión de Cultivos</h1>
+      <div className="page-header">
+        <h1>Gestión de Cultivos</h1>
+        <p>Administración de cultivos registrados</p>
+      </div>
 
       {/* ── FORMULARIO ── */}
       <div className="rl-card">

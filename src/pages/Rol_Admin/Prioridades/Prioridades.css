@@ -205,3 +205,24 @@
 .btn-delete:hover {
   background: #fecaca;
 }
+
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .prioridades-header h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabla-prioridades {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabla-prioridades th,
+  .tabla-prioridades td {
+    padding: 10px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}

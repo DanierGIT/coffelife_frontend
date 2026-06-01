@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../../../services/api'
 import './Recomendaciones.css'
+import '../Administrador/Administrador.css'
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -153,15 +154,6 @@ export default function Recomendaciones() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const [form, setForm] = useState({
-    id_monitoreo: '',
-    id_tipo: '',
-    id_experto_emisor: '',
-    descripcion: '',
-    fecha_limite: '',
-    id_prioridad: '',
-  })
-
   const getRecomendaciones = async () => {
     try {
       const res = await api.get('/recomendaciones')
@@ -200,10 +192,6 @@ export default function Recomendaciones() {
     getCatalogos()
   }, [])
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
   const getTipoNombre = (recomendacion) => {
     if (recomendacion.tipo?.nombreTipo) return recomendacion.tipo.nombreTipo
 
@@ -216,127 +204,33 @@ export default function Recomendaciones() {
     return prioridad?.nombre || recomendacion.idPrioridad || '-'
   }
 
-  const handleCreate = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setSuccess('')
-
+  const handleToggleActivo = async (rec) => {
+    const nuevoActivo = rec.activo === undefined || rec.activo === null ? false : !rec.activo
     try {
-      await api.post('/recomendaciones', {
-        id_monitoreo: Number(form.id_monitoreo),
-        id_tipo: form.id_tipo ? Number(form.id_tipo) : null,
-        id_experto_emisor: form.id_experto_emisor ? Number(form.id_experto_emisor) : null,
-        id_prioridad: form.id_prioridad ? Number(form.id_prioridad) : null,
-        descripcion: form.descripcion,
-        fecha_limite: form.fecha_limite || null,
-      })
-
-      setForm({
-        id_monitoreo: '',
-        id_tipo: '',
-        id_experto_emisor: '',
-        descripcion: '',
-        fecha_limite: '',
-        id_prioridad: '',
-      })
-
-      setSuccess('Recomendacion registrada correctamente.')
-      getRecomendaciones()
+      await api.put(`/recomendaciones/${rec.idRecomendacion}`, { activo: nuevoActivo })
+      setRecomendaciones((prev) =>
+        prev.map((r) =>
+          r.idRecomendacion === rec.idRecomendacion ? { ...r, activo: nuevoActivo } : r
+        )
+      )
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo registrar la recomendacion.')
-    } finally {
-      setLoading(false)
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Eliminar esta recomendacion?')) return
-
-    try {
-      await api.delete(`/recomendaciones/${id}`)
-      getRecomendaciones()
-    } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar la recomendacion.')
-    }
-  }
+  const activo = (rec) => rec.activo !== undefined && rec.activo !== null ? rec.activo : true
 
   return (
     <>
-      <h1 className="admin-page-title">Recomendaciones</h1>
-
-      <div className="admin-form-card">
-        <h2 className="admin-form-title">Registrar nueva recomendacion</h2>
-
-        <form className="rec-form" onSubmit={handleCreate}>
-          <div className="rec-form-row">
-            <select name="id_monitoreo" value={form.id_monitoreo} onChange={handleChange} required>
-              <option value="">Seleccionar monitoreo...</option>
-              {monitoreos.map((m) => (
-                <option key={m.idMonitoreo} value={m.idMonitoreo}>
-                  #{m.idMonitoreo} - {normalizeDate(m.fechaMonitoreo)}
-                </option>
-              ))}
-            </select>
-
-            <select name="id_tipo" value={form.id_tipo} onChange={handleChange}>
-              <option value="">Tipo de recomendacion...</option>
-              {tipos.map((t) => (
-                <option key={t.idTipo} value={t.idTipo}>
-                  {t.nombreTipo}
-                </option>
-              ))}
-            </select>
-
-            <select name="id_experto_emisor" value={form.id_experto_emisor} onChange={handleChange}>
-              <option value="">Experto emisor...</option>
-              {expertos.map((u) => (
-                <option key={u.idUsuario} value={u.idUsuario}>
-                  {u.nombre} {u.apellido || ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="rec-form-row">
-            <select name="id_prioridad" value={form.id_prioridad} onChange={handleChange}>
-              <option value="">Prioridad...</option>
-              {prioridades.map((p) => (
-                <option key={p.idPrioridad} value={p.idPrioridad}>
-                  {p.nombre}
-                </option>
-              ))}
-            </select>
-
-            <input type="date" name="fecha_limite" value={form.fecha_limite} onChange={handleChange} />
-          </div>
-
-          <textarea
-            name="descripcion"
-            value={form.descripcion}
-            onChange={handleChange}
-            placeholder="Descripcion de la recomendacion"
-            required
-            rows={3}
-          />
-
-          {error && <p className="modal-error">{error}</p>}
-          {success && <p className="rec-success">{success}</p>}
-
-          <div className="admin-form-actions">
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Registrando...' : 'Registrar recomendacion'}
-            </button>
-          </div>
-        </form>
+      <div className="page-header">
+        <h1>Recomendaciones</h1>
+        <p>Recomendaciones para cultivos</p>
       </div>
-
       <div className="admin-table-card">
         <table className="admin-table">
           <thead>
             <tr>
               <th>#</th>
-              <th>Monitoreo</th>
               <th>Tipo</th>
               <th>Experto</th>
               <th>Prioridad</th>
@@ -349,7 +243,7 @@ export default function Recomendaciones() {
           <tbody>
             {recomendaciones.length === 0 ? (
               <tr>
-                <td colSpan={8} className="finca-empty">
+                <td colSpan={7} className="finca-empty">
                   No hay recomendaciones registradas aun.
                 </td>
               </tr>
@@ -357,7 +251,6 @@ export default function Recomendaciones() {
               recomendaciones.map((r) => (
                 <tr key={r.idRecomendacion}>
                   <td>{r.idRecomendacion}</td>
-                  <td>{r.monitoreo?.cultivo?.nombreCultivo || `#${r.idMonitoreo}`}</td>
                   <td>{getTipoNombre(r)}</td>
                   <td>{r.experto ? `${r.experto.nombre} ${r.experto.apellido || ''}`.trim() : '—'}</td>
                   <td>{getPrioridadNombre(r)}</td>
@@ -368,8 +261,12 @@ export default function Recomendaciones() {
                       Editar
                     </button>
 
-                    <button className="btn-delete" onClick={() => handleDelete(r.idRecomendacion)}>
-                      Eliminar
+                    <button
+                      className={`btn-toggle ${activo(r) ? 'toggle-on' : 'toggle-off'}`}
+                      onClick={() => handleToggleActivo(r)}
+                      title={activo(r) ? 'Desactivar' : 'Activar'}
+                    >
+                      {activo(r) ? 'Activo' : 'Inactivo'}
                     </button>
                   </td>
                 </tr>
@@ -390,6 +287,7 @@ export default function Recomendaciones() {
           prioridades={prioridades}
         />
       )}
+
     </>
   )
 }

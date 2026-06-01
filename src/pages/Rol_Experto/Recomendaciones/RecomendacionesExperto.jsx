@@ -339,15 +339,21 @@ export default function RecomendacionesExperto() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Eliminar esta recomendación?')) return
+  const handleToggleActivo = async (rec) => {
+    const nuevoActivo = rec.activo === undefined || rec.activo === null ? false : !rec.activo
     try {
-      await api.delete(`/recomendaciones/${id}`)
-      getRecomendaciones()
+      await api.put(`/recomendaciones/${rec.idRecomendacion}`, { activo: nuevoActivo })
+      setRecomendaciones((prev) =>
+        prev.map((r) =>
+          r.idRecomendacion === rec.idRecomendacion ? { ...r, activo: nuevoActivo } : r
+        )
+      )
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar la recomendación.')
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
+
+  const activo = (rec) => rec.activo !== undefined && rec.activo !== null ? rec.activo : true
 
   // ─────────────────────────────────────────────
   // RENDER
@@ -464,7 +470,13 @@ export default function RecomendacionesExperto() {
                   <td>{normalizeDate(r.fechaLimite) || '-'}</td>
                   <td>
                     <button className="btn-edit"   onClick={() => setEditingRec(r)}>Editar</button>
-                    <button className="btn-delete" onClick={() => handleDelete(r.idRecomendacion)}>Eliminar</button>
+                    <button
+                      className={`btn-toggle ${activo(r) ? 'toggle-on' : 'toggle-off'}`}
+                      onClick={() => handleToggleActivo(r)}
+                      title={activo(r) ? 'Desactivar' : 'Activar'}
+                    >
+                      {activo(r) ? 'Activo' : 'Inactivo'}
+                    </button>
                   </td>
                 </tr>
               ))

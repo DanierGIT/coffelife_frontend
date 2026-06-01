@@ -6,6 +6,7 @@ import CatPrioridades        from './CatPrioridades'
 import CatTiposTratamiento   from './CatTiposTratamiento'
 import CatTiposRecomendacion from './CatTiposRecomendacion'
 import './Categorias.css'
+import '../../Administrador/Administrador.css'
 
 const TABS = [
   {
@@ -89,7 +90,10 @@ export default function Categorias({ subPage }) {
 
   return (
     <div className="categorias-page">
-      <h1 className="categorias-title">Categorías</h1>
+      <div className="page-header">
+        <h1>Categorías</h1>
+        <p>Catálogos del sistema</p>
+      </div>
 
       <div className="categorias-tabs">
         {TABS.map(tab => (

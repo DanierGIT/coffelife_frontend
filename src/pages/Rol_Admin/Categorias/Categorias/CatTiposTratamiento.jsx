@@ -68,18 +68,20 @@ export default function CatTiposTratamiento() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Eliminar este tipo de tratamiento?')) return
+  const handleToggleActivo = async (item) => {
+    const nextState = item.activo === undefined ? false : !item.activo
+    const accion = nextState ? 'activar' : 'desactivar'
+    if (!window.confirm(`¿${accion} este tipo de tratamiento?`)) return
 
     setError('')
     setSuccess('')
 
     try {
-      await api.delete(`/cat_tipos_tratamiento/${id}`)
-      setSuccess('Tipo de tratamiento eliminado.')
+      await api.put(`/cat_tipos_tratamiento/${item.idTipo}`, { activo: nextState })
+      setSuccess(`Tipo de tratamiento ${accion}do correctamente.`)
       cargarTipos()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo eliminar.')
+      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
     }
   }
 
@@ -154,10 +156,10 @@ export default function CatTiposTratamiento() {
 
                       <button
                         type="button"
-                        className="delete-btn"
-                        onClick={() => handleDelete(tipo.idTipo)}
+                        className={tipo.activo === false ? 'edit-btn' : 'delete-btn'}
+                        onClick={() => handleToggleActivo(tipo)}
                       >
-                        Eliminar
+                        {tipo.activo === false ? 'Activar' : 'Desactivar'}
                       </button>
                     </td>
                   </tr>
