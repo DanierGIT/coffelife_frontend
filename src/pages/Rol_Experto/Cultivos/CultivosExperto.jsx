@@ -108,135 +108,167 @@ export default function CultivosExperto({ finca, onNavigate }) {
   }
 
   return (
-    <div className="cult-exp-page">
-      <div className="cult-exp-header">
-        <button className="back-btn" onClick={() => onNavigate('dashboard')}>
+    <div className="coffeelife-container">
+      {/* HEADER PRINCIPAL DE LA FINCA */}
+      <div className="finca-detail-header-card">
+        <div className="finca-detail-left">
+          <div className="finca-detail-img-container">
+            <img
+              src="https://www.tomplanmytrip.com/wp-content/uploads/2021/10/Daniels-house-1.jpg"
+              alt="Finca"
+            />
+          </div>
+          <div className="finca-detail-info">
+            <span className="badge-selected">Finca seleccionada</span>
+            <h1 className="finca-detail-title">{finca?.nombre || 'Finca sin nombre'}</h1>
+            
+            <div className="finca-detail-meta">
+              <div className="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>{finca?.nombreCafetero || '—'}</span>
+              </div>
+              <div className="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{finca?.municipio || '—'}, {finca?.departamento || '—'}</span>
+              </div>
+            </div>
+
+            <div className="finca-tags-row">
+              <span className="tag-item">Café</span>
+              {finca?.altitud && <span className="tag-item">{finca.altitud} msnm</span>}
+              {finca?.area && <span className="tag-item">{finca.area} ha</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* METRICAS / KPIS SUPERIORES DERECHOS */}
+        <div className="finca-detail-right">
+          <button className="btn-back-coffeelife" onClick={() => onNavigate('dashboard')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver a mi fincas
+          </button>
+
+          <div className="kpi-cards-container">
+            <div className="kpi-card-mini">
+              <div className="kpi-icon-circle brand-light-brown">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div className="kpi-data">
+                <span className="kpi-value">{cultivos.length}</span>
+                <span className="kpi-label">Cultivos<br/>en esta finca</span>
+              </div>
+            </div>
+
+            <div className="kpi-card-mini">
+              <div className="kpi-icon-circle brand-light-orange">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div className="kpi-data">
+                <span className="kpi-value">{Object.values(stats).reduce((a, b) => a + b.monitoreos, 0)}</span>
+                <span className="kpi-label">Actividades<br/>este mes</span>
+              </div>
+            </div>
+
+            <div className="kpi-card-mini">
+              <div className="kpi-icon-circle brand-light-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div className="kpi-data">
+                <span className="kpi-value">Hoy</span>
+                <span className="kpi-label">Última actividad<br/>09:30 a. m.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECCIÓN TITULO DE CULTIVOS Y BOTÓN AGREGAR */}
+      <div className="cultivos-section-bar">
+        <div className="section-bar-left">
+          <h2>Cultivos de la finca</h2>
+          <span className="badge-count">{cultivos.length} cultivos</span>
+        </div>
+        <button className="btn-brand-primary" onClick={() => { handleCancelEdit(); setShowModal(true); }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Volver
-        </button>
-        <div>
-          <h1>Cultivos de {finca?.nombre || 'la finca'}</h1>
-          <p>{finca?.municipio}, {finca?.departamento}</p>
-        </div>
-      </div>
-
-      <div className="cult-finca-card">
-        <div className="cult-finca-img">
-          <img
-            src="https://www.tomplanmytrip.com/wp-content/uploads/2021/10/Daniels-house-1.jpg"
-            alt="Finca"
-          />
-        </div>
-        <div className="cult-finca-info">
-          <div className="cult-finca-row">
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Nombre</span>
-              <span className="cult-finca-value">{finca?.nombre || '—'}</span>
-            </div>
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Ubicaci&oacute;n</span>
-              <span className="cult-finca-value">{finca?.municipio || '—'}, {finca?.departamento || '—'}</span>
-            </div>
-          </div>
-          <div className="cult-finca-row">
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Altitud</span>
-              <span className="cult-finca-value">{finca?.altitud ? `${finca.altitud} msnm` : '—'}</span>
-            </div>
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">&Aacute;rea</span>
-              <span className="cult-finca-value">{finca?.area ? `${finca.area} ha` : '—'}</span>
-            </div>
-          </div>
-          <div className="cult-finca-row">
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Cultivos</span>
-              <span className="cult-finca-value">{finca?.totalCultivos ?? '—'}</span>
-            </div>
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Cafetero</span>
-              <span className="cult-finca-value">{finca?.nombreCafetero || '—'}</span>
-            </div>
-          </div>
-          <div className="cult-finca-row">
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Experto asignado</span>
-              <span className="cult-finca-value">{finca?.nombreExperto || '—'}</span>
-            </div>
-            <div className="cult-finca-item">
-              <span className="cult-finca-label">Asignada</span>
-              <span className="cult-finca-value">{finca?.fechaAsignada || '—'}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="cult-section-header">
-        <h2 className="cult-section-title">Cultivos de la finca</h2>
-        <button className="cult-btn-agregar" onClick={() => setShowModal(true)}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Agregar cultivos
+          Agregar cultivo
         </button>
       </div>
 
+      {/* RENDERIZADO DE ESTADOS DE CARGA / CONTENIDO */}
       {loading ? (
-        <p className="cult-exp-empty">Cargando cultivos...</p>
+        <div className="state-message-box"><p>Cargando cultivos...</p></div>
       ) : error ? (
-        <p className="cult-exp-error">{error}</p>
+        <div className="state-message-box error"><p>{error}</p></div>
       ) : cultivos.length === 0 ? (
-        <p className="cult-exp-empty">Esta finca no tiene cultivos registrados.</p>
+        <div className="state-message-box alert"><p>Esta finca no tiene cultivos registrados.</p></div>
       ) : (
-        <div className="cult-cards-grid">
+        <div className="coffeelife-cards-grid">
           {cultivos.map((c) => {
             const s = stats[c.idCultivo] || { monitoreos: 0, imagenes: 0 }
             return (
-              <div key={c.idCultivo} className="cult-card">
-                <div className="cult-card-img-wrap">
-                  <div className="cult-card-img">
-                    <img
-                      src="https://colombiaverde.com.co/wp-content/uploads/2023/05/cultivos-de-cafe-en-colombia-1200x800.jpg"
-                      alt="Cultivo"
-                    />
-                  </div>
-                  <button className="cult-card-edit" title="Editar cultivo" onClick={() => handleEditClick(c)}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              <div key={c.idCultivo} className="coffeelife-card">
+                <div className="card-image-wrapper">
+                  <img
+                    src="https://colombiaverde.com.co/wp-content/uploads/2023/05/cultivos-de-cafe-en-colombia-1200x800.jpg"
+                    alt="Cultivo"
+                  />
+                  <button className="btn-floating-options" title="Editar cultivo" onClick={() => handleEditClick(c)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
                     </svg>
                   </button>
                 </div>
-                <div className="cult-card-body">
-                  <div className="cult-card-header">
-                    <h3 className="cult-card-nombre">{c.nombreCultivo || c.nombre_cultivo || '—'}</h3>
-                    <span className="cult-card-estado-badge">
-                      {c.estadoCultivo?.nombreEstado || '—'}
-                    </span>
-                  </div>
-                  <p className="cult-card-tipo">{c.tipoCultivo || c.tipo_cultivo || '—'}</p>
-                  <div className="cult-card-stats">
-                    <div className="cult-card-stat">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                      {s.monitoreos} monitoreos
+
+                <div className="card-content-body">
+                  <div className="card-main-header">
+                    <div className="card-icon-container">
+                      {/* Icono de planta orgánico */}
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#437024" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22V8M12 8c-2-2.5-5-2.5-7 0 0 3 2.5 5 7 5M12 8c2-2.5 5-2.5 7 0 0 3-2.5 5-7 5"/></svg>
                     </div>
-                    <div className="cult-card-stat">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                      </svg>
-                      {s.imagenes} im&aacute;genes
+                    <div className="card-title-group">
+                      <h3>{c.nombreCultivo || c.nombre_cultivo || '—'}</h3>
+                      <p className="card-subtitle">Variedad: {c.tipoCultivo || c.tipo_cultivo || '—'}</p>
+                      <span className="badge-status-active">
+                        {c.estadoCultivo?.nombreEstado || 'Activo'}
+                      </span>
                     </div>
                   </div>
-                  <button className="cult-card-btn" onClick={() => onNavigate('detalle_cultivo', c)}>
+
+                  {/* DIVISION INTERNA DE STATS */}
+                  <div className="card-stats-row">
+                    <div className="stat-col">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                      <div className="stat-numbers">
+                        <strong>{s.imagenes}</strong>
+                        <span>Fotos</span>
+                      </div>
+                    </div>
+                    <div className="stat-col">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                      <div className="stat-numbers">
+                        <strong>{s.monitoreos}</strong>
+                        <span>Recomendaciones</span>
+                      </div>
+                    </div>
+                    <div className="stat-col">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6"/><path d="M16 18a2.08 2.08 0 0 0-2-2 2.08 2.08 0 0 0-2 2v4h4z"/><path d="M20 14a2.08 2.08 0 0 0-2-2 2.08 2.08 0 0 0-2 2v8h4z"/></svg>
+                      <div className="stat-numbers">
+                        <strong>1</strong>
+                        <span>Tratamientos</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* BOTÓN INFERIOR FULL-WIDTH */}
+                  <button className="btn-card-action-trigger" onClick={() => onNavigate('detalle_cultivo', c)}>
                     Ver detalles del cultivo
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -245,32 +277,41 @@ export default function CultivosExperto({ finca, onNavigate }) {
         </div>
       )}
 
+      {/* MODAL COFFEELIFE */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => { setShowModal(false); handleCancelEdit() }}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h2 className="modal-title">{editando ? 'Editar cultivo' : 'Registrar cultivo'}</h2>
-            <form className="finca-form" onSubmit={handleCreate}>
-              <div className="finca-form-row">
-                <input name="nombre_cultivo" value={form.nombre_cultivo} onChange={handleChange} placeholder="Nombre del cultivo" required />
-                <input name="tipo_cultivo" value={form.tipo_cultivo} onChange={handleChange} placeholder="Tipo de cultivo" required />
-                <select name="id_estado_cultivo" value={form.id_estado_cultivo} onChange={handleChange} className="finca-select">
+        <div className="cl-modal-overlay" onClick={() => { setShowModal(false); handleCancelEdit() }}>
+          <div className="cl-modal-box" onClick={(e) => e.stopPropagation()}>
+            <h2 className="cl-modal-title">{editando ? 'Editar cultivo' : 'Registrar nuevo cultivo'}</h2>
+            <form className="cl-modal-form" onSubmit={handleCreate}>
+              <div className="cl-input-group">
+                <label>Nombre del cultivo</label>
+                <input name="nombre_cultivo" value={form.nombre_cultivo} onChange={handleChange} placeholder="Ej. Lote Central - Café" required />
+              </div>
+              
+              <div className="cl-input-group">
+                <label>Variedad / Tipo de cultivo</label>
+                <input name="tipo_cultivo" value={form.tipo_cultivo} onChange={handleChange} placeholder="Ej. Castillo, Bourbon, Catimor" required />
+              </div>
+
+              <div className="cl-input-group">
+                <label>Estado actual</label>
+                <select name="id_estado_cultivo" value={form.id_estado_cultivo} onChange={handleChange}>
                   <option value="">--- Sin estado ---</option>
                   {estados.map((est) => (
                     <option key={est.idEstado} value={est.idEstado}>{est.nombreEstado}</option>
                   ))}
                 </select>
               </div>
-              {formError && <p className="modal-error">{formError}</p>}
-              <div className="finca-form-actions">
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? 'Guardando...' : editando ? 'Actualizar cultivo' : 'Registrar cultivo'}
+
+              {formError && <p className="cl-form-error-msg">{formError}</p>}
+              
+              <div className="cl-modal-actions">
+                <button type="button" className="btn-cl-secondary" onClick={() => { setShowModal(false); handleCancelEdit() }}>
+                  Cancelar
                 </button>
-                {editando && (
-                  <button type="button" className="btn-secondary" onClick={() => { handleCancelEdit(); setShowModal(false) }}>
-                    Cancelar edici&oacute;n
-                  </button>
-                )}
-                <button type="button" className="btn-secondary" onClick={() => { setShowModal(false); handleCancelEdit() }}>Cancelar</button>
+                <button type="submit" className="btn-brand-primary" disabled={saving}>
+                  {saving ? 'Guardando...' : editando ? 'Guardar Cambios' : 'Registrar Cultivo'}
+                </button>
               </div>
             </form>
           </div>

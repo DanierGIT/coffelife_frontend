@@ -4,7 +4,7 @@ import { useAuth } from '../../../context/AuthContext'
 import './RecomendacionesExperto.css'
 
 // ─────────────────────────────────────────────
-// HELPERS
+// 
 // ─────────────────────────────────────────────
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data

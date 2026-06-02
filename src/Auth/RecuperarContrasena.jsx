@@ -10,7 +10,7 @@ import {
 import PasswordStrength from "../components/PasswordStrength";
 import "./RecuperarContrasena.css";
 
-const API_BASE_URL = "http://localhost:3333";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend-coffe-lifee-production.up.railway.app";
 
 async function apiFetch(ruta, body) {
   const response = await fetch(`${API_BASE_URL}${ruta}`, {

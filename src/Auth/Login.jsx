@@ -86,7 +86,7 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
       await login(form.email, form.password)
     } catch (err) {
       if (!err.response) {
-        setError('No se pudo conectar con el servidor. Verifica que el backend esté encendido en http://localhost:3333.')
+        setError('No se pudo conectar con el servidor. Verifica que el backend esté disponible.')
       } else {
         setError(err.response.data?.message || 'Correo o contraseña incorrectos.')
       }
