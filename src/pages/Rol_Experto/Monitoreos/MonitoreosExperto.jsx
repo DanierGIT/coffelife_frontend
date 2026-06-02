@@ -1,219 +1,717 @@
-import { useState, useEffect } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+
+import {
+  Camera,
+  Leaf,
+  Calendar,
+  BookOpen,
+  ChevronRight,
+  ArrowLeft,
+  Image,
+} from 'lucide-react'
+
 import api from '../../../services/api'
+import { useAuth } from '../../../context/AuthContext'
+
 import './MonitoreosExperto.css'
 
-const fmt = (v) => v ? new Date(v).toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+const hoy = () =>
+  new Date()
+    .toISOString()
+    .slice(0, 10)
 
-const NIVEL_CLASS = (n = '') => {
-  const l = n.toLowerCase()
-  if (l.includes('alto')) return 'high'
-  if (l.includes('medio')) return 'mid'
-  if (l.includes('bajo')) return 'low'
-  return ''
-}
+export default function MonitoreosExperto({
+  cultivo,
+  finca,
+}) {
+  const { user } = useAuth()
 
-export default function MonitoreosExperto() {
-  const [monitoreos, setMonitoreos] = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [error, setError]           = useState('')
+  const expertoId =
+    user?.idUsuario ??
+    user?.id ??
+    null
 
-  // Filtros
-  const [filtros, setFiltros] = useState({
-    finca:   'Todos',
-    cultivo: 'Todos',
-    nivel:   'Todos',
-    estado:  'Todos',
-    desde:   '01/05/2024',
-    hasta:   '25/05/2024',
-  })
+  const [vistaMonitoreo, setVistaMonitoreo] =
+    useState('lista')
 
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({
-    id_cultivo: '', id_experto: '', fecha_monitoreo: '', observaciones: '',
-  })
-  const [saving, setSaving] = useState(false)
+  const [monitoreos, setMonitoreos] =
+    useState([])
 
-  const getMonitoreos = async () => {
+  const [loading, setLoading] =
+    useState(false)
+
+  const [fecha, setFecha] =
+    useState(hoy())
+
+  const [observaciones, setObservaciones] =
+    useState('')
+
+  const [fotos, setFotos] =
+    useState([])
+
+  const [error, setError] =
+    useState('')
+
+  const [saving, setSaving] =
+    useState(false)
+
+  const inputFileRef = useRef()
+
+  const fetchMonitoreos = async () => {
+    if (!cultivo?.idCultivo) return
+
+    setLoading(true)
+
     try {
-      const res = await api.get('/monitoreos')
-      setMonitoreos(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
-    } catch {
-      setError('No se pudieron cargar los monitoreos.')
+      const res = await api.get(
+        '/monitoreos',
+        {
+          params: {
+            id_cultivo:
+              cultivo.idCultivo,
+          },
+        }
+      )
+
+      const data = Array.isArray(
+        res.data
+      )
+        ? res.data
+        : res.data?.data ?? []
+
+      setMonitoreos(data)
+    } catch (error) {
+      console.error(error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { getMonitoreos() }, [])
+  useEffect(() => {
+    fetchMonitoreos()
+  }, [cultivo])
 
-  const handleCreate = async (e) => {
-    e.preventDefault()
+  const handleFotoAgregar = (e) => {
+    const archivos = Array.from(
+      e.target.files
+    )
+
+    const nuevas = archivos.map(
+      (file) => ({
+        file,
+        preview:
+          URL.createObjectURL(file),
+      })
+    )
+
+    setFotos((prev) => [
+      ...prev,
+      ...nuevas,
+    ])
+
+    e.target.value = ''
+  }
+
+  const handleFotoQuitar = (index) => {
+    setFotos((prev) =>
+      prev.filter(
+        (_, i) => i !== index
+      )
+    )
+  }
+
+  const handleGuardar = async () => {
     setSaving(true)
+
     try {
-      await api.post('/monitoreos', form)
-      setShowForm(false)
-      setForm({ id_cultivo: '', id_experto: '', fecha_monitoreo: '', observaciones: '' })
-      getMonitoreos()
+      const res = await api.post(
+        '/monitoreos',
+        {
+          id_cultivo: Number(
+            cultivo.idCultivo
+          ),
+
+          id_experto: expertoId,
+
+          fecha_monitoreo: fecha,
+
+          observaciones:
+            observaciones || null,
+        }
+      )
+
+      const idMonitoreo =
+        res.data?.data
+          ?.idMonitoreo ??
+        res.data?.idMonitoreo
+
+      if (
+        fotos.length > 0 &&
+        idMonitoreo
+      ) {
+        for (const foto of fotos) {
+          const formData =
+            new FormData()
+
+          formData.append(
+            'imagen',
+            foto.file
+          )
+
+          formData.append(
+            'id_monitoreo',
+            String(idMonitoreo)
+          )
+
+          await api.post(
+            '/imagenes',
+            formData,
+            {
+              headers: {
+                'Content-Type':
+                  'multipart/form-data',
+              },
+            }
+          )
+        }
+      }
+
+      fetchMonitoreos()
+
+      setVistaMonitoreo('lista')
+
+      setFecha(hoy())
+      setObservaciones('')
+      setFotos([])
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo crear el monitoreo.')
+      setError(
+        err?.response?.data
+          ?.message ||
+          'Error al guardar.'
+      )
     } finally {
       setSaving(false)
     }
   }
 
-  const handleToggleActivo = async (m) => {
-    const nuevoActivo = m.activo === undefined || m.activo === null ? false : !m.activo
-    try {
-      await api.put(`/monitoreos/${m.idMonitoreo}`, { activo: nuevoActivo })
-      setMonitoreos((prev) =>
-        prev.map((mon) =>
-          mon.idMonitoreo === m.idMonitoreo ? { ...mon, activo: nuevoActivo } : mon
-        )
-      )
-    } catch {
-      setError('No se pudo cambiar el estado.')
-    }
+  if (vistaMonitoreo === 'nuevo') {
+    return (
+      <div className="monitoreo-page">
+
+        <div className="monitoreo-topbar">
+
+          <div>
+
+            <div className="monitoreo-breadcrumb">
+
+              <span>
+                Mis fincas
+              </span>
+
+              <ChevronRight size={14} />
+
+              <span>
+                {finca?.nombre}
+              </span>
+
+              <ChevronRight size={14} />
+
+              <span>
+                {
+                  cultivo?.nombreCultivo
+                }
+              </span>
+
+              <ChevronRight size={14} />
+
+              <strong>
+                Nuevo monitoreo
+              </strong>
+            </div>
+
+            <div className="monitoreo-title-wrap">
+
+              <div className="monitoreo-icon">
+                <Leaf
+                  size={34}
+                  strokeWidth={2.4}
+                />
+              </div>
+
+              <div>
+
+                <h1>
+                  Nuevo monitoreo
+                  de Café
+                </h1>
+
+                <p>
+                  Registra el estado
+                  actual del cultivo,
+                  toma fotos, agrega
+                  recomendaciones y
+                  define tratamientos.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            className="btn-outline"
+            onClick={() =>
+              setVistaMonitoreo(
+                'lista'
+              )
+            }
+          >
+            <ArrowLeft size={18} />
+            Volver a cultivos
+          </button>
+        </div>
+
+        <div className="monitoreo-layout">
+
+          <div className="monitoreo-main">
+
+            <div className="mon-card">
+
+              <div className="section-number">
+                1
+              </div>
+
+              <div className="section-content">
+
+                <h2>
+                  Información general
+                </h2>
+
+                <div className="mon-grid">
+
+                  <div className="field">
+                    <label>
+                      Finca
+                    </label>
+
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        finca?.nombre ||
+                        ''
+                      }
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>
+                      Cultivo
+                    </label>
+
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        cultivo?.nombreCultivo ||
+                        ''
+                      }
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>
+                      Responsable
+                    </label>
+
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        user?.nombre ||
+                        'Experto'
+                      }
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>
+                      Fecha
+                    </label>
+
+                    <input
+                      type="date"
+                      value={fecha}
+                      onChange={(e) =>
+                        setFecha(
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mon-card">
+
+              <div className="section-number">
+                2
+              </div>
+
+              <div className="section-content">
+
+                <h2>
+                  Registro fotográfico
+                </h2>
+
+                <p className="section-desc">
+                  Toma fotos del cultivo
+                  desde diferentes
+                  ángulos y detalles
+                  relevantes.
+                </p>
+
+                <div className="photos-grid">
+
+                  <div
+                    className="photo-upload"
+                    onClick={() =>
+                      inputFileRef.current?.click()
+                    }
+                  >
+
+                    <div className="upload-icon">
+                      <Camera size={38} />
+                    </div>
+
+                    <h4>
+                      Agregar fotos
+                    </h4>
+
+                    <span>
+                      JPG, PNG
+                      (Máx. 10MB)
+                    </span>
+                  </div>
+
+                  {fotos.map(
+                    (foto, i) => (
+                      <div
+                        key={i}
+                        className="photo-card"
+                      >
+                        <img
+                          src={
+                            foto.preview
+                          }
+                          alt=""
+                        />
+
+                        <button
+                          className="photo-remove"
+                          onClick={() =>
+                            handleFotoQuitar(
+                              i
+                            )
+                          }
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )
+                  )}
+                </div>
+
+                <input
+                  ref={inputFileRef}
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.png,.webp"
+                  hidden
+                  onChange={
+                    handleFotoAgregar
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="mon-card">
+
+              <div className="section-number">
+                3
+              </div>
+
+              <div className="section-content">
+
+                <h2>
+                  Observaciones del
+                  cultivo
+                </h2>
+
+                <p className="section-desc">
+                  Describe el estado
+                  del cultivo, plagas,
+                  enfermedades o
+                  cualquier aspecto
+                  relevante.
+                </p>
+
+                <textarea
+                  value={
+                    observaciones
+                  }
+                  onChange={(e) =>
+                    setObservaciones(
+                      e.target.value
+                    )
+                  }
+                  className="textarea"
+                  rows={7}
+                />
+
+                <div className="char-counter">
+                  {
+                    observaciones.length
+                  }
+                  /1000
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <div className="error-box">
+                {error}
+              </div>
+            )}
+
+            <div className="bottom-actions">
+
+              <button
+                className="btn-cancel"
+                onClick={() =>
+                  setVistaMonitoreo(
+                    'lista'
+                  )
+                }
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="btn-save"
+                onClick={
+                  handleGuardar
+                }
+                disabled={saving}
+              >
+                {saving
+                  ? 'Guardando...'
+                  : 'Guardar monitoreo'}
+              </button>
+            </div>
+          </div>
+
+          <div className="monitoreo-sidebar">
+
+            <div className="sidebar-card">
+
+              <h3>
+                Resumen del
+                monitoreo
+              </h3>
+
+              <div className="summary-item">
+
+                <span className="summary-label">
+                  <Leaf size={16} />
+                  Finca
+                </span>
+
+                <strong>
+                  {finca?.nombre}
+                </strong>
+              </div>
+
+              <div className="summary-item">
+
+                <span className="summary-label">
+                  <Leaf size={16} />
+                  Cultivo
+                </span>
+
+                <strong>
+                  {
+                    cultivo?.nombreCultivo
+                  }
+                </strong>
+              </div>
+
+              <div className="summary-item">
+
+                <span className="summary-label">
+                  <Calendar size={16} />
+                  Fecha
+                </span>
+
+                <strong>
+                  {fecha}
+                </strong>
+              </div>
+
+              <div className="summary-item">
+
+                <span className="summary-label">
+                  <Image size={16} />
+                  Fotos
+                </span>
+
+                <strong>
+                  {fotos.length}
+                </strong>
+              </div>
+
+              <div className="divider" />
+
+              <h4>
+                Observaciones
+              </h4>
+
+              <p className="sidebar-obs">
+                {observaciones ||
+                  'Sin observaciones todavía.'}
+              </p>
+
+              {fotos.length > 0 && (
+                <>
+                  <div className="divider" />
+
+                  <div className="mini-photos">
+                    {fotos.map(
+                      (
+                        foto,
+                        index
+                      ) => (
+                        <img
+                          key={index}
+                          src={
+                            foto.preview
+                          }
+                          alt=""
+                        />
+                      )
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="help-card">
+
+              <div className="help-icon">
+                <BookOpen size={30} />
+              </div>
+
+              <div>
+
+                <h4>
+                  ¿Necesitas ayuda?
+                </h4>
+
+                <p>
+                  Consulta nuestra
+                  guía de monitoreo
+                  para obtener mejores
+                  resultados.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
-  const activo = (m) => m.activo !== undefined && m.activo !== null ? m.activo : true
-
-  const filtered = monitoreos.filter(m => {
-    if (filtros.finca !== 'Todos' && String(m.idFinca) !== filtros.finca) return false
-    if (filtros.nivel !== 'Todos') {
-      const n = m.nivelRoya?.nombre || m.nivel_roya || ''
-      if (!n.toLowerCase().includes(filtros.nivel.toLowerCase())) return false
-    }
-    return true
-  })
-
   return (
-    <div className="mon-exp-page">
-      <div className="mon-exp-header">
+    <div className="monitoreo-list-page">
+
+      <div className="list-topbar">
+
         <div>
-          <h1>Monitoreos <span className="mon-exp-sub">(Historial)</span></h1>
-          <p>Consulta el historial de monitoreos realizados</p>
+
+          <h2>
+            Monitoreos registrados
+          </h2>
+
+          <p>
+            Gestiona y revisa todos
+            los monitoreos del
+            cultivo.
+          </p>
         </div>
-        <button className="btn-nuevo-mon" onClick={() => setShowForm(true)}>
-          + Nuevo monitoreo
+
+        <button
+          className="btn-save"
+          onClick={() =>
+            setVistaMonitoreo(
+              'nuevo'
+            )
+          }
+        >
+          Nuevo monitoreo
         </button>
       </div>
 
-      {error && <p className="mon-exp-error">{error}</p>}
+      {loading ? (
+        <div className="empty-state">
+          Cargando monitoreos...
+        </div>
+      ) : monitoreos.length === 0 ? (
+        <div className="empty-state">
+          No hay monitoreos registrados.
+        </div>
+      ) : (
+        <div className="monitor-grid">
 
-      {/* Filtros */}
-      <div className="mon-exp-filtros">
-        {[
-          { label: 'Finca', key: 'finca', opts: ['Todos'] },
-          { label: 'Cultivo', key: 'cultivo', opts: ['Todos'] },
-          { label: 'Nivel de roya', key: 'nivel', opts: ['Todos', 'Alto', 'Medio', 'Bajo'] },
-          { label: 'Estado', key: 'estado', opts: ['Todos', 'Completado', 'Pendiente'] },
-        ].map(f => (
-          <label key={f.key} className="mon-exp-filtro">
-            {f.label}
-            <select value={filtros[f.key]} onChange={e => setFiltros({...filtros, [f.key]: e.target.value})}>
-              {f.opts.map(o => <option key={o}>{o}</option>)}
-            </select>
-          </label>
-        ))}
-        <label className="mon-exp-filtro">
-          Desde
-          <input type="text" value={filtros.desde} onChange={e => setFiltros({...filtros, desde: e.target.value})} placeholder="dd/mm/aaaa" />
-        </label>
-        <label className="mon-exp-filtro">
-          Hasta
-          <input type="text" value={filtros.hasta} onChange={e => setFiltros({...filtros, hasta: e.target.value})} placeholder="dd/mm/aaaa" />
-        </label>
-        <button className="btn-filtrar">Filtrar</button>
-      </div>
+          {monitoreos.map((m) => (
+            <div
+              key={m.idMonitoreo}
+              className="monitor-card"
+            >
 
-      {/* Tabla */}
-      <div className="mon-exp-table-wrap">
-        {loading ? (
-          <p className="mon-exp-empty">Cargando…</p>
-        ) : filtered.length === 0 ? (
-          <p className="mon-exp-empty">No hay monitoreos que coincidan con los filtros.</p>
-        ) : (
-          <table className="mon-exp-table">
-            <thead>
-              <tr>
-                <th>Fecha monitoreo</th>
-                <th>Finca</th>
-                <th>Cultivo</th>
-                <th>Nivel de roya</th>
-                <th>Estado cultivo</th>
-                <th>Experto</th>
-                <th>Estado análisis</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(m => {
-                const nivel = m.nivelRoya?.nombre || m.nivel_roya || '—'
-                const nc = NIVEL_CLASS(nivel)
-                return (
-                  <tr key={m.idMonitoreo}>
-                    <td>{fmt(m.fechaMonitoreo || m.fecha_monitoreo)}</td>
-                    <td>{m.nombreFinca || `Finca #${m.idFinca}`}</td>
-                    <td>{m.nombreCultivo || m.idCultivo || '—'}</td>
-                    <td><span className={`mon-nivel ${nc}`}>{nivel}</span></td>
-                    <td>{m.estadoCultivo?.nombre || m.estado_cultivo || 'En producción'}</td>
-                    <td>{m.nombreExperto || m.idExperto || '—'}</td>
-                    <td>
-                      <span className={`mon-estado ${m.idEstadoAnalisis === 1 || !m.idEstadoAnalisis ? 'completado' : 'pendiente'}`}>
-                        {m.estadoAnalisis?.nombre || (m.idEstadoAnalisis === 1 ? 'Completado' : 'Pendiente')}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        className={`btn-toggle ${activo(m) ? 'toggle-on' : 'toggle-off'}`}
-                        onClick={() => handleToggleActivo(m)}
-                        title={activo(m) ? 'Desactivar' : 'Activar'}
-                      >
-                        {activo(m) ? 'Activo' : 'Inactivo'}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+              <div className="monitor-date">
 
-      {/* Footer info */}
-      <p className="mon-exp-footer">Datos utilizados: monitoreos, cultivos, cat_estados_cultivo, cat_estados_análisis, usuarios</p>
+                <Calendar size={16} />
 
-      {/* Modal nuevo monitoreo */}
-      {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Nuevo monitoreo</h2>
-              <button className="modal-close" onClick={() => setShowForm(false)}>✕</button>
+                {
+                  m.fechaMonitoreo
+                }
+              </div>
+
+              <div className="monitor-body">
+
+                <p>
+                  {m.observaciones ||
+                    'Sin observaciones'}
+                </p>
+
+                <div className="monitor-footer">
+
+                  <Image size={15} />
+
+                  {m.imagenes
+                    ?.length || 0}
+                  {' '}
+                  fotos
+                </div>
+              </div>
             </div>
-            <form className="modal-form" onSubmit={handleCreate}>
-              <div className="modal-row">
-                <label>ID Cultivo
-                  <input name="id_cultivo" type="number" value={form.id_cultivo} onChange={e => setForm({...form, id_cultivo: e.target.value})} required />
-                </label>
-                <label>ID Experto
-                  <input name="id_experto" type="number" value={form.id_experto} onChange={e => setForm({...form, id_experto: e.target.value})} required />
-                </label>
-              </div>
-              <label>Fecha de monitoreo
-                <input name="fecha_monitoreo" type="date" value={form.fecha_monitoreo} onChange={e => setForm({...form, fecha_monitoreo: e.target.value})} required />
-              </label>
-              <label>Observaciones
-                <textarea name="observaciones" value={form.observaciones} onChange={e => setForm({...form, observaciones: e.target.value})} rows={3} />
-              </label>
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowForm(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Guardando…' : 'Crear monitoreo'}</button>
-              </div>
-            </form>
-          </div>
+          ))}
         </div>
       )}
     </div>
   )
 }
+
