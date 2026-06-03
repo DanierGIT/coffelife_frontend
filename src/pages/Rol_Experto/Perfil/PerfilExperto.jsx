@@ -1,270 +1,182 @@
-import React, { useState } from 'react';
-import './PerfilExperto.css';
+import { useEffect, useState } from 'react'
+import './PerfilExperto.css'
+import api from '../../../services/api'
+import { useAuth } from '../../../context/AuthContext'
 
-export default function PerfilExperto({ onBack, onLogout }) {
-  // Pestaña activa dentro del perfil
-  const [activeTab, setActiveTab] = useState('personal');
+function getInitials(nombre = '', apellido = '') {
+  return ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || 'EX'
+}
 
-  // Estados del formulario de información personal
-  const [formData, setFormData] = useState({
-    nombre: 'Jhon Anderson',
-    apellido: 'Muñoz Flor',
-    correo: 'ejhon2053@gmail.com',
-    telefono: '3137079691',
-    observaciones: 'Especializado en sanidad vegetal y optimización de cultivos de café especial de alta altitud.'
-  });
+const MailIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+  </svg>
+)
 
-  // Estados para el formulario de seguridad
-  const [securityData, setSecurityData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
+const PhoneIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.18z"/>
+  </svg>
+)
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+const NoteIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+)
 
-  const handleSecurityChange = (e) => {
-    const { name, value } = e.target;
-    setSecurityData(prev => ({ ...prev, [name]: value }));
-  };
+const SettingsIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+)
 
-  const handleSavePersonal = (e) => {
-    e.preventDefault();
-    alert('Información personal guardada con éxito.');
-  };
+const LogoutIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+)
 
-  const handleSaveSecurity = (e) => {
-    e.preventDefault();
-    if (securityData.newPassword !== securityData.confirmPassword) {
-      alert('Las contraseñas no coinciden.');
-      return;
-    }
-    alert('Contraseña actualizada con éxito.');
-  };
+const ArrowLeftIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+)
 
-  const getInitials = () => {
-    const n = formData.nombre.trim().charAt(0).toUpperCase();
-    const a = formData.apellido.trim().charAt(0).toUpperCase();
-    return `${n}${a}` || 'EX';
-  };
+export default function PerfilExperto({ onNavigate }) {
+  const { user, logout } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [form, setForm] = useState({
+    nombre: '', apellido: '', correo: '', telefono: '', observaciones: '', fotoPerfil: '',
+  })
+
+  useEffect(() => {
+    api.get('/mi-perfil')
+      .then((res) => {
+        const d = res.data?.data || res.data
+        setForm({
+          nombre:        d.nombre        || '',
+          apellido:      d.apellido      || '',
+          correo:        d.correo        || '',
+          telefono:      d.telefono      || '',
+          observaciones: d.observaciones || '',
+          fotoPerfil:    d.fotoPerfil    || '',
+        })
+      })
+      .catch(() => {
+        if (user) {
+          setForm({
+            nombre:   user.nombre   || '',
+            apellido: user.apellido || '',
+            correo:   user.correo   || '',
+            telefono: user.telefono || '',
+            observaciones: '',
+            fotoPerfil: '',
+          })
+        }
+      })
+      .finally(() => setLoading(false))
+  }, [user])
+
+  if (loading) return (
+    <div className="ep-loading">
+      <div className="ep-spinner" />
+      <p>Cargando perfil...</p>
+    </div>
+  )
+
+  const displayName = `${form.nombre} ${form.apellido}`.trim() || form.correo || 'Experto'
+  const fotoSrc     = form.fotoPerfil || null
 
   return (
-    <div className="cl-profile-container">
-      
-      {/* BARRA SUPERIOR */}
-      <div className="cl-profile-top-bar">
-        <div className="cl-profile-header-titles">
-          <h1 className="cl-profile-main-title">Perfil del experto</h1>
-          <p className="cl-profile-subtitle">Información personal y profesional dentro de la plataforma.</p>
+    <div className="ep-page">
+
+      <div className="ep-top">
+        <div className="ep-top-bg">
+          <div className="ep-top-pattern" />
         </div>
-        
-        <button 
-          type="button"
-          className="cl-btn-profile-back" 
-          onClick={onBack}
-          title="Regresar al panel de fincas"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-          Volver al panel
-        </button>
+        <div className="ep-top-content">
+          <button className="ep-back-btn" onClick={() => onNavigate('dashboard')} title="Volver al panel">
+            <ArrowLeftIcon />
+            Volver
+          </button>
+        </div>
+        <div className="ep-profile-info">
+          <div className="ep-avatar">
+            {fotoSrc
+              ? <img src={fotoSrc} alt="Foto de perfil" className="ep-avatar-img" />
+              : getInitials(form.nombre, form.apellido)
+            }
+          </div>
+          <div className="ep-name-section">
+            <h1 className="ep-user-name">{displayName}</h1>
+            <span className="ep-role-pill">Experto Agrónomo</span>
+          </div>
+        </div>
       </div>
 
-      {/* CUERPO DEL PERFIL (GRID PRINCIPAL) */}
-      <div className="cl-profile-layout-grid">
-        
-        {/* COLUMNA IZQUIERDA: TARJETA DE IDENTIDAD */}
-        <div className="cl-profile-sidebar-card">
-          <div className="cl-profile-avatar-wrapper">
-            <div className="cl-profile-avatar-circle">
-              {getInitials()}
+      <div className="ep-body">
+
+        <div className="ep-cards-grid">
+          <div className="ep-info-card">
+            <div className="ep-info-card-icon"><MailIcon /></div>
+            <div>
+              <p className="ep-info-card-lbl">Correo electrónico</p>
+              <p className="ep-info-card-val">{form.correo || '—'}</p>
             </div>
           </div>
-
-          <div className="cl-profile-identity-info">
-            <h2 className="cl-profile-user-fullname">
-              {formData.nombre} {formData.apellido}
-            </h2>
-            <span className="cl-profile-badge-role">Experto Agrónomo</span>
-          </div>
-
-          <div className="cl-profile-contact-list">
-            <div className="cl-contact-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-              <span>{formData.correo}</span>
-            </div>
-            <div className="cl-contact-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              <span>{formData.telefono}</span>
+          <div className="ep-info-card">
+            <div className="ep-info-card-icon"><PhoneIcon /></div>
+            <div>
+              <p className="ep-info-card-lbl">Teléfono</p>
+              <p className="ep-info-card-val">{form.telefono || '—'}</p>
             </div>
           </div>
-
-          <div className="cl-profile-meta-account">
-            <h3 className="cl-meta-section-title">Cuenta</h3>
-            <div className="cl-meta-row">
-              <span className="cl-meta-label">Rol</span>
-              <span className="cl-meta-value bold-text">Experto</span>
-            </div>
-            <div className="cl-meta-row">
-              <span className="cl-meta-label">Estado</span>
-              <span className="cl-meta-value cl-status-active">Activo</span>
+          <div className="ep-info-card">
+            <div className="ep-info-card-icon"><NoteIcon /></div>
+            <div>
+              <p className="ep-info-card-lbl">Observaciones</p>
+              <p className="ep-info-card-val">{form.observaciones || 'Sin observaciones'}</p>
             </div>
           </div>
+          <div className="ep-info-card">
+            <div className="ep-info-card-icon"><MailIcon /></div>
+            <div>
+              <p className="ep-info-card-lbl">Rol</p>
+              <p className="ep-info-card-val">Experto</p>
+            </div>
+          </div>
+          <div className="ep-info-card">
+            <div className="ep-info-card-icon">
+              <span className="ep-status-dot-lg" />
+            </div>
+            <div>
+              <p className="ep-info-card-lbl">Estado</p>
+              <p className="ep-info-card-val ep-status-text">Activo</p>
+            </div>
+          </div>
+        </div>
 
-          <button type="button" className="cl-btn-profile-logout" onClick={onLogout}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
+        <div className="ep-actions">
+          <button className="ep-btn-config" onClick={() => onNavigate('configurar-experto')}>
+            <SettingsIcon />
+            Configurar cuenta
+          </button>
+          <button className="ep-btn-logout" onClick={logout}>
+            <LogoutIcon />
             Cerrar sesión
           </button>
         </div>
 
-        {/* COLUMNA DERECHA: PANELES DE FORMULARIOS */}
-        <div className="cl-profile-main-content-card">
-          
-          <div className="cl-profile-tabs-nav">
-            <button 
-              type="button"
-              className={`cl-tab-nav-btn ${activeTab === 'personal' ? 'is-active' : ''}`}
-              onClick={() => setActiveTab('personal')}
-            >
-              Información personal
-            </button>
-            <button 
-              type="button"
-              className={`cl-tab-nav-btn ${activeTab === 'seguridad' ? 'is-active' : ''}`}
-              onClick={() => setActiveTab('seguridad')}
-            >
-              Seguridad
-            </button>
-          </div>
-
-          {/* CONTENIDO: INFORMACIÓN PERSONAL */}
-          {activeTab === 'personal' && (
-            <form className="cl-profile-tab-form-body" onSubmit={handleSavePersonal}>
-              
-              <div className="cl-profile-form-grid">
-                <div className="cl-profile-form-group">
-                  <label>Nombre</label>
-                  <input 
-                    type="text" 
-                    name="nombre" 
-                    value={formData.nombre} 
-                    onChange={handleInputChange} 
-                    required
-                  />
-                </div>
-                <div className="cl-profile-form-group">
-                  <label>Apellido</label>
-                  <input 
-                    type="text" 
-                    name="apellido" 
-                    value={formData.apellido} 
-                    onChange={handleInputChange} 
-                    required
-                  />
-                </div>
-                <div className="cl-profile-form-group">
-                  <label>Correo electrónico</label>
-                  <input 
-                    type="email" 
-                    name="correo" 
-                    value={formData.correo} 
-                    onChange={handleInputChange} 
-                    required
-                  />
-                </div>
-                <div className="cl-profile-form-group">
-                  <label>Teléfono</label>
-                  <input 
-                    type="tel" 
-                    name="telefono" 
-                    value={formData.telefono} 
-                    onChange={handleInputChange} 
-                  />
-                </div>
-              </div>
-
-              <div className="cl-profile-form-group cl-full-width">
-                <label>Observaciones</label>
-                <textarea 
-                  name="observaciones" 
-                  value={formData.observaciones} 
-                  onChange={handleInputChange} 
-                  rows="4"
-                />
-              </div>
-
-              <div className="cl-profile-form-actions">
-                <button type="submit" className="cl-btn-brand-submit">
-                  Guardar cambios
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* CONTENIDO: SEGURIDAD */}
-          {activeTab === 'seguridad' && (
-            <form className="cl-profile-tab-form-body" onSubmit={handleSaveSecurity}>
-              <div className="cl-profile-form-group">
-                <label>Contraseña actual</label>
-                <input 
-                  type="password" 
-                  name="currentPassword" 
-                  value={securityData.currentPassword} 
-                  onChange={handleSecurityChange}
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              <div className="cl-profile-form-grid">
-                <div className="cl-profile-form-group">
-                  <label>Nueva contraseña</label>
-                  <input 
-                    type="password" 
-                    name="newPassword" 
-                    value={securityData.newPassword} 
-                    onChange={handleSecurityChange}
-                    placeholder="Mínimo 8 caracteres"
-                    required
-                  />
-                </div>
-
-                <div className="cl-profile-form-group">
-                  <label>Confirmar nueva contraseña</label>
-                  <input 
-                    type="password" 
-                    name="confirmPassword" 
-                    value={securityData.confirmPassword} 
-                    onChange={handleSecurityChange}
-                    placeholder="Repite la contraseña"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="cl-profile-form-actions">
-                <button type="submit" className="cl-btn-brand-submit">
-                  Actualizar credenciales
-                </button>
-              </div>
-            </form>
-          )}
-
-        </div>
-
       </div>
     </div>
-  );
+  )
 }
