@@ -13,6 +13,7 @@ import Administrador   from './pages/Rol_Admin/Administrador/Administrador'
 import Experto         from './pages/Rol_Admin/experto/Experto'
 import Roles           from './pages/Rol_Admin/ROLES/Roles'
 import MiPerfil        from './pages/Rol_Admin/Perfi/Miperfil'
+import ConfigurarCuenta from './pages/Rol_Admin/Perfi/ConfigurarCuenta'
 import Cafetero        from './pages/Rol_Admin/cafetero/Cafetero'
 import Fincas          from './pages/Rol_Admin/Fincas/Fincas'
 import Monitoreos      from './pages/Rol_Admin/Monitoreos/Monitoreos'
@@ -38,6 +39,7 @@ import HistorialExperto      from './pages/Rol_Experto/Historial/HistorialExpert
 import ProductoresExperto    from './pages/Rol_Experto/Productores/ProductoresExperto'
 import ReportesExperto       from './pages/Rol_Experto/Reportes/ReportesExperto'
 import PerfilExperto         from './pages/Rol_Experto/Perfil/PerfilExperto'
+import ConfigurarExperto     from './pages/Rol_Experto/Perfil/ConfigurarExperto'
 import CultivosExperto       from './pages/Rol_Experto/Cultivos/CultivosExperto'
 import DetalleCultivoExperto from './pages/Rol_Experto/DetalleCultivo/DetalleCultivoExperto'
 
@@ -63,29 +65,33 @@ function AdminApp() {
     if (sub) setCatSubPage(sub)
   }
 
-  const PAGES = {
-    dashboard:       <Dashboard />,
-    administrador:   <Administrador />,
-    experto:         <Experto />,
-    roles:           <Roles />,
-    perfil:          <MiPerfil />,
-    cafetero:        <Cafetero />,
-    fincas:          <Fincas />,
-    monitoreos:      <Monitoreos />,
-    categorias:      <Categorias subPage={catSubPage} />,
-    usuarios:        <Usuarios />,
-    // prioridades:     <Prioridades />,
-    // analisisIA:      <AnalisisIA />,
-    recomendaciones: <Recomendaciones />,
-    // imagenes:        <Imagenes />,
-    tratamientos:    <Tratamientos />,
-    aplicacion:      <Aplicacion />,
-    cultivos:        <Cultivos />,
+  const renderPage = () => {
+    switch (activePage) {
+      case 'dashboard':       return <Dashboard />;
+      case 'administrador':   return <Administrador />;
+      case 'experto':         return <Experto />;
+      case 'roles':           return <Roles />;
+      case 'perfil':          return <MiPerfil onNavigate={handleNavigate} />;
+      case 'configurar':      return <ConfigurarCuenta onNavigate={handleNavigate} />;
+      case 'cafetero':        return <Cafetero />;
+      case 'fincas':          return <Fincas />;
+      case 'monitoreos':      return <Monitoreos />;
+      case 'categorias':      return <Categorias subPage={catSubPage} />;
+      case 'usuarios':        return <Usuarios />;
+      // case 'prioridades':     return <Prioridades />;
+      // case 'analisisIA':      return <AnalisisIA />;
+      case 'recomendaciones': return <Recomendaciones />;
+      // case 'imagenes':        return <Imagenes />;
+      case 'tratamientos':    return <Tratamientos />;
+      case 'aplicacion':      return <Aplicacion />;
+      case 'cultivos':        return <Cultivos />;
+      default:                return <Dashboard />;
+    }
   }
 
   return (
     <AdminLayout activePage={activePage} onNavigate={handleNavigate}>
-      {PAGES[activePage] ?? <Dashboard />}
+      {renderPage()}
     </AdminLayout>
   )
 }
@@ -121,8 +127,9 @@ function ExpertoApp() {
       case 'detalle_cultivo': return <DetalleCultivoExperto {...p} />
       case 'productores':     return <ProductoresExperto />
       case 'reportes':        return <ReportesExperto {...p} />
-      case 'perfil':          return <PerfilExperto />
-      default:                return <DashboardExperto />
+      case 'perfil':               return <PerfilExperto onNavigate={handleNavigate} />
+      case 'configurar-experto':   return <ConfigurarExperto onNavigate={handleNavigate} />
+      default:                     return <DashboardExperto />
     }
   }
 
