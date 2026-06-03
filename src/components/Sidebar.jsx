@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import './Sidebar.css'
-import logo from '../assets/logo.jpg'
+import AnimatedLogo from './AnimatedLogo'
 
 const ALL_ITEMS = [
   {
@@ -232,13 +232,9 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
-      <div className="sidebar-logo">
-         <img
-          src={logo}
-          alt="CoffeeLife"
-          className="sidebar-logo-img"
-        />
-      </div>
+        <div className="sidebar-logo">
+          <AnimatedLogo size="md" horizontal />
+        </div>
 
       <div className="sidebar-profile">
         <div className="sidebar-avatar">{initials}</div>

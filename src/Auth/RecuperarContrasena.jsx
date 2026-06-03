@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import {
-  Coffee,
   Mail,
-  ShieldCheck,
   KeyRound,
-  CheckCircle2,
 } from "lucide-react";
 
 import PasswordStrength from "../components/PasswordStrength";
+import AnimatedLogo from "../components/AnimatedLogo";
 import "./RecuperarContrasena.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend-coffe-lifee-production.up.railway.app";
@@ -68,7 +66,7 @@ function PasoEmail({ onSiguiente }) {
   return (
     <div className="recuperar-card">
       <div className="recuperar-logo">
-        <Coffee size={34} />
+        <AnimatedLogo size="sm" showText={false} />
       </div>
 
       <h2 className="recuperar-titulo">
@@ -148,7 +146,7 @@ function PasoCodigo({ onSiguiente }) {
   return (
     <div className="recuperar-card">
       <div className="recuperar-logo">
-        <ShieldCheck size={34} />
+        <AnimatedLogo size="sm" showText={false} />
       </div>
 
       <h2 className="recuperar-titulo">Verificación</h2>
@@ -238,7 +236,7 @@ function PasoNuevaContrasena({
   return (
     <div className="recuperar-card">
       <div className="recuperar-logo">
-        <KeyRound size={34} />
+        <AnimatedLogo size="sm" showText={false} />
       </div>
 
       <h2 className="recuperar-titulo">
@@ -307,7 +305,7 @@ function PasoExito({ onIrAlLogin }) {
   return (
     <div className="recuperar-card exito-card">
       <div className="recuperar-logo exito-logo">
-        <CheckCircle2 size={42} />
+        <AnimatedLogo size="sm" showText={false} />
       </div>
 
       <h2 className="recuperar-titulo">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import './Auth.css'
-import logo from '../assets/logo.jpg'
+import AnimatedLogo from '../components/AnimatedLogo'
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48">
@@ -105,7 +105,7 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
 
         <div className="auth-left-content">
           <div className="auth-logo">
-            <img src={logo} alt="CoffeeLife" className="auth-logo-img" />
+            <AnimatedLogo size="xl" showTagline />
           </div>
 
           <div className="auth-left-headline">
@@ -164,7 +164,7 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
 
         <div className="auth-card">
           <div className="auth-card-icon">
-            <img src={logo} alt="CoffeeLife" className="auth-card-logo" />
+            <AnimatedLogo size="md" horizontal />
           </div>
 
           <h2 className="auth-card-title">¡Bienvenido de nuevo!</h2>

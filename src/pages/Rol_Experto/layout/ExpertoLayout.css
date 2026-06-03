@@ -25,27 +25,41 @@
 
 .experto-navbar-logo {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
   flex-shrink: 0;
-  margin-right: 8px;
+  margin-right: 16px;
 }
 
-.experto-logo-img {
-  height: 36px;
-  width: auto;
-  object-fit: contain;
+.experto-navbar-logo-texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.experto-logo-name {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #1b5e20;
+  white-space: nowrap;
+}
+
+.experto-logo-name span {
+  color: #43a047;
 }
 
 .experto-logo-badge {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   color: #2e7d32;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.8px;
   background: #e8f5e9;
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
 .experto-navbar-items {

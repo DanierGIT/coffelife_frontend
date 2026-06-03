@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { validatePassword } from '../utils/passwordValidator'
 import './Auth.css'
-import logo from '../assets/logo.jpg'
+import AnimatedLogo from '../components/AnimatedLogo'
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48">
@@ -121,7 +121,7 @@ export default function Register({ onGoLogin }) {
           <Dots className="auth-dots" />
           <div className="auth-left-content">
             <div className="auth-logo">
-              <img src={logo} alt="CoffeeLife" className="auth-logo-img" />
+              <AnimatedLogo size="lg" showTagline />
             </div>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function Register({ onGoLogin }) {
 
         <div className="auth-left-content">
           <div className="auth-logo">
-            <img src={logo} alt="CoffeeLife" className="auth-logo-img" />
+            <AnimatedLogo size="lg" showTagline />
           </div>
 
           <div className="auth-left-headline">
@@ -223,7 +223,7 @@ export default function Register({ onGoLogin }) {
 
         <div className="auth-card">
           <div className="auth-card-icon">
-            <img src={logo} alt="CoffeeLife" className="auth-card-logo" />
+            <AnimatedLogo size="sm" showText={false} />
           </div>
 
           <h2 className="auth-card-title">Crear cuenta</h2>

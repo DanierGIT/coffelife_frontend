@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import './ExpertoLayout.css'
-import logo from '../../../assets/logo.jpg'
+import AnimatedLogo from '../../../components/AnimatedLogo'
 import api from '../../../services/api'
 
 const NAV_ITEMS = [
@@ -231,8 +231,11 @@ export default function ExpertoLayout({ activePage, onNavigate, children }) {
       {/* ── NAVBAR ── */}
       <nav className="experto-navbar">
         <div className="experto-navbar-logo">
-          <img src={logo} alt="CoffeeLife" className="experto-logo-img" />
-          <span className="experto-logo-badge">EXPERTO</span>
+          <AnimatedLogo size="md" showText={false} />
+          <div className="experto-navbar-logo-texts">
+            <span className="experto-logo-name">Coffe<span>Life</span></span>
+            <span className="experto-logo-badge">EXPERTO</span>
+          </div>
         </div>
 
         <div className="experto-navbar-items">

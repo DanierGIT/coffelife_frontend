@@ -288,13 +288,7 @@
   background: rgba(220, 80, 80, 0.3);
   color: #fca5a5;
 }
-.sidebar-logo-img {
-  width: 100%;
-  max-width: 150px;
-  height: auto;
-  object-fit: contain;
-  padding: 4px 0;
-}
+
 
 /* ─── Botón cerrar (móvil) ─── */
 .sidebar-close {
