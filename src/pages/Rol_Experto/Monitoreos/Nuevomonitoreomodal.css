@@ -1,0 +1,632 @@
+/* ════════════════════════════════════════════
+   NuevoMonitoreoModal.css
+   Modal paso a paso para registrar monitoreo
+   ════════════════════════════════════════════ */
+
+/* ─── Overlay ─── */
+.nmon-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: nmon-fade-in 0.2s ease;
+}
+
+@keyframes nmon-fade-in {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+/* ─── Modal box ─── */
+.nmon-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: nmon-slide-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes nmon-slide-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.97) }
+  to   { opacity: 1; transform: translateY(0)    scale(1) }
+}
+
+/* ─── Header ─── */
+.nmon-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.nmon-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nmon-header-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.nmon-header-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b5e20;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-header-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.nmon-close:hover {
+  color: #374151;
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+/* ─── Steps indicator ─── */
+.nmon-steps {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.nmon-step-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.nmon-step-wrapper:last-child {
+  flex: 0 0 auto;
+}
+
+.nmon-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nmon-step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  background: #fff;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nmon-step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  font-family: 'Lato', sans-serif;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+/* Activo */
+.nmon-step--active .nmon-step-circle {
+  border-color: #2e7d32;
+  background: #2e7d32;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+
+.nmon-step--active .nmon-step-label {
+  color: #1b5e20;
+}
+
+/* Completado */
+.nmon-step--done .nmon-step-circle {
+  border-color: #4caf50;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.nmon-step--done .nmon-step-label {
+  color: #4caf50;
+}
+
+/* Línea conectora */
+.nmon-step-line {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 8px;
+  transition: background 0.3s;
+}
+
+.nmon-step-line--done {
+  background: #4caf50;
+}
+
+/* ─── Scroll content ─── */
+.nmon-content {
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ─── Paso body ─── */
+.nmon-paso-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nmon-paso-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.nmon-paso-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1b5e20;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-paso-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.5;
+}
+
+/* ─── Campos ─── */
+.nmon-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nmon-fields--rec {
+  background: #f9fafb;
+  border: 1px solid #e8f5e9;
+  border-radius: 10px;
+  padding: 16px;
+  gap: 14px;
+}
+
+.nmon-field-row {
+  display: flex;
+  gap: 14px;
+}
+
+.nmon-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.nmon-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-req {
+  color: #dc2626;
+}
+
+.nmon-input {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  color: #374151;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nmon-input:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.nmon-input--readonly {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: default;
+}
+
+.nmon-select {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  color: #374151;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+.nmon-select:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.nmon-textarea {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  color: #374151;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+.nmon-textarea:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.nmon-char-count {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Fotos ─── */
+.nmon-fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.nmon-foto-add {
+  aspect-ratio: 1;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  padding: 12px;
+  text-align: center;
+}
+
+.nmon-foto-add:hover {
+  border-color: #2e7d32;
+  background: #f0faf0;
+}
+
+.nmon-foto-add-icon {
+  color: #9ca3af;
+  transition: color 0.15s;
+}
+
+.nmon-foto-add:hover .nmon-foto-add-icon {
+  color: #2e7d32;
+}
+
+.nmon-foto-add span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-foto-add small {
+  font-size: 10px;
+  color: #9ca3af;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.3;
+}
+
+.nmon-foto-preview {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #e5e7eb;
+}
+
+.nmon-foto-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nmon-foto-remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.nmon-foto-remove:hover {
+  background: rgba(220, 38, 38, 0.85);
+}
+
+.nmon-fotos-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #2e7d32;
+  font-weight: 600;
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Toggle checkbox ─── */
+.nmon-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nmon-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #2e7d32;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nmon-toggle-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Resumen compacto ─── */
+.nmon-resumen {
+  background: #f0faf0;
+  border: 1px solid #c8e6c9;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.nmon-resumen-title {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2e7d32;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-resumen-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  align-items: center;
+}
+
+.nmon-resumen-key {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-family: 'Lato', sans-serif;
+}
+
+.nmon-resumen-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b5e20;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Cargando catálogos ─── */
+.nmon-loading-cat {
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+  padding: 16px;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Mensajes ─── */
+.nmon-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #dc2626;
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+}
+
+/* ─── Actions ─── */
+.nmon-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.nmon-actions--right {
+  justify-content: flex-end;
+}
+
+.nmon-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.nmon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nmon-btn--primary {
+  background: #2e7d32;
+  color: #fff;
+}
+
+.nmon-btn--primary:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+.nmon-btn--secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.nmon-btn--secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.nmon-btn--guardar {
+  background: #1b5e20;
+  color: #fff;
+  padding: 10px 24px;
+}
+
+.nmon-btn--guardar:hover:not(:disabled) {
+  background: #145214;
+  box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3);
+}
+
+.nmon-arrow {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ─── Spinner ─── */
+.nmon-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: nmon-spin 0.6s linear infinite;
+}
+
+@keyframes nmon-spin {
+  to { transform: rotate(360deg) }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 520px) {
+  .nmon-modal {
+    max-height: 100vh;
+    border-radius: 16px 16px 0 0;
+    align-self: flex-end;
+    margin-bottom: 0;
+  }
+
+  .nmon-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .nmon-field-row {
+    flex-direction: column;
+  }
+
+  .nmon-step-label {
+    display: none;
+  }
+}

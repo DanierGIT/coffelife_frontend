@@ -1,0 +1,340 @@
+/* ════════════════════════════════════════════
+   RecomendacionesTab.css
+   ════════════════════════════════════════════ */
+
+.rtab-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── Formulario ─── */
+.rtab-form {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rtab-form-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1b5e20;
+  font-family: 'Lato', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.rtab-row {
+  display: flex;
+  gap: 14px;
+}
+
+.rtab-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rtab-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-family: 'Lato', sans-serif;
+}
+
+.rtab-req {
+  color: #dc2626;
+}
+
+.rtab-input,
+.rtab-select,
+.rtab-textarea {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  color: #374151;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.rtab-input:focus,
+.rtab-select:focus,
+.rtab-textarea:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.rtab-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+.rtab-textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ─── Mensajes ─── */
+.rtab-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #dc2626;
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+}
+
+.rtab-success {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #16a34a;
+  font-weight: 600;
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+}
+
+/* ─── Botón guardar ─── */
+.rtab-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rtab-btn-guardar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.rtab-btn-guardar:hover:not(:disabled) {
+  background: #1b5e20;
+  box-shadow: 0 2px 8px rgba(27, 94, 32, 0.25);
+}
+
+.rtab-btn-guardar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rtab-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: rtab-spin 0.6s linear infinite;
+}
+
+@keyframes rtab-spin {
+  to { transform: rotate(360deg) }
+}
+
+/* ─── Sin monitoreos ─── */
+.rtab-empty-form {
+  text-align: center;
+  padding: 32px 24px;
+  background: #fafafa;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+}
+
+.rtab-empty-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.rtab-empty-title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+  font-family: 'Lato', sans-serif;
+}
+
+.rtab-empty-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.5;
+}
+
+.rtab-empty-desc strong {
+  color: #2e7d32;
+}
+
+/* ─── Lista de recomendaciones ─── */
+.rtab-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rtab-list-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  font-family: 'Lato', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rtab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rtab-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Cards de recomendaciones ─── */
+.rtab-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rtab-card {
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.rtab-card:hover {
+  border-color: #c8e6c9;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.06);
+}
+
+.rtab-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rtab-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rtab-card-tipo {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1b5e20;
+  background: #e8f5e9;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Lato', sans-serif;
+}
+
+.rtab-card-fecha {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #9ca3af;
+  font-family: 'Lato', sans-serif;
+}
+
+.rtab-prio-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-family: 'Lato', sans-serif;
+  text-transform: capitalize;
+  flex-shrink: 0;
+}
+
+.rtab-card-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.5;
+}
+
+.rtab-card-limite {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 11px;
+  color: #9ca3af;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 560px) {
+  .rtab-row {
+    flex-direction: column;
+  }
+}
