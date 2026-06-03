@@ -1,8 +1,7 @@
 import { useState } from 'react'
-
 import './DetalleCultivoExperto.css'
-
 import MonitoreosExperto from '../Monitoreos/MonitoreosExperto'
+import RecomendacionesTab from '../Recomendaciones/RecomendacionesTab'
 
 const TABS = [
   'Resumen',
@@ -13,22 +12,15 @@ const TABS = [
   'Historial',
 ]
 
-export default function DetalleCultivoExperto({
-  cultivo,
-  onNavigate,
-  finca,
-}) {
-  const [activeTab, setActiveTab] =
-    useState('Resumen')
+export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
+  const [activeTab, setActiveTab] = useState('Resumen')
 
   const tabContent = () => {
     switch (activeTab) {
       case 'Resumen':
         return (
           <div className="detalle-tab-content">
-            <p className="detalle-empty">
-              Resumen del cultivo
-            </p>
+            <p className="detalle-empty">Resumen del cultivo</p>
           </div>
         )
 
@@ -42,37 +34,30 @@ export default function DetalleCultivoExperto({
 
       case 'Recomendaciones':
         return (
-          <div className="detalle-tab-content">
-            <p className="detalle-empty">
-              Sección de recomendaciones
-            </p>
-          </div>
+          <RecomendacionesTab
+            cultivo={cultivo}
+            finca={finca}
+          />
         )
 
       case 'Tratamientos':
         return (
           <div className="detalle-tab-content">
-            <p className="detalle-empty">
-              Sección de tratamientos
-            </p>
+            <p className="detalle-empty">Sección de tratamientos</p>
           </div>
         )
 
       case 'Fotos':
         return (
           <div className="detalle-tab-content">
-            <p className="detalle-empty">
-              Sección de fotos
-            </p>
+            <p className="detalle-empty">Sección de fotos</p>
           </div>
         )
 
       case 'Historial':
         return (
           <div className="detalle-tab-content">
-            <p className="detalle-empty">
-              Sección de historial
-            </p>
+            <p className="detalle-empty">Sección de historial</p>
           </div>
         )
 
@@ -85,29 +70,18 @@ export default function DetalleCultivoExperto({
     <div className="detalle-page">
 
       <div className="detalle-header">
-
         <button
           className="back-btn"
-          onClick={() =>
-            onNavigate(
-              'cultivos',
-              finca
-            )
-          }
+          onClick={() => onNavigate('cultivos', finca)}
         >
           ← Volver a cultivos
         </button>
-
         <span className="detalle-breadcrumb">
-          {finca?.nombre || 'Finca'}
-          {' / '}
-          {cultivo?.nombreCultivo ||
-            'Cultivo'}
+          {finca?.nombre || 'Finca'} / {cultivo?.nombreCultivo || 'Cultivo'}
         </span>
       </div>
 
       <div className="detalle-card">
-
         <div className="detalle-card-img">
           <img
             src="https://colombiaverde.com.co/wp-content/uploads/2023/05/cultivos-de-cafe-en-colombia-1200x800.jpg"
@@ -116,55 +90,29 @@ export default function DetalleCultivoExperto({
         </div>
 
         <div className="detalle-card-info">
-
           <div className="detalle-card-row">
-
             <div className="detalle-card-item">
-              <span className="detalle-card-label">
-                Nombre del cultivo
-              </span>
-
-              <span className="detalle-card-value">
-                {cultivo?.nombreCultivo ||
-                  '—'}
-              </span>
+              <span className="detalle-card-label">Nombre del cultivo</span>
+              <span className="detalle-card-value">{cultivo?.nombreCultivo || '—'}</span>
             </div>
-
             <div className="detalle-card-item">
-              <span className="detalle-card-label">
-                Tipo de cultivo
-              </span>
-
-              <span className="detalle-card-value">
-                {cultivo?.tipoCultivo ||
-                  '—'}
-              </span>
+              <span className="detalle-card-label">Tipo de cultivo</span>
+              <span className="detalle-card-value">{cultivo?.tipoCultivo || '—'}</span>
             </div>
           </div>
 
           <div className="detalle-card-row">
-
             <div className="detalle-card-item">
-              <span className="detalle-card-label">
-                Estado
-              </span>
-
+              <span className="detalle-card-label">Estado</span>
               <span className="detalle-card-value">
                 <span className="detalle-estado-badge">
-                  {cultivo?.estadoCultivo
-                    ?.nombreEstado || '—'}
+                  {cultivo?.estadoCultivo?.nombreEstado || '—'}
                 </span>
               </span>
             </div>
-
             <div className="detalle-card-item">
-              <span className="detalle-card-label">
-                Finca
-              </span>
-
-              <span className="detalle-card-value">
-                {finca?.nombre || '—'}
-              </span>
+              <span className="detalle-card-label">Finca</span>
+              <span className="detalle-card-value">{finca?.nombre || '—'}</span>
             </div>
           </div>
         </div>
@@ -174,14 +122,8 @@ export default function DetalleCultivoExperto({
         {TABS.map((t) => (
           <button
             key={t}
-            className={`detalle-tab ${
-              activeTab === t
-                ? 'detalle-tab--active'
-                : ''
-            }`}
-            onClick={() =>
-              setActiveTab(t)
-            }
+            className={`detalle-tab ${activeTab === t ? 'detalle-tab--active' : ''}`}
+            onClick={() => setActiveTab(t)}
           >
             {t}
           </button>
