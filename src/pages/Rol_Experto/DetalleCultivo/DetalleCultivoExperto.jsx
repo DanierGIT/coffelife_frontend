@@ -6,7 +6,7 @@ import RecomendacionesTab from '../Recomendaciones/RecomendacionesTab'
 const TABS = [
   'Resumen',
   'Monitoreo',
-  'Recomendaciones',
+  'Recomendaciones y Tratamientos',
   'Tratamientos',
   'Fotos',
   'Historial',
@@ -32,7 +32,7 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
           />
         )
 
-      case 'Recomendaciones':
+      case 'Recomendaciones y Tratamientos':
         return (
           <RecomendacionesTab
             cultivo={cultivo}
