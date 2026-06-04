@@ -12,6 +12,7 @@
 
 import React, { useState } from 'react'
 import Sidebar from '../components/Sidebar'
+import { BiMenu } from 'react-icons/bi'
 import './AdminLayout.css'
 
 export default function AdminLayout({ activePage, onNavigate, children }) {
@@ -25,9 +26,7 @@ export default function AdminLayout({ activePage, onNavigate, children }) {
   return (
     <div className="admin-layout">
       <button className="sidebar-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Abrir menú">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
+        <BiMenu size={24} />
       </button>
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
       <Sidebar activePage={activePage} onNavigate={handleNavigate} sidebarOpen={sidebarOpen} onToggle={() => setSidebarOpen(false)} />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
+import { BiSearch, BiGroup } from 'react-icons/bi'
 import './ProductoresExperto.css'
 
 export default function ProductoresExperto() {
@@ -42,7 +43,7 @@ export default function ProductoresExperto() {
           <p>Caficultores registrados en el sistema</p>
         </div>
         <div className="prod-search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <BiSearch size={16} color="#9ca3af" />
           <input placeholder="Buscar productor…" value={filtro} onChange={e => setFiltro(e.target.value)} />
         </div>
       </div>
@@ -53,7 +54,7 @@ export default function ProductoresExperto() {
         <p style={{ color: '#9ca3af', fontSize: 14 }}>Cargando…</p>
       ) : filtered.length === 0 ? (
         <div className="prod-empty-state">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <BiGroup size={48} color="#9ca3af" />
           <p>{filtro ? 'No se encontraron productores con ese criterio.' : 'No hay productores registrados.'}</p>
         </div>
       ) : (

@@ -3,50 +3,24 @@ import './miperfil.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import PasswordStrength from '../../../components/PasswordStrength'
+import { BiEnvelope, BiCloudUpload, BiSave, BiLockAlt, BiArrowBack } from 'react-icons/bi'
 
 function getInitials(nombre = '', apellido = '') {
   return ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || 'A'
 }
 
-const MailIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-    <polyline points="22,6 12,13 2,6"/>
-  </svg>
-)
+const MailIcon = () => <BiEnvelope size={15} />
 
-const UploadIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="16 16 12 12 8 16"/>
-    <line x1="12" y1="12" x2="12" y2="21"/>
-    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
-  </svg>
-)
+const UploadIcon = () => <BiCloudUpload size={13} />
 
-const SaveIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-    <polyline points="17 21 17 13 7 13 7 21"/>
-    <polyline points="7 3 7 8 15 8"/>
-  </svg>
-)
+const SaveIcon = () => <BiSave size={14} />
 
-const LockIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>
-)
+const LockIcon = () => <BiLockAlt size={20} />
 
-const ArrowLeftIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="19" y1="12" x2="5" y2="12"/>
-    <polyline points="12 19 5 12 12 5"/>
-  </svg>
-)
+const ArrowLeftIcon = () => <BiArrowBack size={18} />
 
 export default function ConfigurarCuenta({ onNavigate }) {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [saving, setSaving]           = useState(false)
   const [error, setError]             = useState('')
   const [success, setSuccess]         = useState('')
@@ -124,6 +98,7 @@ export default function ConfigurarCuenta({ onNavigate }) {
       if (updated?.fotoPerfil) {
         setForm(prev => ({ ...prev, fotoPerfil: updated.fotoPerfil }))
       }
+      updateUser({ ...user, ...updated })
       setSuccess('Perfil actualizado correctamente.')
       setFotoFile(null)
       setFotoPreview(null)

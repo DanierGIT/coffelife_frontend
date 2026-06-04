@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
+import { BiBuildings, BiUser, BiGroup } from 'react-icons/bi'
 import './Dashboard.css'
 
 const getArrayData = (data) => {
@@ -9,12 +10,7 @@ const getArrayData = (data) => {
   return []
 }
 
-const FincaIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-    <polyline points="9 22 9 12 15 12 15 22" />
-  </svg>
-)
+const FincaIcon = () => <BiBuildings size={22} />
 
 
 function AnimatedValue({ value, loading }) {
@@ -131,10 +127,7 @@ export default function Dashboard() {
     <div className="dashboard">
       <div className="dashboard-welcome">
         <div className="welcome-avatar">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
+          <BiUser size={32} />
         </div>
         <h1 className="dashboard-title">Bienvenido de nuevo, {user?.nombre || 'Admin'}</h1>
         <p className="dashboard-subtitle">Panel de control — CoffeeLife</p>
@@ -154,14 +147,7 @@ export default function Dashboard() {
           progressLabel={`${Math.round((stats.fincasConUbicacion / Math.max(1, stats.fincas)) * 100)}% geolocalizadas`}
         />
         <StatCard
-          icon={
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          }
+          icon={<BiGroup size={22} />}
           label="Expertos activos"
           value={stats.expertosActivos}
           loading={loading}

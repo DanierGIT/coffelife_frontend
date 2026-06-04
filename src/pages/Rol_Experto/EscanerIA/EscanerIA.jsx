@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import api from '../../../services/api'
+import { BiImage } from 'react-icons/bi'
 import './EscanerIA.css'
 
 // ── Sub-tab: Fotos del caficultor ─────────────────────────────────────────────
@@ -21,7 +22,7 @@ function FotosCaficultor() {
         <p className="escaner-empty">Cargando imágenes…</p>
       ) : imagenes.length === 0 ? (
         <div className="escaner-no-fotos">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <BiImage size={48} color="#9ca3af" />
           <p>No hay nuevas fotos del caficultor</p>
           <span>Cuando el caficultor tome nuevas fotos, aparecerán aquí automáticamente.</span>
         </div>
@@ -32,7 +33,7 @@ function FotosCaficultor() {
               <div className="escaner-foto-thumb">
                 {img.urlImagen
                   ? <img src={img.urlImagen} alt="hoja" />
-                  : <div className="escaner-foto-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+                  : <div className="escaner-foto-placeholder"><BiImage size={32} color="#9ca3af" /></div>
                 }
               </div>
               <div className="escaner-foto-info">

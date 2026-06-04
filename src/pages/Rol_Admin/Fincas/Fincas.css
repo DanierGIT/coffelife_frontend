@@ -180,35 +180,39 @@
 }
 
 .btn-icon-experto {
-  background: #2563eb;
-  color: #fff;
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .btn-icon-experto:hover {
-  background: #1d4ed8;
+  background: #c8e6c9;
 }
 
 .btn-icon-cafetero {
-  background: #7c3aed;
-  color: #fff;
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .btn-icon-cafetero:hover {
-  background: #5b21b6;
+  background: #c8e6c9;
 }
 
 .btn-icon-cultivo {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
-  color: #fff;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.btn-icon-cultivo:hover {
+  background: #c8e6c9;
 }
 
 .btn-icon-editar {
-  background: #f59e0b;
-  color: #fff;
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .btn-icon-editar:hover {
-  background: #d97706;
+  background: #c8e6c9;
 }
 
 .btn-ubicacion {
@@ -272,6 +276,8 @@
 
 .admin-table-card {
   padding: 20px 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .map-card-title {
@@ -322,8 +328,8 @@
 
 /* ─── Botón ojo para ver detalle ─── */
 .btn-icon-ver {
-  background: #8b5cf6;
-  color: #fff;
+  background: #e8f5e9;
+  color: #2e7d32;
   border: none;
   width: 34px;
   height: 34px;
@@ -336,7 +342,7 @@
 }
 
 .btn-icon-ver:hover {
-  opacity: 0.85;
+  background: #c8e6c9;
   transform: translateY(-1px);
 }
 
@@ -526,6 +532,8 @@
 
 .cultivos-lista {
   margin: 16px 0 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cultivos-lista-titulo {

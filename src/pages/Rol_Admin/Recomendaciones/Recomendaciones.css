@@ -84,6 +84,176 @@
   background: #fca5a5;
 }
 
+/* ── Botón "Ver detalles" en tabla ── */
+.btn-rec-ver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.btn-rec-ver:hover {
+  background: #c8e6c9;
+  transform: translateY(-1px);
+}
+
+/* ── Experto row en tabla ── */
+.rec-exp-nombre {
+  font-weight: 600;
+  color: #111827;
+}
+
+.rec-exp-count {
+  display: inline-block;
+  font-size: 11px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+
+.rec-exp-ultima {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ── Lista de fincas (modal 1) ── */
+.rec-finca-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.rec-finca-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.rec-finca-item:hover {
+  background: #f0fdf4;
+}
+
+.rec-finca-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rec-finca-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.rec-finca-ultima {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ── Lista de recomendaciones (modal 2) ── */
+.rec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.rec-list-empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 32px 16px;
+  font-size: 14px;
+}
+
+.rec-list-item {
+  padding: 14px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.rec-list-item:hover {
+  background: #f0fdf4;
+}
+
+.rec-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.rec-list-tipo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.rec-list-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.rec-list-status.activo {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.rec-list-status.inactivo {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.rec-list-desc {
+  font-size: 13px;
+  color: #374151;
+  margin: 0 0 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rec-list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.rec-list-prioridad {
+  color: #9ca3af;
+}
+
+.rec-list-acciones {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .rec-form-row {

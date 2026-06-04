@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Camera, Leaf, Calendar, Image } from 'lucide-react'
+import { BiCalendar, BiImage } from 'react-icons/bi'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import NuevoMonitoreoModal from './NuevoMonitoreoModal'
@@ -55,13 +55,13 @@ export default function MonitoreosExperto({ cultivo, finca }) {
           {monitoreos.map((m) => (
             <div key={m.idMonitoreo} className="monitor-card">
               <div className="monitor-date">
-                <Calendar size={16} />
+                <BiCalendar size={16} />
                 {m.fechaMonitoreo}
               </div>
               <div className="monitor-body">
                 <p>{m.observaciones || 'Sin observaciones'}</p>
                 <div className="monitor-footer">
-                  <Image size={15} />
+                  <BiImage size={15} />
                   {m.imagenes?.length || 0} fotos
                 </div>
               </div>

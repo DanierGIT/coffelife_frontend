@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
+import { BiPlus, BiCheck, BiMessageDetail, BiCalendar, BiTimeFive } from 'react-icons/bi'
 import './RecomendacionesTab.css'
 
 // ─── Helpers ────────────────────────────────
@@ -75,9 +76,7 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, expertoId, onG
   return (
     <form className="rtab-form" onSubmit={handleSubmit}>
       <h3 className="rtab-form-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
+        <BiPlus size={16} />
         Nueva recomendación
       </h3>
 
@@ -168,7 +167,7 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, expertoId, onG
       {error   && <p className="rtab-error">{error}</p>}
       {success && (
         <p className="rtab-success">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <BiCheck size={14} />
           {success}
         </p>
       )}
@@ -178,7 +177,7 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, expertoId, onG
           {loading
             ? <><span className="rtab-spinner" /> Registrando...</>
             : <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <BiCheck size={14} />
                 Registrar recomendación
               </>
           }
@@ -307,9 +306,7 @@ export default function RecomendacionesTab({ cultivo, finca }) {
 
         {recomendaciones.length === 0 ? (
           <div className="rtab-list-empty">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
+            <BiMessageDetail size={32} color="#d1d5db" />
             <p>No hay recomendaciones para este cultivo aún.</p>
           </div>
         ) : (
@@ -323,9 +320,7 @@ export default function RecomendacionesTab({ cultivo, finca }) {
                     <div className="rtab-card-meta">
                       <span className="rtab-card-tipo">{getTipoNombre(r)}</span>
                       <span className="rtab-card-fecha">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
+                        <BiCalendar size={12} />
                         Monitoreo {getMonitoreoFecha(r)}
                       </span>
                     </div>
@@ -347,9 +342,7 @@ export default function RecomendacionesTab({ cultivo, finca }) {
 
                   {r.fechaLimite && (
                     <p className="rtab-card-limite">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                      </svg>
+                      <BiTimeFive size={12} />
                       Fecha límite: {normalizeDate(r.fechaLimite)}
                     </p>
                   )}
