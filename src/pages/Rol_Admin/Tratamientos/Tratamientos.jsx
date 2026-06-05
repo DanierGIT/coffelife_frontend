@@ -135,7 +135,13 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
 }
 
 // ─── Subcomponente: Tabla ───
-function TablaTratamientos({ tratamientos, eliminar, editar }) {
+function TablaTratamientos({ tratamientos, tiposTratamiento, eliminar, editar }) {
+  const getTipoNombre = (idTipo) => {
+    if (!idTipo) return '—'
+    const encontrado = tiposTratamiento.find((t) => Number(t.idTipo) === Number(idTipo))
+    return encontrado?.nombreTipo || '—'
+  }
+
   return (
     <table className="tabla">
       <thead>
@@ -156,7 +162,7 @@ function TablaTratamientos({ tratamientos, eliminar, editar }) {
         ) : (
           tratamientos.map((t, idx) => (
             <tr key={t.idTratamiento}>
-              <td>{t.tipoTratamiento?.nombreTipo || '—'}</td>
+              <td>{getTipoNombre(t.idTipoTratamiento)}</td>
               <td>{t.nombre}</td>
               <td>{t.descripcion}</td>
               <td className="acciones">
@@ -174,6 +180,7 @@ function TablaTratamientos({ tratamientos, eliminar, editar }) {
 // ─── Componente principal ───
 function Tratamientos() {
   const [tratamientos,      setTratamientos]      = useState([]);
+  const [tiposTratamiento,  setTiposTratamiento]  = useState([]);
   const [tratamientoEditar, setTratamientoEditar] = useState(null);
   const [modalAbierto,      setModalAbierto]      = useState(false);
   const [showCrearModal, setShowCrearModal] = useState(false);
@@ -183,7 +190,15 @@ function Tratamientos() {
     setTratamientos(datos);
   };
 
-  useEffect(() => { cargarDatos(); }, []);
+  const cargarTipos = async () => {
+    try {
+      const res = await api.get("/cat_tipos_tratamientos");
+      const datos = Array.isArray(res.data) ? res.data : res.data.data || [];
+      setTiposTratamiento(datos);
+    } catch { /* silencioso */ }
+  };
+
+  useEffect(() => { cargarDatos(); cargarTipos(); }, []);
 
   const eliminar = async (id) => {
     if (!confirm("¿Seguro que deseas eliminar este tratamiento?")) return;
@@ -237,11 +252,14 @@ function Tratamientos() {
             {tratamientos.length} tratamiento{tratamientos.length !== 1 ? "s" : ""}
           </span>
         </div>
+        <div className="tabla-wrapper">
         <TablaTratamientos
           tratamientos={tratamientos}
+          tiposTratamiento={tiposTratamiento}
           eliminar={eliminar}
           editar={editar}
         />
+        </div>
       </div>
 
       {modalAbierto && (

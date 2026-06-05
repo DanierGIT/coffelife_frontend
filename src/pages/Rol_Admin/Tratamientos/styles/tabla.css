@@ -1,5 +1,13 @@
+.tabla-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -24px;
+  padding: 0 24px;
+}
+
 .tabla {
   width: 100%;
+  min-width: 500px;
   border-collapse: collapse;
 }
 
@@ -68,12 +76,20 @@
   background: #fecaca;
 }
 
-.tabla {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+@media (max-width: 900px) {
+  .tabla {
+    min-width: 400px;
+  }
+  .tabla-wrapper {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
 }
 
 @media (max-width: 768px) {
+  .tabla {
+    min-width: 350px;
+  }
   .tabla th,
   .tabla td {
     padding: 10px;
@@ -82,5 +98,9 @@
   }
   .acciones {
     flex-direction: column;
+  }
+  .tabla-wrapper {
+    margin: 0 -14px;
+    padding: 0 14px;
   }
 }
