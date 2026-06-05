@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ☕ COFFEELIFE DESIGN SYSTEM - ESTILOS PRINCIPALES
+   ☕ COFFEELIFE DESIGN SYSTEM - DETALLE DE FINCA Y CULTIVOS CSS
    ========================================================================== */
 
 :root {
@@ -16,25 +16,26 @@
 .coffeelife-container {
   background-color: var(--bg-coffeelife);
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2.5rem 2rem; /* Sincronizado con el contenedor del dashboard */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--brand-dark-text);
 }
 
 /* ==========================================================================
-   🏡 TARJETA SUPERIOR DETALLE DE LA FINCA
+   🏡 TARJETA SUPERIOR DETALLE DE LA FINCA (HEADER CARD)
    ========================================================================== */
 .finca-detail-header-card {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 28px; /* Cambiado a 28px para hacer match con las fincas del dashboard */
   padding: 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   box-shadow: var(--card-shadow);
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem; /* Aumentado a 3rem para mantener consistencia de ritmo */
   flex-wrap: wrap;
   gap: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.01);
 }
 
 .finca-detail-left {
@@ -48,7 +49,7 @@
 .finca-detail-img-container {
   width: 150px;
   height: 100px;
-  border-radius: 16px;
+  border-radius: 18px; /* Suavizado el borde interno */
   overflow: hidden;
 }
 
@@ -61,18 +62,18 @@
 .badge-selected {
   background-color: var(--brand-light-green);
   color: var(--brand-primary);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 0.25rem 0.6rem;
-  border-radius: 99px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px; /* Estilo pill cuadrado característico de CoffeeLife */
   display: inline-block;
   margin-bottom: 0.4rem;
 }
 
 .finca-detail-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
+  font-size: 2rem; /* Ajustado para jerarquía */
+  font-weight: 800; /* Peso premium de CoffeeLife */
+  margin: 0 0 0.4rem 0;
   color: var(--brand-dark-text);
 }
 
@@ -81,30 +82,31 @@
   gap: 1.25rem;
   margin-bottom: 0.75rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .finca-tags-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .tag-item {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  font-size: 0.8rem;
-  padding: 0.2rem 0.75rem;
+  background-color: #f4f4f5;
+  color: #71717a;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 99px;
   font-weight: 500;
 }
 
-/* COLUMNA DERECHA DEL HEADER (ACCIONES Y METRICAS) */
+/* Columna derecha del Header (Acciones y Métricas) */
 .finca-detail-right {
   display: flex;
   flex-direction: column;
@@ -115,25 +117,26 @@
 
 .btn-back-coffeelife {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  padding: 0.5rem 1rem;
-  border-radius: 99px;
-  font-weight: 500;
+  border: 1.5px solid #e5e7eb; /* Sincronizado con bordes de paginación */
+  padding: 0.5rem 1.1rem;
+  border-radius: 12px; /* Unificado al diseño de botones curvos generales */
+  font-weight: 600;
   color: #4b5563;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   font-size: 0.85rem;
 }
 
 .btn-back-coffeelife:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  background-color: var(--brand-light-green);
 }
 
-/* CONTENEDOR DE CONTADORES RÁPIDOS */
+/* Contenedor de Contadores Rápidos (KPIs Mini) */
 .kpi-cards-container {
   display: flex;
   gap: 1rem;
@@ -142,28 +145,29 @@
 
 .kpi-card-mini {
   background: #ffffff;
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.01);
+  box-shadow: var(--card-shadow);
+  border-radius: 20px; /* Consistencia con KPIs superiores */
+  padding: 0.85rem 1.1rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   flex: 1;
 }
 
 .kpi-icon-circle {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px; /* Cambiado a cuadrado curvo para consistencia con icons */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Paletas de iconos basados en el mockup */
-.brand-light-brown { background-color: #fbf4ec; color: #8a5829; }
-.brand-light-orange { background-color: #fdf2f2; color: #a26565; }
-.brand-light-green { background-color: var(--brand-light-green); color: var(--brand-primary); }
+/* Paletas del sistema de iconos CoffeeLife */
+.brand-light-brown { background-color: #f5f0e6; color: #78350f; }
+.brand-light-orange { background-color: #fdf2e9; color: #b45309; }
+.brand-light-green-kpi { background-color: #eef6e9; color: #437024; }
 
 .kpi-data {
   display: flex;
@@ -171,15 +175,17 @@
 }
 
 .kpi-value {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--brand-dark-text);
   line-height: 1.1;
 }
 
 .kpi-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   font-weight: 500;
+  margin-top: 0.1rem;
 }
 
 /* ==========================================================================
@@ -189,27 +195,27 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .section-bar-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .section-bar-left h2 {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin: 0;
 }
 
 .badge-count {
-  background-color: #eef6e9;
-  color: #437024;
+  background-color: var(--brand-light-green);
+  color: var(--brand-primary);
   font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border-radius: 8px;
 }
 
@@ -217,7 +223,7 @@
   background-color: var(--brand-primary);
   color: #ffffff;
   border: none;
-  padding: 0.6rem 1.25rem;
+  padding: 0.65rem 1.35rem;
   border-radius: 12px;
   font-weight: 600;
   font-size: 0.9rem;
@@ -232,29 +238,35 @@
   background-color: var(--brand-primary-hover);
 }
 
+.btn-brand-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ==========================================================================
    🖼️ GRILLA Y TARJETAS DE CULTIVOS (COFFEELIFE STYLE)
    ========================================================================== */
 .coffeelife-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .coffeelife-card {
   background: #ffffff;
-  border-radius: 24px;
-  overflow: hidden;
+  border-radius: 28px; /* Unificado con las tarjetas principales */
+  overflow: visible; /* Permitir dropdown flotante si es necesario */
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease;
 }
 
 .card-image-wrapper {
   position: relative;
-  height: 180px;
+  height: 170px;
   width: 100%;
+  border-radius: 28px 28px 0 0;
+  overflow: hidden;
 }
 
 .card-image-wrapper img {
@@ -263,12 +275,12 @@
   object-fit: cover;
 }
 
-/* Botón flotante superior derecho de las opciones (...) */
+/* Botón flotante opciones (...) */
 .btn-floating-options {
   position: absolute;
   top: 12px;
   right: 12px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.92);
   color: var(--brand-dark-text);
   border: none;
   width: 32px;
@@ -278,8 +290,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: background-color 0.15s ease;
+  z-index: 20;
 }
 
 .btn-floating-options:hover {
@@ -288,7 +301,7 @@
 
 /* Cuerpo interno de la card */
 .card-content-body {
-  padding: 1.25rem;
+  padding: 1.4rem;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -296,16 +309,17 @@
 
 .card-main-header {
   display: flex;
-  gap: 0.85rem;
+  gap: 1rem;
   align-items: flex-start;
   margin-bottom: 1.25rem;
 }
 
 .card-icon-container {
   background-color: var(--brand-light-green);
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  color: var(--brand-primary);
+  width: 44px;
+  height: 44px;
+  border-radius: 14px; /* Sincronizado con los mini contenedores */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -319,24 +333,25 @@
 }
 
 .card-title-group h3 {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin: 0 0 0.15rem 0;
+  margin: 0 0 0.25rem 0;
+  color: var(--brand-dark-text);
 }
 
 .card-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
-  margin: 0 0 0.4rem 0;
+  margin: 0 0 0.5rem 0;
 }
 
 .badge-status-active {
   background-color: var(--brand-light-green);
   color: var(--brand-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
 }
 
 /* Fila Inferior de Estadísticas */
@@ -344,7 +359,7 @@
   display: flex;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 0.75rem 0;
+  padding: 0.65rem 0;
   margin-bottom: 1.25rem;
   justify-content: space-between;
 }
@@ -368,8 +383,9 @@
 }
 
 .stat-numbers strong {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700;
+  color: var(--brand-dark-text);
 }
 
 .stat-numbers span {
@@ -393,7 +409,7 @@
   gap: 0.5rem;
   cursor: pointer;
   margin-top: auto;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .btn-card-action-trigger:hover {
@@ -405,11 +421,8 @@
    ========================================================================== */
 .cl-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(28, 36, 22, 0.4);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(28, 36, 22, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -423,35 +436,36 @@
   padding: 2rem;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-  animation: scaleUp 0.2s ease-out;
+  box-shadow: 0 20px 40px -5px rgba(0,0,0,0.15);
+  animation: scaleUp 0.18s ease-out;
 }
 
 @keyframes scaleUp {
   from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  to   { transform: scale(1);     opacity: 1; }
 }
 
 .cl-modal-title {
   font-size: 1.35rem;
   font-weight: 700;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.25rem 0;
+  color: var(--brand-dark-text);
 }
 
 .cl-modal-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.1rem; /* Sincronizado a ritmo de 1.1rem */
 }
 
 .cl-input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .cl-input-group label {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--brand-dark-text);
 }
@@ -461,8 +475,8 @@
   background-color: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 12px;
-  padding: 0.65rem 0.75rem;
-  font-size: 0.95rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.92rem;
   color: var(--brand-dark-text);
   outline: none;
   transition: border-color 0.2s;
@@ -495,17 +509,20 @@
   font-size: 0.9rem;
   color: #4b5563;
   cursor: pointer;
+  transition: background-color 0.15s;
 }
 
 .btn-cl-secondary:hover {
   background-color: #f9fafb;
 }
 
-/* ESTADOS COMPLEMENTARIOS */
+/* ==========================================================================
+   ⚠️ ESTADOS COMPLEMENTARIOS (CARGA / ALERTAS)
+   ========================================================================== */
 .state-message-box {
   background: #ffffff;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 2.5rem;
   text-align: center;
   color: var(--text-muted);
   box-shadow: var(--card-shadow);

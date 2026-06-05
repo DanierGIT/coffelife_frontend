@@ -149,10 +149,43 @@ export default function Monitoreos() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Monitoreos</h1>
-        <p>Registro de monitoreos de cultivos</p>
-      </div>
+     <div className="module-header">
+  <div className="module-header-icon">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 21H4a2 2 0 0 1-2-2V3" />
+      <path d="M7 14l4-4 3 3 6-6" />
+      <path d="M17 7h3v3" />
+    </svg>
+  </div>
+
+  <div className="module-header-content">
+
+    <span className="module-header-badge">
+      SEGUIMIENTO AGRÍCOLA
+    </span>
+
+    <h1>
+      Monitoreos
+    </h1>
+
+    <p>
+      Consulta y administra los monitoreos realizados sobre los cultivos
+      registrados en CoffeeLife. Desde aquí puedes revisar observaciones,
+      verificar fechas de seguimiento, visualizar detalles técnicos y
+      actualizar la información registrada por los expertos de campo.
+    </p>
+
+  </div>
+</div>
       <div className="admin-table-card">
         <table className="admin-table">
           <thead>

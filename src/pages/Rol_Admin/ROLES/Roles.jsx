@@ -121,10 +121,24 @@ export default function Roles() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Roles</h1>
-        <p>Roles del sistema</p>
+      {/* ── Header de sección: Roles ── */}
+      <div className="section-header-card">
+        <div className="section-header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <circle cx="12" cy="11" r="2" />
+            <path d="M12 13v3" />
+          </svg>
+        </div>
+        <div className="section-header-text">
+          <span className="section-header-badge">Administrador</span>
+          <h1 className="section-header-title">Roles de Usuario</h1>
+          <p className="section-header-description">
+            Configuración y gestión de los perfiles de acceso en CoffeeLife. Define las jerarquías y los niveles de permisos del sistema para diferenciar las funciones operativas de administradores, expertos agrícolas y productores cafeteros.
+          </p>
+        </div>
       </div>
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
         <button
           className="btn-primary"

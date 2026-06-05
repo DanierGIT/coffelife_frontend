@@ -1,4 +1,4 @@
-  /**
+/**
  * Administrador.jsx
  * CRUD completo conectado a /admins
  * El backend espera: { nombre, apellido, correo, telefono, password }
@@ -95,7 +95,7 @@ export default function Administrador() {
   const [admins,       setAdmins]       = useState([])
   const [editingAdmin, setEditingAdmin] = useState(null)
   const [loading,      setLoading]      = useState(false)
-  const [fetching,     setFetching]     = useState(true)   // ← nuevo: carga inicial
+  const [fetching,     setFetching]     = useState(true)
   const [error,        setError]        = useState('')
   const [success,      setSuccess]      = useState('')
   const [showCrearModal, setShowCrearModal] = useState(false)
@@ -112,7 +112,6 @@ export default function Administrador() {
       const lista = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
       setAdmins(lista.filter((usuario) => isAdminRole(usuario.rol)))
     } catch (err) {
-      // Muestra el error real para que puedas depurar
       const msg = err?.response?.data?.message || err?.message || 'Error de red al cargar administradores.'
       setError(msg)
     } finally {
@@ -169,10 +168,25 @@ export default function Administrador() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Administradores</h1>
-        <p>Usuarios administradores del sistema</p>
+      {/* ── Header de sección ── */}
+      <div className="section-header-card">
+        <div className="section-header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            <path d="M16 3.5a4 4 0 0 1 0 7" />
+            <path d="M20 20c0-3-1.8-5.5-4-6.5" />
+          </svg>
+        </div>
+        <div className="section-header-text">
+          <span className="section-header-badge">Administrador</span>
+          <h1 className="section-header-title">Administradores</h1>
+          <p className="section-header-description">
+            Gestiona los usuarios con rol de Administrador dentro del sistema. Desde aquí puedes registrar nuevos administradores, editar su información personal y activar o desactivar su acceso a la plataforma CoffeeLife.
+          </p>
+        </div>
       </div>
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"

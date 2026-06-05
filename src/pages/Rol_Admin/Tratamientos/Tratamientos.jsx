@@ -204,10 +204,45 @@ function Tratamientos() {
 
   return (
     <div className="contenedor-tratamientos">
-      <div className="page-header">
-        <h1>Tratamientos</h1>
-        <p>Tratamientos disponibles para cultivos</p>
-      </div>
+      <div className="module-header">
+  <div className="module-header-icon">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M10 2v7.31" />
+      <path d="M14 9.3V1.99" />
+      <path d="M8.5 2h7" />
+      <path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
+    </svg>
+  </div>
+
+  <div className="module-header-content">
+
+    <span className="module-header-badge">
+      MANEJO FITOSANITARIO
+    </span>
+
+    <h1>
+      Tratamientos
+    </h1>
+
+    <p>
+      Administra los tratamientos utilizados para el control de plagas,
+      enfermedades y condiciones que afectan los cultivos de café.
+      Desde este módulo puedes registrar, actualizar y consultar los
+      diferentes tratamientos disponibles para apoyar las recomendaciones
+      técnicas emitidas por los expertos agrícolas.
+    </p>
+
+  </div>
+</div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"
