@@ -187,10 +187,26 @@ export default function Cafetero() {
 
   return (
     <div className="admin-page">
-      <div className="page-header">
-        <h1>Cafeteros</h1>
-        <p>Usuarios cafeteros del sistema</p>
+
+      {/* ── Header de sección ── */}
+      <div className="section-header-card">
+        <div className="section-header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </div>
+        <div className="section-header-text">
+          <span className="section-header-badge">Administrador</span>
+          <h1 className="section-header-title">Cafeteros</h1>
+          <p className="section-header-description">
+            Gestiona los usuarios con rol de Cafetero dentro del sistema. Desde aquí puedes registrar nuevos cafeteros, editar su información personal, y activar o desactivar su acceso a la plataforma CoffeeLife.
+          </p>
+        </div>
       </div>
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"
