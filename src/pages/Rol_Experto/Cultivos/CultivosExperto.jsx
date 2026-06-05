@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import api from '../../../services/api'
+import { BiUser, BiMapPin, BiChevronLeft, BiTime, BiCalendar, BiTimeFive, BiPlus, BiDotsVerticalRounded, BiLeaf, BiCamera, BiFile, BiLayer, BiChevronRight } from 'react-icons/bi'
 import './CultivosExperto.css'
 
 /* ==========================================================================
@@ -426,9 +427,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
 
                   <button className="btn-card-action-trigger" onClick={() => onNavigate('detalle_cultivo', c)}>
                     Ver detalles del cultivo
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                    </svg>
+                    <BiChevronRight size={16} />
                   </button>
                 </div>
               </div>

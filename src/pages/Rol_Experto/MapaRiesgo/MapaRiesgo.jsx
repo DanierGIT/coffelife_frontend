@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
+import { BiTargetLock, BiMapPin } from 'react-icons/bi'
 import './MapaRiesgo.css'
 
 const NIVEL_CLASS = (n = '') => {
@@ -68,7 +69,7 @@ export default function MapaRiesgo() {
                   <button className="mapa-ctrl">+</button>
                   <button className="mapa-ctrl">−</button>
                   <button className="mapa-ctrl" title="Ubicación">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                    <BiTargetLock size={14} />
                   </button>
                 </div>
                 {/* Pins de fincas */}
@@ -83,7 +84,7 @@ export default function MapaRiesgo() {
                     onClick={() => setSelected(f)}
                     title={f.nombreFinca}
                   >
-                    <svg width="20" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    <BiMapPin size={20} />
                   </div>
                 ))}
                 {/* Leyenda del mapa */}
@@ -114,10 +115,7 @@ export default function MapaRiesgo() {
                   onClick={() => setSelected(f)}
                 >
                   <div className="mapa-finca-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2a9 9 0 0 1 9 9c0 5-9 13-9 13S3 16 3 11a9 9 0 0 1 9-9z"/>
-                      <circle cx="12" cy="11" r="3"/>
-                    </svg>
+                    <BiMapPin size={16} />
                   </div>
                   <div className="mapa-finca-info">
                     <p>{f.nombreFinca || `Finca #${f.idFinca}`}</p>

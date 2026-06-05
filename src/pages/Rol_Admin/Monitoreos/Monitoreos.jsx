@@ -2,8 +2,14 @@ import { useState, useEffect, useMemo } from 'react'
 import api from '../../../services/api'
 import './Monitoreos.css'
 import '../Administrador/Administrador.css'
+import { BiShow, BiEdit, BiArrowBack } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
+const fmtDatetime = (val) => {
+  if (!val) return '—'
+  const d = new Date(val)
+  return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -100,23 +106,128 @@ function EditModal({ monitoreo, onClose, onSaved, cultivos, expertos, fincaMap }
   )
 }
 
+// ── Modal de lista de monitoreos de una finca ──────────────────────────────────
+function ListaMonitoreosModal({ finca, monitoreos, onBack, onVerDetalle, onEditar }) {
+  const sorted = useMemo(() => {
+    return [...monitoreos].sort((a, b) => {
+      const fechaA = new Date(a.fechaMonitoreo || a.fecha_monitoreo || 0)
+      const fechaB = new Date(b.fechaMonitoreo || b.fecha_monitoreo || 0)
+      return fechaB - fechaA
+    })
+  }, [monitoreos])
+
+  return (
+    <div className="modal-overlay" onClick={onBack}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">Monitoreos de {finca?.nombreFinca}</h2>
+          <button className="modal-close" onClick={onBack}>✕</button>
+        </div>
+        <div className="mon-list">
+          {sorted.length === 0 ? (
+            <p className="mon-list-empty">No hay monitoreos registrados para esta finca.</p>
+          ) : sorted.map((m) => {
+            const id = m.idMonitoreo ?? m.id_monitoreo
+            return (
+              <div key={id} className="mon-list-item">
+                <div className="mon-list-info">
+                  <span className="mon-list-cultivo">{m.cultivo?.nombreCultivo || '—'}</span>
+                  <span className="mon-list-fecha">{fmt(m.fechaMonitoreo ?? m.fecha_monitoreo)}</span>
+                </div>
+                <div className="mon-list-acciones">
+                  <button className="btn-icon btn-icon-ver" onClick={() => onVerDetalle(m)} title="Ver detalle">
+                    <BiShow size={16} />
+                  </button>
+                  <button className="btn-icon btn-icon-editar" onClick={() => onEditar(m)} title="Editar">
+                    <BiEdit size={16} />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Modal de detalle de un monitoreo ──────────────────────────────────────────
+function DetalleMonitoreoModal({ monitoreo, onBack }) {
+  return (
+    <div className="modal-overlay" onClick={onBack}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">Detalle del monitoreo</h2>
+          <button className="modal-close" onClick={onBack}>✕</button>
+        </div>
+        <div className="detalle-grid">
+          <div className="detalle-item">
+            <span className="detalle-label">Cultivo</span>
+            <span className="detalle-value">{monitoreo.cultivo?.nombreCultivo || '—'}</span>
+          </div>
+          <div className="detalle-item">
+            <span className="detalle-label">Experto</span>
+            <span className="detalle-value">
+              {monitoreo.experto ? `${monitoreo.experto.nombre || ''} ${monitoreo.experto.apellido || ''}`.trim() : '—'}
+            </span>
+          </div>
+          <div className="detalle-item">
+            <span className="detalle-label">Fecha de monitoreo</span>
+            <span className="detalle-value">{fmt(monitoreo.fechaMonitoreo ?? monitoreo.fecha_monitoreo)}</span>
+          </div>
+          <div className="detalle-item">
+            <span className="detalle-label">Observaciones</span>
+            <span className="detalle-value">{monitoreo.observaciones || '—'}</span>
+          </div>
+          <div className="detalle-item">
+            <span className="detalle-label">Registrado</span>
+            <span className="detalle-value">{fmtDatetime(monitoreo.fechaRegistro ?? monitoreo.fecha_registro)}</span>
+          </div>
+          <div className="detalle-item">
+            <span className="detalle-label">Actualizado</span>
+            <span className="detalle-value">{fmtDatetime(monitoreo.fechaActualizacion ?? monitoreo.fecha_actualizacion)}</span>
+          </div>
+        </div>
+        <div className="modal-actions" style={{ marginTop: '20px' }}>
+          <button className="btn-secondary" onClick={onBack}>
+            <BiArrowBack size={14} style={{ marginRight: 6 }} />
+            Volver
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function Monitoreos() {
-  const [monitoreos,       setMonitoreos]       = useState([])
-  const [cultivos,         setCultivos]         = useState([])
-  const [expertos,         setExpertos]         = useState([])
-  const [fincas,           setFincas]           = useState([])
+  const [monitoreos, setMonitoreos] = useState([])
+  const [cultivos,   setCultivos]   = useState([])
+  const [expertos,   setExpertos]   = useState([])
+  const [fincas,     setFincas]     = useState([])
   const [editingMonitoreo, setEditingMonitoreo] = useState(null)
-  const [detalleMonitoreo, setDetalleMonitoreo] = useState(null)
-  const [loading,          setLoading]          = useState(false)
-  const [error,            setError]            = useState('')
-  const [success,          setSuccess]          = useState('')
+  const [selectedFinca, setSelectedFinca] = useState(null)
+  const [detailMonitoreo, setDetailMonitoreo] = useState(null)
+  const [loading,    setLoading]    = useState(false)
+  const [error,      setError]      = useState('')
+  const [success,    setSuccess]    = useState('')
 
   const fincaMap = useMemo(() => {
     const map = {}
     fincas.forEach((f) => { map[f.idFinca] = f })
     return map
   }, [fincas])
+
+  const fincaMonitoreos = useMemo(() => {
+    const map = {}
+    monitoreos.forEach((m) => {
+      const idFinca = m.cultivo?.idFinca
+      if (!idFinca) return
+      if (!map[idFinca]) map[idFinca] = []
+      map[idFinca].push(m)
+    })
+    return map
+  }, [monitoreos])
 
   const getMonitoreos = async () => {
     try {
@@ -146,6 +257,15 @@ export default function Monitoreos() {
     getMonitoreos()
     getCatalogos()
   }, [])
+
+  const handleVerDetalle = (m) => setDetailMonitoreo(m)
+
+  const handleVolverLista = () => setDetailMonitoreo(null)
+
+  const handleCerrarFinca = () => {
+    setSelectedFinca(null)
+    setDetailMonitoreo(null)
+  }
 
   return (
     <>
@@ -190,34 +310,29 @@ export default function Monitoreos() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th><th>Finca</th><th>Cultivo</th><th>Experto</th><th>Acciones</th>
+              <th>Finca</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {monitoreos.length === 0 ? (
-              <tr><td colSpan={5} className="monitoreo-empty">🌱 No hay monitoreos registrados aún.</td></tr>
-            ) : monitoreos.map((m, idx) => {
-              const id = m.idMonitoreo ?? m.id_monitoreo
-              const finca = fincaMap[m.cultivo?.idFinca]
+            {fincas.length === 0 ? (
+              <tr><td colSpan={2} className="monitoreo-empty">🌱 No hay fincas registradas.</td></tr>
+            ) : fincas.map((f) => {
+              const cantidad = (fincaMonitoreos[f.idFinca] || []).length
               return (
-                <tr key={id}>
-                  <td>{idx + 1}</td>
-                  <td>{finca?.nombreFinca || '—'}</td>
-                  <td>{m.cultivo?.nombreCultivo || '—'}</td>
-                  <td>{m.experto ? `${m.experto.nombre || ''} ${m.experto.apellido || ''}`.trim() : '—'}</td>
+                <tr key={f.idFinca}>
+                  <td>
+                    <span className="mon-finca-nombre">{f.nombreFinca}</span>
+                    <span className="mon-finca-count">{cantidad} monitoreo{cantidad !== 1 ? 's' : ''}</span>
+                  </td>
                   <td>
                     <div className="acciones-monitoreo">
-                      <button className="btn-icon btn-icon-ver" onClick={() => setDetalleMonitoreo(m)} title="Ver detalle">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                      <button className="btn-icon btn-icon-editar" onClick={() => setEditingMonitoreo(m)} title="Editar">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
+                      <button
+                        className="btn-mon-ver-finca"
+                        onClick={() => setSelectedFinca(f)}
+                      >
+                        <BiShow size={14} />
+                        Ver detalles
                       </button>
                     </div>
                   </td>
@@ -228,33 +343,21 @@ export default function Monitoreos() {
         </table>
       </div>
 
-      {detalleMonitoreo && (
-        <div className="modal-overlay" onClick={() => setDetalleMonitoreo(null)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Detalle del monitoreo</h2>
-              <button className="modal-close" onClick={() => setDetalleMonitoreo(null)}>✕</button>
-            </div>
-            <div className="detalle-grid">
-              <div className="detalle-item">
-                <span className="detalle-label">Fecha monitoreo</span>
-                <span className="detalle-value">{fmt(detalleMonitoreo.fechaMonitoreo ?? detalleMonitoreo.fecha_monitoreo)}</span>
-              </div>
-              <div className="detalle-item">
-                <span className="detalle-label">Observaciones</span>
-                <span className="detalle-value">{detalleMonitoreo.observaciones || '—'}</span>
-              </div>
-              <div className="detalle-item">
-                <span className="detalle-label">Registrado</span>
-                <span className="detalle-value">{fmt(detalleMonitoreo.fechaRegistro ?? detalleMonitoreo.fecha_registro)}</span>
-              </div>
-              <div className="detalle-item">
-                <span className="detalle-label">Actualizado</span>
-                <span className="detalle-value">{fmt(detalleMonitoreo.fechaActualizacion ?? detalleMonitoreo.fecha_actualizacion)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      {selectedFinca && !detailMonitoreo && (
+        <ListaMonitoreosModal
+          finca={selectedFinca}
+          monitoreos={fincaMonitoreos[selectedFinca.idFinca] || []}
+          onBack={handleCerrarFinca}
+          onVerDetalle={handleVerDetalle}
+          onEditar={(m) => setEditingMonitoreo(m)}
+        />
+      )}
+
+      {detailMonitoreo && (
+        <DetalleMonitoreoModal
+          monitoreo={detailMonitoreo}
+          onBack={handleVolverLista}
+        />
       )}
 
       {editingMonitoreo && (
@@ -267,7 +370,6 @@ export default function Monitoreos() {
           fincaMap={fincaMap}
         />
       )}
-
     </>
   )
 }

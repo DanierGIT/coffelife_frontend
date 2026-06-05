@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { BiGrid, BiHome, BiGroup, BiCheckSquare, BiChat, BiBriefcase, BiX, BiLogOut, BiUser, BiListUl } from 'react-icons/bi'
 import './Sidebar.css'
 import AnimatedLogo from './AnimatedLogo'
 
@@ -8,14 +9,8 @@ const ALL_ITEMS = [
     key: 'dashboard',
     label: 'Dashboard',
     roles: ['administrador', 'experto', 'cafetero'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-        <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-      </svg>
-    ),
+    icon: <BiGrid size={20} />,
   },
-
   // {
   //   key: 'administrador',
   //   label: 'Administrador',
@@ -52,36 +47,19 @@ const ALL_ITEMS = [
     key: 'fincas',
     label: 'Fincas',
     roles: ['administrador', 'experto', 'cafetero'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
+    icon: <BiHome size={20} />,
   },
   {
     key: 'roles',
     label: 'Roles',
     roles: ['administrador'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
+    icon: <BiGroup size={20} />,
   },
   {
     key: 'monitoreos',
     label: 'Monitoreos',
     roles: ['administrador', 'experto', 'cafetero'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 11l3 3L22 4" />
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-      </svg>
-    ),
+    icon: <BiCheckSquare size={20} />,
   },
   // {
   //   key: 'usuarios',
@@ -119,11 +97,7 @@ const ALL_ITEMS = [
     key: 'recomendaciones',
     label: 'Recomendaciones',
     roles: ['administrador', 'experto'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      </svg>
-    ),
+    icon: <BiChat size={20} />,
   },
   // {
   //   key: 'imagenes',
@@ -141,11 +115,7 @@ const ALL_ITEMS = [
     key: 'tratamientos',
     label: 'Tratamientos',
     roles: ['administrador', 'experto'],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
-      </svg>
-    ),
+    icon: <BiBriefcase size={20} />,
   },
   // {
   //   key: 'cultivos',
@@ -228,26 +198,25 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
   return (
     <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
       <button className="sidebar-close" onClick={onToggle} aria-label="Cerrar menú">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
+        <BiX size={22} />
       </button>
         <div className="sidebar-logo">
           <AnimatedLogo size="md" horizontal />
         </div>
 
       <div className="sidebar-profile">
-        <div className="sidebar-avatar">{initials}</div>
+        <div className="sidebar-avatar">
+          {user?.fotoPerfil
+            ? <img src={user.fotoPerfil} alt="Foto" className="sidebar-avatar-img" />
+            : initials
+          }
+        </div>
         <div className="sidebar-profile-info">
           <p className="sidebar-profile-name">{displayName}</p>
           <p className="sidebar-profile-role">{role}</p>
         </div>
         <button className="sidebar-profile-logout" onClick={logout} title="Cerrar sesión">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          <BiLogOut size={16} />
         </button>
       </div>
 
@@ -256,10 +225,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
         onClick={() => onNavigate('perfil')}
         title="Mi Perfil"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-        </svg>
+        <BiUser size={16} />
         <span>Mi Perfil</span>
       </button>
 
@@ -288,10 +254,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
               title="Usuarios"
             >
               <span className="sidebar-nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
+                <BiUser size={20} />
               </span>
               <span className="sidebar-nav-label">Usuarios</span>
               <span className={`sidebar-arrow${usuOpen ? ' open' : ''}`}>▾</span>
@@ -333,14 +296,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
               title="Categorías"
             >
               <span className="sidebar-nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6" />
-                  <line x1="8" y1="12" x2="21" y2="12" />
-                  <line x1="8" y1="18" x2="21" y2="18" />
-                  <line x1="3" y1="6" x2="3.01" y2="6" />
-                  <line x1="3" y1="12" x2="3.01" y2="12" />
-                  <line x1="3" y1="18" x2="3.01" y2="18" />
-                </svg>
+                <BiListUl size={20} />
               </span>
               <span className="sidebar-nav-label">Categorías</span>
               <span className={`sidebar-arrow${catOpen ? ' open' : ''}`}>▾</span>

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { validatePassword } from '../utils/passwordValidator'
 import './Auth.css'
 import AnimatedLogo from '../components/AnimatedLogo'
+import { BiUser, BiEnvelope, BiLockAlt, BiShow, BiHide, BiCheckCircle, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt } from 'react-icons/bi'
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48">
@@ -38,41 +39,15 @@ const RightDots = () => (
   </div>
 )
 
-const UserIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-    <circle cx="12" cy="7" r="4"/>
-  </svg>
-)
+const UserIcon = () => <BiUser size={16} />
 
-const MailIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-    <polyline points="22,6 12,13 2,6"/>
-  </svg>
-)
+const MailIcon = () => <BiEnvelope size={16} />
 
-const LockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>
-)
+const LockIcon = () => <BiLockAlt size={16} />
 
-const EyeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>
-)
+const EyeIcon = () => <BiShow size={16} />
 
-const EyeOffIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>
-)
+const EyeOffIcon = () => <BiHide size={16} />
 
 export default function Register({ onGoLogin }) {
   const { register } = useAuth()
@@ -128,9 +103,7 @@ export default function Register({ onGoLogin }) {
         <div className="auth-right">
           <div className="auth-card" style={{ textAlign: 'center' }}>
             <div className="auth-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
+              <BiCheckCircle size={28} color="#2e7d32" />
             </div>
             <h2 className="auth-card-title">¡Cuenta creada!</h2>
             <p className="auth-card-subtitle">
@@ -180,9 +153,7 @@ export default function Register({ onGoLogin }) {
             <div className="auth-features">
               <div className="auth-feature-item">
                 <div className="auth-feature-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
+                  <BiSearch size={18} />
                 </div>
                 <div className="auth-feature-text">
                   <h4>Monitoreo de cultivos</h4>
@@ -191,10 +162,7 @@ export default function Register({ onGoLogin }) {
               </div>
               <div className="auth-feature-item">
                 <div className="auth-feature-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
-                  </svg>
+                  <BiSearchAlt2 size={18} />
                 </div>
                 <div className="auth-feature-text">
                   <h4>Detección de roya</h4>
@@ -203,9 +171,7 @@ export default function Register({ onGoLogin }) {
               </div>
               <div className="auth-feature-item">
                 <div className="auth-feature-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                  </svg>
+                  <BiMessageDetail size={18} />
                 </div>
                 <div className="auth-feature-text">
                   <h4>Tratamientos y recomendaciones</h4>
@@ -279,12 +245,7 @@ export default function Register({ onGoLogin }) {
 
             <button type="submit" className="auth-btn-primary" disabled={loading}>
               {loading ? 'Creando cuenta...' : 'Registrarse'}
-              {!loading && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
-                </svg>
-              )}
+              {!loading && <BiRightArrowAlt size={18} />}
             </button>
           </form>
 

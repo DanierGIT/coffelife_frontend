@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Camera, Leaf, Calendar, Image } from 'lucide-react'
+import { BiCalendar, BiImage } from 'react-icons/bi'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import NuevoMonitoreoModal from './NuevoMonitoreoModal'
@@ -8,10 +8,11 @@ import './MonitoreosExperto.css'
 export default function MonitoreosExperto({ cultivo, finca }) {
   const { user } = useAuth()
   const expertoId = user?.idUsuario ?? user?.id ?? null
+  const userId    = user?.idUsuario ?? user?.id ?? null
 
-  const [monitoreos,      setMonitoreos]      = useState([])
-  const [loading,         setLoading]         = useState(false)
-  const [showModal,       setShowModal]       = useState(false)
+  const [monitoreos, setMonitoreos] = useState([])
+  const [loading,    setLoading]    = useState(false)
+  const [showModal,  setShowModal]  = useState(false)
 
   const fetchMonitoreos = async () => {
     if (!cultivo?.idCultivo) return
@@ -27,14 +28,10 @@ export default function MonitoreosExperto({ cultivo, finca }) {
     }
   }
 
-  useEffect(() => {
-    fetchMonitoreos()
-  }, [cultivo])
+  useEffect(() => { fetchMonitoreos() }, [cultivo])
 
   return (
     <div className="monitoreo-list-page">
-
-      {/* ── Topbar ── */}
       <div className="list-topbar">
         <div>
           <h2>Monitoreos registrados</h2>
@@ -45,7 +42,6 @@ export default function MonitoreosExperto({ cultivo, finca }) {
         </button>
       </div>
 
-      {/* ── Lista ── */}
       {loading ? (
         <div className="empty-state">Cargando monitoreos...</div>
       ) : monitoreos.length === 0 ? (
@@ -55,13 +51,13 @@ export default function MonitoreosExperto({ cultivo, finca }) {
           {monitoreos.map((m) => (
             <div key={m.idMonitoreo} className="monitor-card">
               <div className="monitor-date">
-                <Calendar size={16} />
+                <BiCalendar size={16} />
                 {m.fechaMonitoreo}
               </div>
               <div className="monitor-body">
                 <p>{m.observaciones || 'Sin observaciones'}</p>
                 <div className="monitor-footer">
-                  <Image size={15} />
+                  <BiImage size={15} />
                   {m.imagenes?.length || 0} fotos
                 </div>
               </div>
@@ -70,12 +66,12 @@ export default function MonitoreosExperto({ cultivo, finca }) {
         </div>
       )}
 
-      {/* ── Modal stepper ── */}
       {showModal && (
         <NuevoMonitoreoModal
           cultivo={cultivo}
           finca={finca}
           expertoId={expertoId}
+          userId={userId}
           onGuardado={() => {
             setShowModal(false)
             fetchMonitoreos()
