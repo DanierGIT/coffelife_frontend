@@ -459,10 +459,45 @@ export default function Recomendaciones() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Recomendaciones</h1>
-        <p>Recomendaciones para cultivos</p>
-      </div>
+     <div className="module-header">
+  <div className="module-header-icon">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 12l2 2 4-4" />
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6" />
+      <path d="M12 18h.01" />
+    </svg>
+  </div>
+
+  <div className="module-header-content">
+
+    <span className="module-header-badge">
+      ASISTENCIA TÉCNICA
+    </span>
+
+    <h1>
+      Recomendaciones
+    </h1>
+
+    <p>
+      Gestiona las recomendaciones generadas a partir de los monitoreos
+      realizados en los cultivos. Desde aquí puedes consultar sugerencias
+      técnicas, establecer prioridades, definir fechas límite y realizar
+      seguimiento a las acciones recomendadas para mejorar la producción
+      y la salud de los cafetales.
+    </p>
+
+  </div>
+</div>
       <div className="admin-table-card">
         <table className="admin-table">
           <thead>

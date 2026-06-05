@@ -682,3 +682,99 @@
     height: 30px;
   }
 }
+
+/* ======================================================
+   HEADER PRINCIPAL MODERNO
+====================================================== */
+
+.module-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  padding: 18px 22px;
+
+  margin-bottom: 22px;
+
+  background: #eef4e8;
+
+  border: 1px solid #a5d06f;
+
+  border-left: 4px solid #437024;
+
+  border-radius: 14px;
+}
+
+.module-header-icon {
+  width: 52px;
+  height: 52px;
+
+  min-width: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #437024;
+  color: white;
+
+  border-radius: 12px;
+}
+
+.module-header-content {
+  flex: 1;
+}
+
+.module-header-badge {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  padding: 4px 10px;
+
+  border-radius: 999px;
+
+  background: #437024;
+  color: white;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+
+  text-transform: uppercase;
+}
+
+.module-header-content h1 {
+  margin: 0;
+
+  color: #215213;
+
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.module-header-content p {
+  margin-top: 6px;
+
+  color: #4f6d44;
+
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+
+  .module-header {
+    flex-direction: column;
+  }
+
+  .module-header-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .module-header-content h1 {
+    font-size: 24px;
+  }
+
+}

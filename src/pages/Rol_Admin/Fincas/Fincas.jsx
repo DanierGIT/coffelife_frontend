@@ -717,10 +717,48 @@ export default function Fincas() {
   return (
     <>
 
-      <div className="page-header">
-        <h1>Fincas</h1>
-        <p>Gestión de fincas registradas</p>
-      </div>
+     <div className="module-header">
+  <div className="module-header-icon">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 21h18" />
+      <path d="M5 21V7l7-4 7 4v14" />
+      <path d="M9 9h.01" />
+      <path d="M15 9h.01" />
+      <path d="M9 13h.01" />
+      <path d="M15 13h.01" />
+      <path d="M9 17h.01" />
+      <path d="M15 17h.01" />
+    </svg>
+  </div>
+
+  <div className="module-header-content">
+
+    <span className="module-header-badge">
+      GESTIÓN AGRÍCOLA
+    </span>
+
+    <h1>
+      Fincas
+    </h1>
+
+    <p>
+      Administra las fincas registradas en CoffeeLife. Desde aquí puedes
+      crear nuevas fincas, actualizar información geográfica, asignar
+      cafeteros y expertos, gestionar cultivos y consultar la ubicación
+      de cada finca en el mapa interactivo.
+    </p>
+
+  </div>
+</div>
 
       <div className="admin-form-card">
         <div className="map-card-header">
