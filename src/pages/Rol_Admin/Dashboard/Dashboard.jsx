@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiBuildings, BiUser, BiGroup } from 'react-icons/bi'
+import { BiBuildings, BiUser, BiGroup, BiTime } from 'react-icons/bi'
 import './Dashboard.css'
 
 const getArrayData = (data) => {
@@ -11,7 +11,6 @@ const getArrayData = (data) => {
 }
 
 const FincaIcon = () => <BiBuildings size={22} />
-
 
 function AnimatedValue({ value, loading }) {
   const [display, setDisplay] = useState(0)
@@ -69,8 +68,55 @@ function StatCard({ icon, label, value, note, color, progress, progressLabel, on
   )
 }
 
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Buenos días'
+  if (h < 18) return 'Buenas tardes'
+  return 'Buenas noches'
+}
+
+function formatDate() {
+  return new Date().toLocaleDateString('es-CO', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  })
+}
+
+function LeafPattern() {
+  const leaves = useMemo(() => {
+    return Array.from({length:20}, () => ({
+      x: 20 + Math.random() * 1160,
+      delay: Math.random() * 8,
+      dur: 6 + Math.random() * 4,
+      size: 0.3 + Math.random() * 0.5,
+    }))
+  }, [])
+  return (
+    <svg className="db-leaves" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <g id="lf">
+          <path d="M0,20 C6,14 14,6 14,-4 C14,-14 6,-20 0,-22 C-6,-20 -14,-14 -14,-4 C-14,6 -6,14 0,20Z" fill="rgba(46,125,50,0.35)"/>
+          <path d="M0,20 L0,-22" stroke="rgba(46,125,50,0.25)" strokeWidth="0.8"/>
+          <path d="M0,10 L-6,4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
+          <path d="M0,2 L-6,-4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
+          <path d="M0,-6 L-5,-10" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
+          <path d="M0,10 L6,4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
+          <path d="M0,2 L6,-4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
+          <path d="M0,-6 L5,-10" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
+        </g>
+      </defs>
+      {leaves.map((leaf, i) => (
+        <g key={i} className="db-falling-leaf" style={{'--x': `${leaf.x}px`, '--s': leaf.size, '--d': leaf.dur, animationDelay: `${leaf.delay}s`}}>
+          <use href="#lf" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 export default function Dashboard() {
   const { user } = useAuth()
+  const greeting = useMemo(getGreeting, [])
+  const dateStr = useMemo(formatDate, [])
   const [stats, setStats] = useState({
     fincas: 0,
     fincasConUbicacion: 0,
@@ -80,7 +126,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-      useEffect(() => {
+  useEffect(() => {
     const fetchDashboard = async () => {
       setLoading(true)
       setError('')
@@ -125,17 +171,29 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-welcome">
+      <div className="dashboard-header">
+        <LeafPattern />
         <div className="welcome-avatar">
-          <BiUser size={32} />
+          {user?.fotoPerfil ? (
+            <img src={user.fotoPerfil} alt="avatar" className="welcome-avatar-img" />
+          ) : (
+            <BiUser size={32} />
+          )}
         </div>
-        <h1 className="dashboard-title">Bienvenido de nuevo, {user?.nombre || 'Admin'}</h1>
-        <p className="dashboard-subtitle">Panel de control — CoffeeLife</p>
+        <h1 className="dashboard-title">{greeting}, {user?.nombre || 'Admin'}</h1>
+        <p className="dashboard-subtitle">Panel de monitoreo agrícola — CoffeeLife</p>
+        <p className="dashboard-date"><BiTime size={14} /> {dateStr}</p>
+        <div className="stats-summary">
+          <span className="stat-pill"><BiBuildings size={14} /> {stats.fincas} fincas</span>
+          <span className="stat-pill"><BiGroup size={14} /> {stats.expertosActivos} expertos activos</span>
+        </div>
+        <p className="admin-context">
+          Gestión de Fincas · Monitoreo de Cultivos · Recomendaciones Técnicas ·
+          Catálogos del Sistema · Administración de Usuarios · Expertos y Cafeteros · Tratamientos
+        </p>
       </div>
 
-      {error && <p className="dashboard-error">{error}</p>}
-
-      <div className="dashboard-cards centered">
+      <div className="dashboard-cards">
         <StatCard
           icon={<FincaIcon />}
           label="Fincas activas"
@@ -155,8 +213,6 @@ export default function Dashboard() {
           note={`${stats.expertosInactivos} inactivos`}
         />
       </div>
-
-
     </div>
   )
 }

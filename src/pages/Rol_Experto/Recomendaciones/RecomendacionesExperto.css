@@ -92,3 +92,17 @@
 .btn-toggle.toggle-off:hover {
   background: #fca5a5;
 }
+
+.rec-table-wrap {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .rec-form-row select,
+  .rec-form-row input {
+    min-width: 140px;
+  }
+  .rec-form textarea {
+    font-size: 13px;
+  }
+}

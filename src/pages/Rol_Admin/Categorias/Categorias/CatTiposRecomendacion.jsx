@@ -87,59 +87,8 @@ export default function CatTiposRecomendacion() {
     }
   }
 
- return (
+  return (
   <>
-    {/* ── Encabezado Catálogo Agrícola ── */}
-    <div style={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '14px',
-      backgroundColor: '#f0f7ed',
-      border: '1px solid #c8e6c0',
-      borderRadius: '10px',
-      padding: '16px 20px',
-      marginBottom: '24px',
-    }}>
-      <div style={{
-        flexShrink: 0,
-        width: '40px',
-        height: '40px',
-        backgroundColor: '#2e7d32',
-        borderRadius: '8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-      </div>
-
-      <div>
-        <span style={{
-          display: 'inline-block',
-          backgroundColor: '#2e7d32',
-          color: 'white',
-          fontSize: '10px',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          padding: '2px 8px',
-          borderRadius: '4px',
-          marginBottom: '6px',
-        }}>
-          Catálogo Agrícola
-        </span>
-        <h2 style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: 700, color: '#1b5e20' }}>
-          Tipos de Recomendación
-        </h2>
-        <p style={{ margin: 0, fontSize: '13px', color: '#4a7c59', lineHeight: 1.5 }}>
-          Administra los diferentes tipos de recomendaciones del sistema. Desde aquí puedes crear, editar, activar o desactivar tipos que facilitan la clasificación de las recomendaciones registradas.
-        </p>
-      </div>
-    </div>
-
-    {/* ── Contenido original ── */}
     <div className="crud-container">
       <div className="crud-form-card">
         <h2>Tipos de Recomendación</h2>

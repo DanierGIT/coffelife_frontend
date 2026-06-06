@@ -499,8 +499,11 @@
   flex-shrink: 0;
 }
 
-/* ─── CultivosExperto page ─── */
-.cult-exp-page .back-btn {
+/* ─── Barra de volver ─── */
+.back-bar {
+  padding: 12px 2rem 0;
+}
+.back-bar .back-btn {
   margin-bottom: 0;
 }
 

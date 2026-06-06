@@ -30,7 +30,7 @@ export default function ConfigurarCuenta({ onNavigate }) {
   const inputFotoRef                  = useRef(null)
 
   const [form, setForm] = useState({
-    nombre: '', apellido: '', correo: '', telefono: '', observaciones: '', fotoPerfil: '',
+    nombre: '', apellido: '', correo: '', telefono: '', fotoPerfil: '',
   })
 
   const [pwForm, setPwForm] = useState({
@@ -43,23 +43,21 @@ export default function ConfigurarCuenta({ onNavigate }) {
       .then((res) => {
         const d = res.data?.data || res.data
         setForm({
-          nombre:        d.nombre        || '',
-          apellido:      d.apellido      || '',
-          correo:        d.correo        || '',
-          telefono:      d.telefono      || '',
-          observaciones: d.observaciones || '',
-          fotoPerfil:    d.fotoPerfil    || '',
+          nombre:        d.nombre     || '',
+          apellido:      d.apellido   || '',
+          correo:        d.correo     || '',
+          telefono:      d.telefono   || '',
+          fotoPerfil:    d.fotoPerfil || '',
         })
       })
       .catch(() => {
         if (user) {
           setForm({
-            nombre:        user.nombre        || '',
-            apellido:      user.apellido      || '',
-            correo:        user.correo        || '',
-            telefono:      user.telefono      || '',
-            observaciones: '',
-            fotoPerfil:    '',
+            nombre:     user.nombre   || '',
+            apellido:   user.apellido || '',
+            correo:     user.correo   || '',
+            telefono:   user.telefono || '',
+            fotoPerfil: '',
           })
         }
       })
@@ -87,8 +85,7 @@ export default function ConfigurarCuenta({ onNavigate }) {
       const formData = new FormData()
       formData.append('nombre',        form.nombre)
       formData.append('apellido',      form.apellido)
-      formData.append('telefono',      form.telefono)
-      formData.append('observaciones', form.observaciones)
+      formData.append('telefono',  form.telefono)
       if (fotoFile) formData.append('foto_perfil', fotoFile)
 
       const res = await api.put('/mi-perfil', formData, {
@@ -241,11 +238,6 @@ export default function ConfigurarCuenta({ onNavigate }) {
             <div className="mp-field">
               <label>Teléfono</label>
               <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="+57 310 123 4567" />
-            </div>
-
-            <div className="mp-field">
-              <label>Observaciones</label>
-              <textarea name="observaciones" rows={3} value={form.observaciones} onChange={handleChange} placeholder="Notas adicionales..." />
             </div>
 
             <div className="mp-form-actions">

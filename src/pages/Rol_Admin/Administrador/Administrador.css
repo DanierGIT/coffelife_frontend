@@ -122,9 +122,12 @@
 .admin-table-card {
   background: #fff;
   border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .admin-table {
@@ -333,6 +336,184 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════
+   Search bar
+   ══════════════════════════════════════════ */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-bar:focus-within {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+.search-bar svg {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+.search-bar input {
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #374151;
+  outline: none;
+  width: 100%;
+  min-width: 180px;
+}
+.search-bar input::placeholder {
+  color: #9ca3af;
+}
+
+/* ══════════════════════════════════════════
+   Filter group (toolbar dropdown + button)
+   ══════════════════════════════════════════ */
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.filter-btn-wrap {
+  position: relative;
+}
+.btn-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #e0e0e0;
+  font-size: 14px;
+  color: #374151;
+  background: #f5f5f5;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.btn-filter:hover {
+  border-color: #4caf50;
+  background: #fff;
+}
+.btn-filter:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+}
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4caf50;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  min-width: 220px;
+}
+.filter-dropdown select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e0e0e0;
+  font-size: 14px;
+  color: #374151;
+  background: #f5f5f5;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.filter-dropdown select:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+/* ══════════════════════════════════════════
+   Pagination
+   ══════════════════════════════════════════ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 16px;
+  border-top: 1px solid #f0f0f0;
+}
+.pagination button {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.pagination button:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.pagination button.active {
+  background: #2e7d32;
+  color: #fff;
+  border-color: #2e7d32;
+}
+.pagination-info {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 8px;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 0 20px;
+}
+
+@media (max-width: 768px) {
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-bar input {
+    min-width: unset;
+  }
+  .pagination button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
 }
 
 /* ── Responsive ── */

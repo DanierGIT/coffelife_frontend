@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import api from '../../../services/api'
 import './Monitoreos.css'
 import '../Administrador/Administrador.css'
-import { BiShow, BiEdit, BiArrowBack } from 'react-icons/bi'
+import { BiShow, BiEdit, BiArrowBack, BiSearch } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -211,6 +211,30 @@ export default function Monitoreos() {
   const [loading,    setLoading]    = useState(false)
   const [error,      setError]      = useState('')
   const [success,    setSuccess]    = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterFinca, setFilterFinca] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 10
+
+  const filteredFincas = useMemo(() => {
+    let data = fincas
+    if (filterFinca) {
+      data = data.filter((f) => String(f.idFinca) === filterFinca)
+    }
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase()
+      data = data.filter((f) =>
+        (f.nombreFinca || '').toLowerCase().includes(term)
+      )
+    }
+    return data
+  }, [fincas, searchTerm, filterFinca])
+
+  const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
+  const paginatedFincas = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredFincas.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredFincas, currentPage])
 
   const fincaMap = useMemo(() => {
     const map = {}
@@ -243,7 +267,7 @@ export default function Monitoreos() {
       const [cultivosRes, expertosRes, fincasRes] = await Promise.all([
         api.get('/cultivos'),
         api.get('/expertos'),
-        api.get('/fincas'),
+        api.get('/fincas?limit=1000'),
       ])
       setCultivos(Array.isArray(cultivosRes.data) ? cultivosRes.data : (cultivosRes.data?.data ?? []))
       setExpertos(Array.isArray(expertosRes.data) ? expertosRes.data : (expertosRes.data?.data ?? []))
@@ -307,6 +331,30 @@ export default function Monitoreos() {
   </div>
 </div>
       <div className="admin-table-card">
+        <div className="table-toolbar">
+          <div className="search-bar">
+            <BiSearch size={16} />
+            <input
+              placeholder="Buscar finca..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
+            />
+          </div>
+          <div className="filter-group">
+            <select
+              value={filterFinca}
+              onChange={(e) => { setFilterFinca(e.target.value); setCurrentPage(1) }}
+            >
+              <option value="">Todas las fincas</option>
+              {fincas.map((f) => (
+                <option key={f.idFinca} value={f.idFinca}>
+                  {f.nombreFinca}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="table-scroll">
         <table className="admin-table">
           <thead>
             <tr>
@@ -315,9 +363,9 @@ export default function Monitoreos() {
             </tr>
           </thead>
           <tbody>
-            {fincas.length === 0 ? (
-              <tr><td colSpan={2} className="monitoreo-empty">🌱 No hay fincas registradas.</td></tr>
-            ) : fincas.map((f) => {
+            {filteredFincas.length === 0 ? (
+              <tr><td colSpan={2} className="monitoreo-empty">{searchTerm ? 'No se encontraron fincas con ese criterio' : '🌱 No hay fincas registradas.'}</td></tr>
+            ) : paginatedFincas.map((f) => {
               const cantidad = (fincaMonitoreos[f.idFinca] || []).length
               return (
                 <tr key={f.idFinca}>
@@ -341,7 +389,25 @@ export default function Monitoreos() {
             })}
           </tbody>
         </table>
+        </div>
+
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Anterior</button>
+          {Array.from({ length: totalPages }, (_, i) => {
+            const page = i + 1
+            return (
+              <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>
+                {page}
+              </button>
+            )
+          })}
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Siguiente</button>
+          <span className="pagination-info">{filteredFincas.length} registros</span>
+        </div>
+      )}
 
       {selectedFinca && !detailMonitoreo && (
         <ListaMonitoreosModal

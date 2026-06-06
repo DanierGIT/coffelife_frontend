@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import './PerfilExperto.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiEnvelope, BiPhone, BiFile, BiCog, BiLogOut, BiArrowBack } from 'react-icons/bi'
+import { BiEnvelope, BiPhone, BiCog, BiLogOut } from 'react-icons/bi'
 
 function getInitials(nombre = '', apellido = '') {
   return ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || 'EX'
@@ -12,7 +12,7 @@ export default function PerfilExperto({ onNavigate }) {
   const { user, logout } = useAuth()
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState({
-    nombre: '', apellido: '', correo: '', telefono: '', observaciones: '', fotoPerfil: '',
+    nombre: '', apellido: '', correo: '', telefono: '', fotoPerfil: '',
   })
 
   useEffect(() => {
@@ -24,7 +24,6 @@ export default function PerfilExperto({ onNavigate }) {
           apellido:      d.apellido      || '',
           correo:        d.correo        || '',
           telefono:      d.telefono      || '',
-          observaciones: d.observaciones || '',
           fotoPerfil:    d.fotoPerfil    || '',
         })
       })
@@ -35,7 +34,6 @@ export default function PerfilExperto({ onNavigate }) {
             apellido: user.apellido || '',
             correo:   user.correo   || '',
             telefono: user.telefono || '',
-            observaciones: '',
             fotoPerfil: '',
           })
         }
@@ -56,18 +54,12 @@ export default function PerfilExperto({ onNavigate }) {
   return (
     <div className="ep-page">
 
-      <div className="ep-top">
-        <div className="ep-top-bg">
-          <div className="ep-top-pattern" />
-        </div>
-        <div className="ep-top-content">
-          <button className="ep-back-btn" onClick={() => onNavigate('dashboard')} title="Volver al panel">
-            <BiArrowBack size={17} />
-            Volver
-          </button>
-        </div>
-        <div className="ep-profile-info">
-          <div className="ep-avatar">
+        <div className="ep-top animate-left">
+          <div className="ep-top-bg">
+            <div className="ep-top-pattern" />
+          </div>
+          <div className="ep-profile-info">
+            <div className="ep-avatar">
             {fotoSrc
               ? <img src={fotoSrc} alt="Foto de perfil" className="ep-avatar-img" />
               : getInitials(form.nombre, form.apellido)
@@ -83,35 +75,28 @@ export default function PerfilExperto({ onNavigate }) {
       <div className="ep-body">
 
         <div className="ep-cards-grid">
-          <div className="ep-info-card">
+          <div className="ep-info-card animate-bottom delay-1">
             <div className="ep-info-card-icon"><BiEnvelope size={16} /></div>
             <div>
               <p className="ep-info-card-lbl">Correo electrónico</p>
               <p className="ep-info-card-val">{form.correo || '—'}</p>
             </div>
           </div>
-          <div className="ep-info-card">
+          <div className="ep-info-card animate-bottom delay-2">
             <div className="ep-info-card-icon"><BiPhone size={16} /></div>
             <div>
               <p className="ep-info-card-lbl">Teléfono</p>
               <p className="ep-info-card-val">{form.telefono || '—'}</p>
             </div>
           </div>
-          <div className="ep-info-card">
-            <div className="ep-info-card-icon"><BiFile size={16} /></div>
-            <div>
-              <p className="ep-info-card-lbl">Observaciones</p>
-              <p className="ep-info-card-val">{form.observaciones || 'Sin observaciones'}</p>
-            </div>
-          </div>
-          <div className="ep-info-card">
+          <div className="ep-info-card animate-bottom delay-3">
             <div className="ep-info-card-icon"><BiEnvelope size={16} /></div>
             <div>
               <p className="ep-info-card-lbl">Rol</p>
               <p className="ep-info-card-val">Experto</p>
             </div>
           </div>
-          <div className="ep-info-card">
+          <div className="ep-info-card animate-bottom delay-4">
             <div className="ep-info-card-icon">
               <span className="ep-status-dot-lg" />
             </div>
@@ -122,7 +107,7 @@ export default function PerfilExperto({ onNavigate }) {
           </div>
         </div>
 
-        <div className="ep-actions">
+        <div className="ep-actions animate-bottom">
           <button className="ep-btn-config" onClick={() => onNavigate('configurar-experto')}>
             <BiCog size={17} />
             Configurar cuenta

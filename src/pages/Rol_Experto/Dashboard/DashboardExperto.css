@@ -22,6 +22,34 @@
 }
 
 /* ==========================================================================
+   ANIMACIONES DE ENTRADA
+   ========================================================================== */
+@keyframes slideInFromLeft {
+  from { transform: translateX(-80px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+  from { transform: translateX(80px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.animate-left   { animation: slideInFromLeft  0.6s ease-out both; }
+.animate-right  { animation: slideInFromRight 0.6s ease-out both; }
+.animate-bottom { animation: slideInFromBottom 0.6s ease-out both; }
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+/* ==========================================================================
    ENCABEZADO + KPIs
    ========================================================================== */
 .dashboard-header-flex {
@@ -75,9 +103,12 @@
   justify-content: center;
 }
 
-.kpi-icon-container.home-kpi { background-color: #eef6e9; color: #437024; }
-.kpi-icon-container.leaf-kpi { background-color: #fdf2e9; color: #b45309; }
-.kpi-icon-container.task-kpi { background-color: #f5f0e6; color: #78350f; }
+.kpi-icon-container.home-kpi,
+.kpi-icon-container.leaf-kpi,
+.kpi-icon-container.task-kpi {
+  background-color: #eef6e9;
+  color: #2e7d32;
+}
 
 .kpi-data-text { display: flex; flex-direction: column; }
 
@@ -627,4 +658,54 @@
 .cl-state-alert.error {
   border-left: 4px solid #ef4444;
   color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .coffeelife-dashboard-container {
+    padding: 1.25rem 1rem;
+  }
+  .dashboard-header-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .welcome-main-title {
+    font-size: 1.5rem;
+  }
+  .welcome-subtitle {
+    font-size: 0.9rem;
+  }
+  .header-kpi-cards-wrapper {
+    width: 100%;
+  }
+  .kpi-card-item {
+    flex: 1;
+    min-width: 140px;
+  }
+  .kpi-number-val {
+    font-size: 1.25rem;
+  }
+  .fincas-section-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .top-bar-left-info h2 {
+    font-size: 1.1rem;
+  }
+  .coffeelife-fincas-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .cl-modal-box {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  .cl-modal-form-row {
+    flex-direction: column;
+  }
+  .cl-foto-preview {
+    height: 160px;
+  }
 }

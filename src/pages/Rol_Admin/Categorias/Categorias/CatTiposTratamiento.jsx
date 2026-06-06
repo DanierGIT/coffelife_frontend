@@ -88,42 +88,6 @@ export default function CatTiposTratamiento() {
 return (
   <div className="crud-container">
 
-    <div className="module-header">
-      <div className="module-header-icon">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20 7h-9" />
-          <path d="M14 17H5" />
-          <circle cx="17" cy="17" r="3" />
-          <circle cx="7" cy="7" r="3" />
-        </svg>
-      </div>
-
-      <div className="module-header-content">
-        <span className="module-header-badge">
-          CATÁLOGO DE TRATAMIENTOS
-        </span>
-
-        <h1>Tipos de Tratamiento</h1>
-
-        <p>
-          Administra las categorías de tratamientos utilizadas en CoffeeLife
-          para el manejo sanitario y productivo de los cultivos. Desde este
-          módulo puedes crear, editar, activar o desactivar los diferentes
-          tipos de tratamiento que servirán como base para las
-          recomendaciones y acciones correctivas generadas por los expertos.
-        </p>
-      </div>
-    </div>
-
     <div className="crud-form-card">
       <h2>Tipos de Tratamiento</h2>
 

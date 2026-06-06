@@ -88,40 +88,6 @@ export default function CatEstadosAnalisis() {
  return (
   <div className="crud-container">
 
-    <div className="module-header">
-      <div className="module-header-icon">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" />
-          <path d="M16.5 2.5a2.121 2.121 0 0 1 3 3L12 13l-4 1 1-4 7.5-7.5z" />
-        </svg>
-      </div>
-
-      <div className="module-header-content">
-        <span className="module-header-badge">
-          CATÁLOGO DE ANÁLISIS
-        </span>
-
-        <h1>Estados de Análisis</h1>
-
-        <p>
-          Administra los estados utilizados durante el proceso de análisis
-          de diagnósticos agrícolas dentro de CoffeeLife. Desde este módulo
-          puedes crear, editar, activar o desactivar los estados que permiten
-          identificar el progreso y la situación actual de cada análisis
-          realizado por los expertos.
-        </p>
-      </div>
-    </div>
-
     <div className="crud-form-card">
       <h2>Estados de Analisis</h2>
 

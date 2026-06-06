@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import './PerfilExperto.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiSave, BiArrowBack } from 'react-icons/bi'
+import { BiSave, BiCamera } from 'react-icons/bi'
 
 export default function ConfigurarExperto({ onNavigate }) {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [saving, setSaving]     = useState(false)
   const [error, setError]       = useState('')
   const [success, setSuccess]   = useState('')
   const [tab, setTab]           = useState('info')
+  const inputFotoRef = useRef()
 
   const [form, setForm] = useState({
-    nombre: '', apellido: '', correo: '', telefono: '', observaciones: '',
+    nombre: '', apellido: '', correo: '', telefono: '', observaciones: '', fotoPerfil: '',
   })
+  const [fotoFile, setFotoFile] = useState(null)
+  const [fotoPreview, setFotoPreview] = useState(null)
 
   const [pwForm, setPwForm] = useState({
     passwordActual: '', passwordNueva: '', passwordConfirm: '',
@@ -29,6 +32,7 @@ export default function ConfigurarExperto({ onNavigate }) {
           correo:        d.correo        || '',
           telefono:      d.telefono      || '',
           observaciones: d.observaciones || '',
+          fotoPerfil:    d.fotoPerfil    || '',
         })
       })
       .catch(() => {
@@ -47,17 +51,37 @@ export default function ConfigurarExperto({ onNavigate }) {
   const handleChange   = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const handlePwChange = (e) => setPwForm({ ...pwForm, [e.target.name]: e.target.value })
 
+  const handleFotoChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setFotoFile(file)
+    setFotoPreview(URL.createObjectURL(file))
+  }
+
   const handleSavePersonal = async (e) => {
     e.preventDefault()
     setSaving(true)
     setError('')
     setSuccess('')
     try {
-      await api.put('/mi-perfil', {
-        nombre: form.nombre, apellido: form.apellido,
-        telefono: form.telefono, observaciones: form.observaciones,
+      const formData = new FormData()
+      formData.append('nombre',        form.nombre)
+      formData.append('apellido',      form.apellido)
+      formData.append('telefono',      form.telefono)
+      formData.append('observaciones', form.observaciones)
+      if (fotoFile) formData.append('foto_perfil', fotoFile)
+
+      const res = await api.put('/mi-perfil', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
+      const updated = res.data?.data || res.data
+      if (updated?.fotoPerfil) {
+        setForm((prev) => ({ ...prev, fotoPerfil: updated.fotoPerfil }))
+      }
+      updateUser({ ...user, ...updated })
       setSuccess('Información personal actualizada correctamente.')
+      setFotoFile(null)
+      setFotoPreview(null)
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo actualizar la información.')
     } finally {
@@ -102,10 +126,6 @@ export default function ConfigurarExperto({ onNavigate }) {
   return (
     <div className="ec-page">
       <div className="ec-header">
-        <button className="ec-back-btn" onClick={goBack}>
-          <BiArrowBack size={18} />
-          Volver al perfil
-        </button>
         <div className="ec-tabs">
           <button
             className={`ec-tab${tab === 'info' ? ' active' : ''}`}
@@ -128,6 +148,25 @@ export default function ConfigurarExperto({ onNavigate }) {
 
         {tab === 'info' && (
           <form className="ec-form" onSubmit={handleSavePersonal}>
+            <div className="ep-foto-zone" onClick={() => inputFotoRef.current?.click()}>
+              <div className="ep-foto-preview">
+                {fotoPreview
+                  ? <img src={fotoPreview} alt="preview" />
+                  : form.fotoPerfil
+                    ? <img src={form.fotoPerfil} alt="Foto de perfil" />
+                    : <BiCamera size={28} />
+                }
+              </div>
+              <div className="ep-foto-info">
+                <p className="ep-foto-title">Foto de perfil</p>
+                <p className="ep-foto-sub">JPG, PNG o WEBP · máx. 5 MB</p>
+              </div>
+              <button type="button" className="ep-foto-btn" onClick={(e) => { e.stopPropagation(); inputFotoRef.current?.click() }}>
+                <BiCamera size={14} />
+                Subir foto
+              </button>
+              <input ref={inputFotoRef} type="file" accept="image/jpg,image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleFotoChange} />
+            </div>
             <div className="ep-section-label">Datos personales</div>
 
             <div className="ep-form-row">

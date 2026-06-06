@@ -180,7 +180,22 @@ function FincasTable({ user, onAction }) {
   )
 }
 
-export default function ExpertoLayout({ activePage, onNavigate, children }) {
+const BACK_CONFIG = {
+  cultivos:          { page: 'dashboard',           label: 'Volver al dashboard' },
+  detalle_cultivo:   { page: 'cultivos',            label: 'Volver a cultivos' },
+  monitoreos:        { page: 'dashboard',           label: 'Volver al dashboard' },
+  tratamientos:      { page: 'dashboard',           label: 'Volver al dashboard' },
+  recomendaciones:   { page: 'dashboard',           label: 'Volver al dashboard' },
+  historial:         { page: 'dashboard',           label: 'Volver al dashboard' },
+  productores:       { page: 'dashboard',           label: 'Volver al dashboard' },
+  reportes:          { page: 'dashboard',           label: 'Volver al dashboard' },
+  escaner:           { page: 'dashboard',           label: 'Volver al dashboard' },
+  mapa:              { page: 'dashboard',           label: 'Volver al dashboard' },
+  perfil:            { page: 'dashboard',           label: 'Volver al dashboard' },
+  'configurar-experto': { page: 'perfil',           label: 'Volver al perfil' },
+}
+
+export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, children }) {
   const { user, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
@@ -276,6 +291,23 @@ export default function ExpertoLayout({ activePage, onNavigate, children }) {
           )}
         </div>
       </nav>
+
+      {/* ── BARRA DE VOLVER (excepto dashboard) ── */}
+      {activePage !== 'dashboard' && (() => {
+        const cfg = BACK_CONFIG[activePage]
+        if (!cfg) return null
+        const data = activePage === 'detalle_cultivo' ? selectedFinca : undefined
+        return (
+          <div className="back-bar">
+            <button className="back-btn" onClick={() => onNavigate(cfg.page, data)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              {cfg.label}
+            </button>
+          </div>
+        )
+      })()}
 
       {/* ── CONTENIDO ── */}
       <main className="experto-main">

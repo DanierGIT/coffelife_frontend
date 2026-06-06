@@ -88,47 +88,6 @@ export default function CatNivelesRoya() {
   return (
   <div className="crud-container">
 
-    <div className="module-header">
-      <div className="module-header-icon">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 2v4" />
-          <path d="M12 18v4" />
-          <path d="M4.93 4.93l2.83 2.83" />
-          <path d="M16.24 16.24l2.83 2.83" />
-          <path d="M2 12h4" />
-          <path d="M18 12h4" />
-          <path d="M4.93 19.07l2.83-2.83" />
-          <path d="M16.24 7.76l2.83-2.83" />
-          <circle cx="12" cy="12" r="4" />
-        </svg>
-      </div>
-
-      <div className="module-header-content">
-        <span className="module-header-badge">
-          SANIDAD DEL CULTIVO
-        </span>
-
-        <h1>Niveles de Roya</h1>
-
-        <p>
-          Administra los niveles de severidad de la roya del café utilizados
-          en los procesos de monitoreo y diagnóstico agrícola. Desde este
-          módulo puedes crear, editar, activar o desactivar los diferentes
-          niveles que permiten clasificar el impacto de la enfermedad en los
-          cultivos y facilitar la toma de decisiones para su tratamiento.
-        </p>
-      </div>
-    </div>
-
     <div className="crud-form-card">
       <h2>Niveles de Roya</h2>
 

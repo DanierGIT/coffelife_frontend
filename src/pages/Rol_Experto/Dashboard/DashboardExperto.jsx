@@ -447,19 +447,19 @@ export default function DashboardExperto({ onNavigate }) {
     }
   }
 
-  const FOTO_PLACEHOLDER = 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=600&q=80'
+  const FOTO_PLACEHOLDER = 'https://blogtrip.org/wp-content/uploads/2016/04/casa-finca-cafetera-eje-cafetero.jpg'
 
   return (
     <div className="coffeelife-dashboard-container">
 
       {/* KPIs HEADER */}
       <div className="dashboard-header-flex">
-        <div className="welcome-banner-text">
+        <div className="welcome-banner-text animate-left">
           <h1 className="welcome-main-title">¡Hola, {nombreExperto}!</h1>
           <p className="welcome-subtitle">Aquí puedes gestionar las fincas que tienes asignadas.</p>
         </div>
 
-        <div className="header-kpi-cards-wrapper">
+        <div className="header-kpi-cards-wrapper animate-right">
           <div className="kpi-card-item">
             <div className="kpi-icon-container home-kpi">
               <BiHome size={20} />
@@ -495,7 +495,7 @@ export default function DashboardExperto({ onNavigate }) {
       {error && <div className="cl-state-alert error">{error}</div>}
 
       {/* SECCIÓN FINCAS */}
-      <div className="fincas-content-section">
+      <div className="fincas-content-section animate-bottom">
         <div className="fincas-section-top-bar">
           <div className="top-bar-left-info">
             <h2>Mis fincas asignadas</h2>
@@ -514,12 +514,13 @@ export default function DashboardExperto({ onNavigate }) {
         ) : (
           <>
             <div className="coffeelife-fincas-grid">
-              {fincasPaginadas.map((f) => {
+              {fincasPaginadas.map((f, idx) => {
                 const cultivos = cultivosPorFinca[f.idFinca] || []
                 const fotoSrc = fotosPorFinca[f.idFinca] || FOTO_PLACEHOLDER
 
+                const cardDelay = Math.min(idx, 5)
                 return (
-                  <div key={f.idFinca} className="coffeelife-finca-card">
+                  <div key={f.idFinca} className={`coffeelife-finca-card animate-bottom delay-${cardDelay}`}>
                     <div className="finca-card-img-wrapper">
                       <img src={fotoSrc} alt={f.nombre} />
                       <div className="finca-card-floating-badge">

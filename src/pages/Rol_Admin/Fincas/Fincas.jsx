@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import './Fincas.css'
 import '../Administrador/Administrador.css'
-import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiCheckCircle, BiTrash } from 'react-icons/bi'
+import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiCheckCircle, BiTrash, BiSearch, BiFilter } from 'react-icons/bi'
 
 delete L.Icon.Default.prototype._getIconUrl
 
@@ -214,6 +214,57 @@ export default function Fincas() {
     area_hectareas: '',
   })
 
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterExperto, setFilterExperto] = useState('')
+  const [filterEstado, setFilterEstado] = useState('')
+  const [filterCafetero, setFilterCafetero] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 10
+  const filterRef = useRef(null)
+
+  const handleClickOutside = useCallback((e) => {
+    if (filterRef.current && !filterRef.current.contains(e.target)) {
+      setShowFilters(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (showFilters) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showFilters, handleClickOutside])
+
+  const filteredFincas = useMemo(() => {
+    let data = fincas
+    if (filterExperto) {
+      data = data.filter((f) => String(f.idExpertoAsignado) === filterExperto)
+    }
+    if (filterEstado) {
+      const activo = filterEstado === 'activo'
+      data = data.filter((f) => f.activo === activo)
+    }
+    if (filterCafetero) {
+      data = data.filter((f) => String(f.idCafeteroAsignado) === filterCafetero)
+    }
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase()
+      data = data.filter((f) =>
+        (f.nombreFinca || '').toLowerCase().includes(term) ||
+        (f.municipio || '').toLowerCase().includes(term) ||
+        (f.departamento || '').toLowerCase().includes(term)
+      )
+    }
+    return data
+  }, [fincas, searchTerm, filterExperto, filterEstado, filterCafetero])
+
+  const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
+  const paginatedFincas = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredFincas.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredFincas, currentPage])
+
   const [showUbicacionModal, setShowUbicacionModal] = useState(false)
   const [ubicacionTarget, setUbicacionTarget] = useState('create')
   const [ubicacionLat, setUbicacionLat] = useState('')
@@ -236,7 +287,7 @@ export default function Fincas() {
     try {
 
       const [fincasRes, asignacionesRes, cultivosRes, cafeterosRes] = await Promise.all([
-        api.get('/fincas'),
+        api.get('/fincas?limit=1000'),
         api.get('/asignaciones_expertos'),
         api.get('/cultivos?limit=1000'),
         api.get('/cafeteros'),
@@ -786,18 +837,72 @@ export default function Fincas() {
 
       <div className="admin-table-card">
 
-        <div className="map-card-header">
-          <div className="map-card-title">
-<BiCheckCircle size={20} />
-            <span>Fincas registradas</span>
-            <span className="map-card-badge">{fincas.length} fincas</span>
+        <div className="table-toolbar">
+          <div className="search-bar">
+            <BiSearch size={16} />
+            <input
+              placeholder="Buscar por nombre, municipio o departamento..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
+            />
           </div>
-          <button className="btn-primary" onClick={() => setShowCrearModal(true)}>
+          <div className="filter-group">
+            <div className="filter-btn-wrap" ref={filterRef}>
+              <button
+                className="btn-filter"
+                onClick={() => setShowFilters((v) => !v)}
+              >
+                <BiFilter size={16} />
+                Filtros
+                {[filterEstado, filterExperto, filterCafetero].some(Boolean) && (
+                  <span className="filter-badge">
+                    {[filterEstado, filterExperto, filterCafetero].filter(Boolean).length}
+                  </span>
+                )}
+              </button>
+              {showFilters && (
+                <div className="filter-dropdown">
+                  <select
+                    value={filterEstado}
+                    onChange={(e) => { setFilterEstado(e.target.value); setCurrentPage(1) }}
+                  >
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                  </select>
+                  <select
+                    value={filterExperto}
+                    onChange={(e) => { setFilterExperto(e.target.value); setCurrentPage(1) }}
+                  >
+                    <option value="">Todos los expertos</option>
+                    {expertos.map((exp) => (
+                      <option key={exp.idUsuario} value={exp.idUsuario}>
+                        {exp.nombre} {exp.apellido}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={filterCafetero}
+                    onChange={(e) => { setFilterCafetero(e.target.value); setCurrentPage(1) }}
+                  >
+                    <option value="">Todos los cafeteros</option>
+                    {cafeteros.map((caf) => (
+                      <option key={caf.idUsuario} value={caf.idUsuario}>
+                        {caf.nombre} {caf.apellido}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <button className="btn-primary" onClick={() => setShowCrearModal(true)}>
 <BiPlus size={16} />
             Agregar finca
           </button>
+          </div>
         </div>
 
+        <div className="table-scroll">
         <table className="admin-table">
 
           <thead>
@@ -813,21 +918,21 @@ export default function Fincas() {
 
           <tbody>
 
-            {fincas.length === 0 ? (
+            {filteredFincas.length === 0 ? (
 
               <tr>
                 <td colSpan={4} className="finca-empty">
-                  No hay fincas registradas
+                  {searchTerm ? 'No se encontraron fincas con ese criterio' : 'No hay fincas registradas'}
                 </td>
               </tr>
 
             ) : (
 
-              fincas.map((f, idx) => (
+              paginatedFincas.map((f, idx) =>
 
                 <tr key={f.idFinca} className={!f.activo ? 'fila-inactiva' : ''}>
 
-                  <td>{idx + 1}</td>
+                  <td>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</td>
                   <td>
                     <span className="finca-nombre-link" onClick={() => { setDetalleFinca(f); setShowDetalleModal(true) }}>
                       {f.nombreFinca}
@@ -903,14 +1008,31 @@ export default function Fincas() {
 
                 </tr>
 
-              ))
+              )
             )}
 
           </tbody>
 
         </table>
+        </div>
 
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Anterior</button>
+          {Array.from({ length: totalPages }, (_, i) => {
+            const page = i + 1
+            return (
+              <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>
+                {page}
+              </button>
+            )
+          })}
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Siguiente</button>
+          <span className="pagination-info">{filteredFincas.length} registros</span>
+        </div>
+      )}
 
       {showCrearModal && (
         <div className="modal-overlay" onClick={() => setShowCrearModal(false)}>

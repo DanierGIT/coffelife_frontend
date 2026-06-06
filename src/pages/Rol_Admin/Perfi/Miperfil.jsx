@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import './miperfil.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiEnvelope, BiPhone, BiFile, BiCog, BiLogOut } from 'react-icons/bi'
+import { BiEnvelope, BiPhone, BiCog, BiLogOut } from 'react-icons/bi'
 
 function getInitials(nombre = '', apellido = '') {
   return ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || 'A'
@@ -11,8 +11,6 @@ function getInitials(nombre = '', apellido = '') {
 const MailIcon = () => <BiEnvelope size={16} />
 
 const PhoneIcon = () => <BiPhone size={16} />
-
-const NoteIcon = () => <BiFile size={16} />
 
 const SettingsIcon = () => <BiCog size={17} />
 
@@ -99,13 +97,6 @@ export default function MiPerfil({ onNavigate }) {
             <div>
               <p className="mp-info-card-lbl">Teléfono</p>
               <p className="mp-info-card-val">{form.telefono || '—'}</p>
-            </div>
-          </div>
-          <div className="mp-info-card">
-            <div className="mp-info-card-icon"><NoteIcon /></div>
-            <div>
-              <p className="mp-info-card-lbl">Observaciones</p>
-              <p className="mp-info-card-val">{form.observaciones || 'Sin observaciones'}</p>
             </div>
           </div>
           <div className="mp-info-card">

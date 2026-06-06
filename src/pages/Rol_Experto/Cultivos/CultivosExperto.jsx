@@ -169,7 +169,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
 
   const [cultivoParaFoto, setCultivoParaFoto] = useState(null)
 
-  const FOTO_PLACEHOLDER = 'https://colombiaverde.com.co/wp-content/uploads/2023/05/cultivos-de-cafe-en-colombia-1200x800.jpg'
+  const FOTO_PLACEHOLDER = 'https://blogtrip.org/wp-content/uploads/2016/04/paisaje-cafetero-parque-nacional-cafe-eje-cafetero.jpg'
 
   useEffect(() => {
     if (!finca?.idFinca) return
@@ -297,13 +297,6 @@ export default function CultivosExperto({ finca, onNavigate }) {
         </div>
 
         <div className="finca-detail-right">
-          <button className="btn-back-coffeelife" onClick={() => onNavigate('dashboard')}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-            Volver a mis fincas
-          </button>
-
           <div className="kpi-cards-container">
             <div className="kpi-card-mini">
               <div className="kpi-icon-circle brand-light-brown">

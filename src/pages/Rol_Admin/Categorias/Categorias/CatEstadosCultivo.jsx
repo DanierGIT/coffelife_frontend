@@ -89,40 +89,6 @@ export default function CatEstadosCultivo() {
    return (
   <div className="crud-container">
 
-    <div className="module-header">
-      <div className="module-header-icon">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          <path d="M9 12l2 2 4-4" />
-        </svg>
-      </div>
-
-      <div className="module-header-content">
-        <span className="module-header-badge">
-          CATÁLOGO AGRÍCOLA
-        </span>
-
-        <h1>Estados de Cultivo</h1>
-
-        <p>
-          Administra los diferentes estados utilizados para clasificar y
-          monitorear el desarrollo de los cultivos dentro de CoffeeLife.
-          Desde aquí puedes crear, editar, activar o desactivar estados
-          que facilitan el seguimiento del ciclo productivo y las
-          condiciones de cada cultivo registrado.
-        </p>
-      </div>
-    </div>
-
     <div className="crud-form-card">
       <h2>Estados de Cultivo</h2>
 

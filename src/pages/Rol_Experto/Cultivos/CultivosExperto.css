@@ -115,27 +115,6 @@
   min-width: 350px;
 }
 
-.btn-back-coffeelife {
-  background: #ffffff;
-  border: 1.5px solid #e5e7eb; /* Sincronizado con bordes de paginación */
-  padding: 0.5rem 1.1rem;
-  border-radius: 12px; /* Unificado al diseño de botones curvos generales */
-  font-weight: 600;
-  color: #4b5563;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 0.85rem;
-}
-
-.btn-back-coffeelife:hover {
-  border-color: var(--brand-primary);
-  color: var(--brand-primary);
-  background-color: var(--brand-light-green);
-}
-
 /* Contenedor de Contadores Rápidos (KPIs Mini) */
 .kpi-cards-container {
   display: flex;
@@ -526,4 +505,40 @@
   text-align: center;
   color: var(--text-muted);
   box-shadow: var(--card-shadow);
+}
+
+@media (max-width: 768px) {
+  .coffeelife-container {
+    padding: 1rem;
+  }
+  .finca-detail-header-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .finca-detail-left {
+    min-width: 0;
+    flex-direction: column;
+  }
+  .finca-detail-img-container {
+    width: 100%;
+    height: 180px;
+  }
+  .finca-detail-right {
+    min-width: 0;
+    align-items: stretch;
+  }
+  .finca-detail-title {
+    font-size: 1.2rem;
+  }
+  .kpi-cards-container {
+    flex-wrap: wrap;
+  }
+  .kpi-card-mini {
+    flex: 1;
+    min-width: 120px;
+  }
+  .coffeelife-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
