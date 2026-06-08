@@ -48,8 +48,17 @@
   padding: 12px 8px;
   border-radius: 12px;
   background: rgba(29, 71, 32, 0.515);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.sidebar-profile:hover {
+  background: rgba(29, 71, 32, 0.65);
+}
+.sidebar-profile.open {
+  border-radius: 12px 12px 0 0;
 }
 
 .sidebar-avatar {
@@ -95,37 +104,48 @@
   margin-top: 2px;
 }
 
-/* ─── Perfil Link ─── */
-.sidebar-perfil-link {
+/* ─── Menú desplegable del perfil ─── */
+.sidebar-profile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px 8px;
+  background: rgba(29, 71, 32, 0.515);
+  border-radius: 0 0 12px 12px;
+  margin-bottom: 8px;
+  animation: slideDown 0.2s ease;
+}
+
+.sidebar-profile-menu-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 8px;
-  margin: 0 8px;
+  padding: 9px 10px;
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #3d3d3d;
+  color: #efdec0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
-  flex-shrink: 0;
-  text-decoration: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
 }
 
-.sidebar-perfil-link:hover {
-  background: rgba(29, 71, 32, 0.12);
-  color: #2e7d32;
+.sidebar-profile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 
-.sidebar-perfil-link.active {
-  background: rgba(29, 71, 32, 0.18);
-  color: #1b5e20;
+.sidebar-profile-menu-item.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
   font-weight: 700;
 }
 
-.sidebar-perfil-link svg {
+.sidebar-profile-menu-item svg {
   flex-shrink: 0;
 }
 
@@ -275,28 +295,6 @@
   color: #2e7d32;
   font-weight: 600;
 }
-
-/* ─── Footer / Logout ─── */
-.sidebar-profile-logout {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.sidebar-profile-logout:hover {
-  background: rgba(220, 80, 80, 0.3);
-  color: #fca5a5;
-}
-
 
 /* ─── Botón cerrar (móvil) ─── */
 .sidebar-close {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiBuildings, BiUser, BiGroup, BiTime } from 'react-icons/bi'
+import { BiBuildings, BiUser, BiGroup, BiTime, BiListUl, BiCog } from 'react-icons/bi'
+import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import './Dashboard.css'
 
 const getArrayData = (data) => {
@@ -39,13 +40,9 @@ function AnimatedValue({ value, loading }) {
 }
 
 function StatCard({ icon, label, value, note, color, progress, progressLabel, onClick, loading }) {
-  const [hovered, setHovered] = useState(false)
-
   return (
     <div
       className={`dashboard-card${onClick ? ' clickable' : ''}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -81,39 +78,12 @@ function formatDate() {
   })
 }
 
-function LeafPattern() {
-  const leaves = useMemo(() => {
-    return Array.from({length:20}, () => ({
-      x: 20 + Math.random() * 1160,
-      delay: Math.random() * 8,
-      dur: 6 + Math.random() * 4,
-      size: 0.3 + Math.random() * 0.5,
-    }))
-  }, [])
-  return (
-    <svg className="db-leaves" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <g id="lf">
-          <path d="M0,20 C6,14 14,6 14,-4 C14,-14 6,-20 0,-22 C-6,-20 -14,-14 -14,-4 C-14,6 -6,14 0,20Z" fill="rgba(46,125,50,0.35)"/>
-          <path d="M0,20 L0,-22" stroke="rgba(46,125,50,0.25)" strokeWidth="0.8"/>
-          <path d="M0,10 L-6,4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
-          <path d="M0,2 L-6,-4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
-          <path d="M0,-6 L-5,-10" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
-          <path d="M0,10 L6,4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
-          <path d="M0,2 L6,-4" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
-          <path d="M0,-6 L5,-10" stroke="rgba(46,125,50,0.15)" strokeWidth="0.5"/>
-        </g>
-      </defs>
-      {leaves.map((leaf, i) => (
-        <g key={i} className="db-falling-leaf" style={{'--x': `${leaf.x}px`, '--s': leaf.size, '--d': leaf.dur, animationDelay: `${leaf.delay}s`}}>
-          <use href="#lf" />
-        </g>
-      ))}
-    </svg>
-  )
-}
+const quickLinks = [
+  { icon: <BiListUl size={20} />, label: 'Gestión de Fincas', desc: 'Administrar fincas registradas', color: '#e8f5e9', page: 'fincas' },
+  { icon: <BiCog size={20} />, label: 'Configura tus categorías', desc: 'Categorías y parámetros', color: '#e8f5e9', page: 'categorias' },
+]
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }) {
   const { user } = useAuth()
   const greeting = useMemo(getGreeting, [])
   const dateStr = useMemo(formatDate, [])
@@ -172,26 +142,34 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <LeafPattern />
-        <div className="welcome-avatar">
-          {user?.fotoPerfil ? (
-            <img src={user.fotoPerfil} alt="avatar" className="welcome-avatar-img" />
-          ) : (
-            <BiUser size={32} />
-          )}
+        <div className="dh-left">
+          <div className="welcome-avatar">
+            {user?.fotoPerfil ? (
+              <img src={user.fotoPerfil} alt="avatar" className="welcome-avatar-img" />
+            ) : (
+              <BiUser size={28} />
+            )}
+          </div>
+          <div>
+            <h1 className="dashboard-title">{greeting}, {user?.nombre || 'Admin'}</h1>
+            <p className="dashboard-subtitle">Panel de monitoreo agrícola — CoffeeLife</p>
+          </div>
         </div>
-        <h1 className="dashboard-title">{greeting}, {user?.nombre || 'Admin'}</h1>
-        <p className="dashboard-subtitle">Panel de monitoreo agrícola — CoffeeLife</p>
-        <p className="dashboard-date"><BiTime size={14} /> {dateStr}</p>
-        <div className="stats-summary">
-          <span className="stat-pill"><BiBuildings size={14} /> {stats.fincas} fincas</span>
-          <span className="stat-pill"><BiGroup size={14} /> {stats.expertosActivos} expertos activos</span>
+        <div className="dh-right">
+          <p className="dashboard-date"><BiTime size={14} /> {dateStr}</p>
+          <div className="stats-summary">
+            <span className="stat-pill"><BiBuildings size={14} /> {stats.fincas} fincas</span>
+            <span className="stat-pill"><BiGroup size={14} /> {stats.expertosActivos} expertos activos</span>
+          </div>
         </div>
-        <p className="admin-context">
-          Gestión de Fincas · Monitoreo de Cultivos · Recomendaciones Técnicas ·
-          Catálogos del Sistema · Administración de Usuarios · Expertos y Cafeteros · Tratamientos
-        </p>
       </div>
+
+      {error && <div className="dashboard-error">{error}</div>}
+
+      <p className="admin-context">
+        Gestión de Fincas · Monitoreo de Cultivos · Recomendaciones Técnicas ·
+        Catálogos del Sistema · Administración de Usuarios · Expertos y Cafeteros · Tratamientos
+      </p>
 
       <div className="dashboard-cards">
         <StatCard
@@ -212,6 +190,24 @@ export default function Dashboard() {
           color="rgba(76, 175, 80, 0.12)"
           note={`${stats.expertosInactivos} inactivos`}
         />
+        <CoffeePriceCard />
+      </div>
+
+      <div className="db-quick-section">
+        <h2 className="db-section-title">Accesos rápidos</h2>
+        <div className="db-quick-grid">
+          {quickLinks.map((link, idx) => (
+            <div key={idx} className={`db-quick-card delay-${idx + 1}`} onClick={() => onNavigate?.(link.page)} role="button" tabIndex={0}>
+              <div className="db-quick-icon" style={{ background: link.color }}>
+                {link.icon}
+              </div>
+              <div>
+                <p className="db-quick-label">{link.label}</p>
+                <p className="db-quick-desc">{link.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

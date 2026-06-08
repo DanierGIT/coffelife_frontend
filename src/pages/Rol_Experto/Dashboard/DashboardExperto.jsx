@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
 import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight } from 'react-icons/bi'
+import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import './DashboardExperto.css'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -489,6 +490,7 @@ export default function DashboardExperto({ onNavigate }) {
               <span className="kpi-label-name">Actividades realizadas</span>
             </div>
           </div>
+          <CoffeePriceCard />
         </div>
       </div>
 

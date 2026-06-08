@@ -7,7 +7,7 @@ import AnimatedLogo from './AnimatedLogo'
 const ALL_ITEMS = [
   {
     key: 'dashboard',
-    label: 'Dashboard',
+    label: 'Inicio',
     roles: ['administrador', 'experto', 'cafetero'],
     icon: <BiGrid size={20} />,
   },
@@ -189,6 +189,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
     ? `${user.nombre} ${user.apellido ?? ''}`.trim()
     : (user?.correo ?? 'Usuario')
 
+  const [profileOpen, setProfileOpen] = useState(false)
   const isCategoriasActive = activePage === 'categorias'
   const isUsuariosActive =
     activePage === 'administrador' ||
@@ -204,7 +205,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           <AnimatedLogo size="md" horizontal />
         </div>
 
-      <div className="sidebar-profile">
+      <div className={`sidebar-profile${profileOpen ? ' open' : ''}`} onClick={() => setProfileOpen(!profileOpen)}>
         <div className="sidebar-avatar">
           {user?.fotoPerfil
             ? <img src={user.fotoPerfil} alt="Foto" className="sidebar-avatar-img" />
@@ -215,24 +216,29 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           <p className="sidebar-profile-name">{displayName}</p>
           <p className="sidebar-profile-role">{role}</p>
         </div>
-        <button className="sidebar-profile-logout" onClick={logout} title="Cerrar sesión">
-          <BiLogOut size={16} />
-        </button>
+        <span className={`sidebar-arrow${profileOpen ? ' open' : ''}`}>▾</span>
       </div>
 
-      <button
-        className={`sidebar-perfil-link${activePage === 'perfil' ? ' active' : ''}`}
-        onClick={() => onNavigate('perfil')}
-        title="Mi Perfil"
-      >
-        <BiUser size={16} />
-        <span>Mi Perfil</span>
-      </button>
+      {profileOpen && (
+        <div className="sidebar-profile-menu">
+          <button
+            className={`sidebar-profile-menu-item${activePage === 'perfil' ? ' active' : ''}`}
+            onClick={() => { onNavigate('perfil'); setProfileOpen(false) }}
+          >
+            <BiUser size={16} />
+            <span>Perfil</span>
+          </button>
+          <button className="sidebar-profile-menu-item" onClick={logout}>
+            <BiLogOut size={16} />
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
+      )}
 
       <hr className="sidebar-divider" />
 
       <nav className="sidebar-nav">
-        {/* Dashboard - always first */}
+        {/* Inicio - always first */}
         {NAV_ITEMS.slice(0, 1).map(item => (
           <button
             key={item.key}
@@ -245,7 +251,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           </button>
         ))}
 
-        {/* Usuarios - right after Dashboard */}
+        {/* Usuarios - right after Inicio */}
         {role === 'administrador' && (
           <>
             <button
@@ -275,7 +281,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           </>
         )}
 
-        {/* Rest of nav items (after Dashboard) */}
+        {/* Rest of nav items (after Inicio) */}
         {NAV_ITEMS.slice(1).map(item => (
           <button
             key={item.key}

@@ -126,6 +126,41 @@
   margin-top: 0.2rem;
 }
 
+/* CoffeePriceCard compacto dentro del header del experto */
+.header-kpi-cards-wrapper .coffee-card {
+  min-width: 160px;
+  max-width: 200px;
+  flex: none;
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(0,0,0,0.01);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  animation: slideInFromRight 0.6s ease-out 0.35s both;
+}
+.header-kpi-cards-wrapper .coffee-card-title {
+  font-size: 10px;
+}
+.header-kpi-cards-wrapper .coffee-card-price {
+  font-size: 20px;
+}
+.header-kpi-cards-wrapper .coffee-card-unit {
+  font-size: 10px;
+}
+.header-kpi-cards-wrapper .coffee-card-updated {
+  font-size: 10px;
+}
+.header-kpi-cards-wrapper .coffee-card-est {
+  font-size: 8px;
+  padding: 1px 6px;
+}
+.header-kpi-cards-wrapper .coffee-card-header {
+  margin-bottom: 0;
+}
+
 /* ==========================================================================
    BARRA SUPERIOR DE FINCAS
    ========================================================================== */
