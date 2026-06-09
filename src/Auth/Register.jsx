@@ -3,25 +3,26 @@ import { useAuth } from '../context/AuthContext'
 import { validatePassword } from '../utils/passwordValidator'
 import './Auth.css'
 import AnimatedLogo from '../components/AnimatedLogo'
-import { BiUser, BiEnvelope, BiLockAlt, BiShow, BiHide, BiCheckCircle, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt } from 'react-icons/bi'
+import PasswordStrength from '../components/PasswordStrength'
+import { BiUser, BiEnvelope, BiLockAlt, BiShow, BiHide, BiCheckCircle, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt, BiPhone } from 'react-icons/bi'
 
-const GoogleIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 48 48">
-    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-  </svg>
-)
+// const GoogleIcon = () => (
+//   <svg width="20" height="20" viewBox="0 0 48 48">
+//     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+//     <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+//     <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+//     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+//   </svg>
+// )
 
-const MicrosoftIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 23 23">
-    <rect x="1"  y="1"  width="10" height="10" fill="#F25022"/>
-    <rect x="12" y="1"  width="10" height="10" fill="#7FBA00"/>
-    <rect x="1"  y="12" width="10" height="10" fill="#00A4EF"/>
-    <rect x="12" y="12" width="10" height="10" fill="#FFB900"/>
-  </svg>
-)
+// const MicrosoftIcon = () => (
+//   <svg width="20" height="20" viewBox="0 0 23 23">
+//     <rect x="1"  y="1"  width="10" height="10" fill="#F25022"/>
+//     <rect x="12" y="1"  width="10" height="10" fill="#7FBA00"/>
+//     <rect x="1"  y="12" width="10" height="10" fill="#00A4EF"/>
+//     <rect x="12" y="12" width="10" height="10" fill="#FFB900"/>
+//   </svg>
+// )
 
 const Dots = ({ className }) => (
   <div className={className}>
@@ -43,6 +44,8 @@ const UserIcon = () => <BiUser size={16} />
 
 const MailIcon = () => <BiEnvelope size={16} />
 
+const PhoneIcon = () => <BiPhone size={16} />
+
 const LockIcon = () => <BiLockAlt size={16} />
 
 const EyeIcon = () => <BiShow size={16} />
@@ -53,7 +56,7 @@ export default function Register({ onGoLogin }) {
   const { register } = useAuth()
 
   const [form, setForm] = useState({
-    fullName: '', email: '', password: '', confirm: '',
+    nombre: '', apellido: '', email: '', telefono: '', password: '', confirm: '',
   })
   const [showPass, setShowPass] = useState(false)
   const [showConf, setShowConf] = useState(false)
@@ -78,7 +81,7 @@ export default function Register({ onGoLogin }) {
     }
     setLoading(true)
     try {
-      await register(form.fullName, form.email, form.password)
+      await register(form.nombre, form.apellido, form.email, form.password, form.telefono)
       setSuccess(true)
       setTimeout(() => { onGoLogin() }, 2000)
     } catch (err) {
@@ -198,12 +201,21 @@ export default function Register({ onGoLogin }) {
           </p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="auth-field">
-              <span className="auth-field-icon"><UserIcon /></span>
-              <input className="auth-input" type="text" name="fullName"
-                value={form.fullName} onChange={handleChange}
-                placeholder="Nombre completo" required autoComplete="name"
-              />
+            <div className="auth-field-row">
+              <div className="auth-field" style={{ flex: 1 }}>
+                <span className="auth-field-icon"><UserIcon /></span>
+                <input className="auth-input" type="text" name="nombre"
+                  value={form.nombre} onChange={handleChange}
+                  placeholder="Nombre" required autoComplete="given-name"
+                />
+              </div>
+              <div className="auth-field" style={{ flex: 1 }}>
+                <span className="auth-field-icon"><UserIcon /></span>
+                <input className="auth-input" type="text" name="apellido"
+                  value={form.apellido} onChange={handleChange}
+                  placeholder="Apellido" required autoComplete="family-name"
+                />
+              </div>
             </div>
 
             <div className="auth-field">
@@ -211,6 +223,14 @@ export default function Register({ onGoLogin }) {
               <input className="auth-input" type="email" name="email"
                 value={form.email} onChange={handleChange}
                 placeholder="Correo electrónico" required autoComplete="email"
+              />
+            </div>
+
+            <div className="auth-field">
+              <span className="auth-field-icon"><PhoneIcon /></span>
+              <input className="auth-input" type="tel" name="telefono"
+                value={form.telefono} onChange={handleChange}
+                placeholder="Número de teléfono" autoComplete="tel"
               />
             </div>
 
@@ -249,6 +269,7 @@ export default function Register({ onGoLogin }) {
             </button>
           </form>
 
+          {/* 
           <div className="auth-divider">
             <div className="auth-divider-line" />
             <span className="auth-divider-text">o continúa con</span>
@@ -257,6 +278,7 @@ export default function Register({ onGoLogin }) {
 
           <button className="auth-social-btn" type="button"><GoogleIcon />Continuar con Google</button>
           <button className="auth-social-btn" type="button"><MicrosoftIcon />Continuar con Microsoft</button>
+          */}
 
           <p className="auth-switch">
             ¿Ya tienes cuenta?{' '}

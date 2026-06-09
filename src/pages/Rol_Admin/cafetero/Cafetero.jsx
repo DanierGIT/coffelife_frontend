@@ -1,18 +1,62 @@
-/**
- * Cafetero.jsx
- * CRUD de cafeteros conectado al backend via api centralizado (axios).
- * Endpoints: GET/POST/PUT/DELETE /cafeteros
- */
-
 import { useState, useEffect } from "react"
 import api from "../../../services/api"
 import PasswordStrength from "../../../components/PasswordStrength"
 import { validatePassword } from "../../../utils/passwordValidator"
 import "./styles/cafeteros.css"
 import "../Administrador/Administrador.css"
-import { BiPlus } from 'react-icons/bi'
+import "../Usuarios/Usuarios.css"
+import { BiPlus, BiShow, BiEdit, BiCheckCircle, BiXCircle } from 'react-icons/bi'
 
-// ── Modal de edición ─────────────────────────────────────────────────────────
+function DetalleUsuarioModal({ usuario, onClose }) {
+  if (!usuario) return null;
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+        <div className="modal-header">
+          <h2 className="modal-title">Detalle del cafetero</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="detalle-usuario-body">
+          <div className="detalle-row">
+            <span className="detalle-label">Nombre</span>
+            <span className="detalle-value">{usuario.nombre} {usuario.apellido}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Correo</span>
+            <span className="detalle-value">{usuario.correo || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Teléfono</span>
+            <span className="detalle-value">{usuario.telefono || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Rol</span>
+            <span className="detalle-value">{usuario.rol?.nombreRol || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Estado</span>
+            <span className={`detalle-value ${usuario.activo ? 'text-green' : 'text-red'}`}>
+              {usuario.activo ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+          {usuario.observaciones && (
+            <div className="detalle-row">
+              <span className="detalle-label">Observaciones</span>
+              <span className="detalle-value">{usuario.observaciones}</span>
+            </div>
+          )}
+          {usuario.fechaRegistro && (
+            <div className="detalle-row">
+              <span className="detalle-label">Fecha registro</span>
+              <span className="detalle-value">{new Date(usuario.fechaRegistro).toLocaleDateString('es-CO')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EditModal({ cafetero, onClose, onSaved }) {
   const [form, setForm] = useState({
     nombre:        cafetero.nombre        || "",
@@ -112,10 +156,10 @@ function EditModal({ cafetero, onClose, onSaved }) {
   )
 }
 
-// ── Página principal ─────────────────────────────────────────────────────────
 export default function Cafetero() {
   const [cafeteros,       setCafeteros] = useState([])
   const [editingCafetero, setEditing]   = useState(null)
+  const [detalleCafetero, setDetalle]   = useState(null)
   const [loading,         setLoading]   = useState(false)
   const [error,           setError]     = useState("")
   const [success,         setSuccess]   = useState("")
@@ -174,21 +218,17 @@ export default function Cafetero() {
   }
 
   const handleToggleActivo = async (cafetero) => {
-    const next = !cafetero.activo
-    const accion = next ? "activar" : "desactivar"
-    if (!window.confirm(`¿${accion} a ${cafetero.nombre}?`)) return
     try {
-      await api.put(`/cafeteros/${cafetero.idUsuario}`, { activo: next })
+      await api.put(`/cafeteros/${cafetero.idUsuario}`, { activo: !cafetero.activo })
       getCafeteros()
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setError(err?.response?.data?.message || "No se pudo cambiar el estado.")
     }
   }
 
   return (
     <div className="admin-page">
 
-      {/* ── Header de sección ── */}
       <div className="section-header-card">
         <div className="section-header-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -234,41 +274,52 @@ export default function Cafetero() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
+              <th>#</th><th>Nombre</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {cafeteros.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ textAlign: "center", color: "#9ca3af", padding: "24px" }}>
-                  No hay cafeteros registrados.
-                </td>
+                <td colSpan={4} className="finca-empty">No hay cafeteros registrados.</td>
               </tr>
             ) : (
-              cafeteros.map((c) => (
-                <tr key={c.idUsuario}>
+              cafeteros.map((c, idx) => (
+                <tr key={c.idUsuario} className={c.activo ? '' : 'fila-inactiva'}>
+                  <td>{idx + 1}</td>
                   <td>{c.nombre} {c.apellido}</td>
-                  <td>{c.correo}</td>
-                  <td>{c.telefono || "—"}</td>
                   <td>
-                    <span className={c.activo ? "badge-active" : "badge-inactive"}>
-                      {c.activo ? "Activo" : "Inactivo"}
+                    <span
+                      className={`usuario-status ${c.activo ? 'active' : 'inactive'}`}
+                      onClick={() => handleToggleActivo(c)}
+                      title={c.activo ? 'Desactivar cafetero' : 'Activar cafetero'}
+                    >
+                      {c.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   <td>
-                    <button className="btn-edit" onClick={() => setEditing(c)}>Editar</button>
-                    <button
-                      onClick={() => handleToggleActivo(c)}
-                      style={{
-                        padding:'6px 14px', borderRadius:8, fontSize:13, fontWeight:500,
-                        cursor:'pointer', marginRight:0,
-                        background: c.activo ? '#fef3c7' : '#e8f5e9',
-                        color:      c.activo ? '#92400e' : '#2e7d32',
-                        border:     c.activo ? '1px solid #fde68a' : '1px solid #c8e6c9',
-                      }}
-                    >
-                      {c.activo ? 'Desactivar' : 'Activar'}
-                    </button>
+                    <div className="td-actions">
+                      <button
+                        className="btn-icon btn-icon-ver"
+                        onClick={() => setDetalle(c)}
+                        title="Ver detalle"
+                      >
+                        <BiShow size={16} />
+                      </button>
+                      <button
+                        className="btn-icon btn-icon-editar"
+                        onClick={() => setEditing(c)}
+                        title="Editar cafetero"
+                      >
+                        <BiEdit size={16} />
+                      </button>
+                      <button
+                        className={`btn-icon ${c.activo ? 'btn-icon-desactivar' : 'btn-icon-activar'}`}
+                        onClick={() => handleToggleActivo(c)}
+                        title={c.activo ? 'Desactivar' : 'Activar'}
+                      >
+                        {c.activo ? <BiXCircle size={16} /> : <BiCheckCircle size={16} />}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -276,6 +327,13 @@ export default function Cafetero() {
           </tbody>
         </table>
       </div>
+
+      {detalleCafetero && (
+        <DetalleUsuarioModal
+          usuario={detalleCafetero}
+          onClose={() => setDetalle(null)}
+        />
+      )}
 
       {editingCafetero && (
         <EditModal

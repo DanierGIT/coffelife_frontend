@@ -36,7 +36,7 @@ function FotoCultivoModal({ cultivo, onClose, onFotoActualizada }) {
     setUploadError('')
     try {
       const formData = new FormData()
-      formData.append('foto', file)
+      formData.append('imagen', file)
       const res = await api.post(`/cultivos/${cultivo.idCultivo}/foto`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
@@ -269,7 +269,13 @@ export default function CultivosExperto({ finca, onNavigate }) {
       <div className="finca-detail-header-card">
         <div className="finca-detail-left">
           <div className="finca-detail-img-container">
-            <img src="https://www.tomplanmytrip.com/wp-content/uploads/2021/10/Daniels-house-1.jpg" alt="Finca" />
+            {finca?.fotoUrl ? (
+              <img src={finca.fotoUrl} alt="Finca" />
+            ) : (
+              <div className="finca-detail-no-foto">
+                <BiCamera size={28} />
+              </div>
+            )}
           </div>
           <div className="finca-detail-info">
             <span className="badge-selected">Finca seleccionada</span>

@@ -242,6 +242,16 @@
   object-fit: cover;
 }
 
+.finca-card-no-foto {
+  width: 100%;
+  height: 100%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c8e6c9;
+}
+
 .finca-card-floating-badge {
   position: absolute;
   top: 14px;

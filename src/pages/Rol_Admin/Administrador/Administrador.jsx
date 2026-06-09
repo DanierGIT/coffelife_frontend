@@ -1,14 +1,10 @@
-/**
- * Administrador.jsx
- * CRUD completo conectado a /admins
- * El backend espera: { nombre, apellido, correo, telefono, password }
- */
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
-import { BiPlus } from 'react-icons/bi'
+import { BiPlus, BiShow, BiEdit, BiCheckCircle, BiXCircle } from 'react-icons/bi'
 import './Administrador.css'
+import '../Usuarios/Usuarios.css'
 
 const normalizeRole = (role) =>
   (role ?? '').toString().toLowerCase().trim()
@@ -28,6 +24,56 @@ const getAdminRoleId = async () => {
   }
 
   return adminRole.idRol || adminRole.id_rol || adminRole.id
+}
+
+function DetalleUsuarioModal({ usuario, onClose }) {
+  if (!usuario) return null;
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+        <div className="modal-header">
+          <h2 className="modal-title">Detalle del administrador</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="detalle-usuario-body">
+          <div className="detalle-row">
+            <span className="detalle-label">Nombre</span>
+            <span className="detalle-value">{usuario.nombre} {usuario.apellido}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Correo</span>
+            <span className="detalle-value">{usuario.correo || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Teléfono</span>
+            <span className="detalle-value">{usuario.telefono || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Rol</span>
+            <span className="detalle-value">{usuario.rol?.nombreRol || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Estado</span>
+            <span className={`detalle-value ${usuario.activo ? 'text-green' : 'text-red'}`}>
+              {usuario.activo ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+          {usuario.observaciones && (
+            <div className="detalle-row">
+              <span className="detalle-label">Observaciones</span>
+              <span className="detalle-value">{usuario.observaciones}</span>
+            </div>
+          )}
+          {usuario.fechaRegistro && (
+            <div className="detalle-row">
+              <span className="detalle-label">Fecha registro</span>
+              <span className="detalle-value">{new Date(usuario.fechaRegistro).toLocaleDateString('es-CO')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function EditModal({ admin, onClose, onSaved }) {
@@ -95,6 +141,7 @@ function EditModal({ admin, onClose, onSaved }) {
 export default function Administrador() {
   const [admins,       setAdmins]       = useState([])
   const [editingAdmin, setEditingAdmin] = useState(null)
+  const [detalleAdmin, setDetalleAdmin] = useState(null)
   const [loading,      setLoading]      = useState(false)
   const [fetching,     setFetching]     = useState(true)
   const [error,        setError]        = useState('')
@@ -111,6 +158,8 @@ export default function Administrador() {
     try {
       const res = await api.get('/usuarios')
       const lista = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      console.log('[DEBUG] Usuarios desde API:', lista.length, 'items')
+      console.log('[DEBUG] Roles de cada usuario:', lista.map((u) => ({ nombre: u.nombre, email: u.correo, rol: u.rol, isAdmin: isAdminRole(u.rol) })))
       setAdmins(lista.filter((usuario) => isAdminRole(usuario.rol)))
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Error de red al cargar administradores.'
@@ -156,20 +205,16 @@ export default function Administrador() {
   }
 
   const handleToggleActivo = async (admin) => {
-    const next = !admin.activo
-    const accion = next ? 'activar' : 'desactivar'
-    if (!window.confirm(`¿${accion} a ${admin.nombre}?`)) return
     try {
-      await api.put(`/usuarios/${admin.idUsuario}`, { activo: next })
+      await api.put(`/usuarios/${admin.idUsuario}`, { activo: !admin.activo })
       getAdmins()
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
   return (
     <>
-      {/* ── Header de sección ── */}
       <div className="section-header-card">
         <div className="section-header-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -218,40 +263,49 @@ export default function Administrador() {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
+                <th>#</th><th>Nombre</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {admins.length === 0 ? (
-                <tr><td colSpan={5} className="finca-empty">No hay administradores registrados.</td></tr>
-              ) : admins.map((admin) => (
-                <tr key={admin.idUsuario}>
+                <tr><td colSpan={4} className="finca-empty">No hay administradores registrados.</td></tr>
+              ) : admins.map((admin, idx) => (
+                <tr key={admin.idUsuario} className={admin.activo ? '' : 'fila-inactiva'}>
+                  <td>{idx + 1}</td>
                   <td>{admin.nombre} {admin.apellido}</td>
-                  <td>{admin.correo}</td>
-                  <td>{admin.telefono || '—'}</td>
                   <td>
-                    <span style={{
-                      padding:'3px 10px', borderRadius:20, fontSize:12, fontWeight:600,
-                      background: admin.activo ? '#e8f5e9' : '#fce8e8',
-                      color:      admin.activo ? '#2e7d32' : '#b91c1c',
-                    }}>
+                    <span
+                      className={`usuario-status ${admin.activo ? 'active' : 'inactive'}`}
+                      onClick={() => handleToggleActivo(admin)}
+                      title={admin.activo ? 'Desactivar administrador' : 'Activar administrador'}
+                    >
                       {admin.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   <td>
-                    <button className="btn-edit" onClick={() => setEditingAdmin(admin)}>Editar</button>
-                    <button
-                      onClick={() => handleToggleActivo(admin)}
-                      style={{
-                        padding:'6px 14px', borderRadius:8, fontSize:13, fontWeight:500,
-                        cursor:'pointer', marginRight:0,
-                        background: admin.activo ? '#fef3c7' : '#e8f5e9',
-                        color:      admin.activo ? '#92400e' : '#2e7d32',
-                        border:     admin.activo ? '1px solid #fde68a' : '1px solid #c8e6c9',
-                      }}
-                    >
-                      {admin.activo ? 'Desactivar' : 'Activar'}
-                    </button>
+                    <div className="td-actions">
+                      <button
+                        className="btn-icon btn-icon-ver"
+                        onClick={() => setDetalleAdmin(admin)}
+                        title="Ver detalle"
+                      >
+                        <BiShow size={16} />
+                      </button>
+                      <button
+                        className="btn-icon btn-icon-editar"
+                        onClick={() => setEditingAdmin(admin)}
+                        title="Editar administrador"
+                      >
+                        <BiEdit size={16} />
+                      </button>
+                      <button
+                        className={`btn-icon ${admin.activo ? 'btn-icon-desactivar' : 'btn-icon-activar'}`}
+                        onClick={() => handleToggleActivo(admin)}
+                        title={admin.activo ? 'Desactivar' : 'Activar'}
+                      >
+                        {admin.activo ? <BiXCircle size={16} /> : <BiCheckCircle size={16} />}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -259,6 +313,13 @@ export default function Administrador() {
           </table>
         )}
       </div>
+
+      {detalleAdmin && (
+        <DetalleUsuarioModal
+          usuario={detalleAdmin}
+          onClose={() => setDetalleAdmin(null)}
+        />
+      )}
 
       {editingAdmin && (
         <EditModal

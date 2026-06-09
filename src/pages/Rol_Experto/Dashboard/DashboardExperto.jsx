@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
-import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight } from 'react-icons/bi'
+import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight, BiCamera } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import './DashboardExperto.css'
 
@@ -110,7 +110,7 @@ function FotoFincaModal({ finca, onClose, onFotoActualizada }) {
     setUploadError('')
     try {
       const formData = new FormData()
-      formData.append('foto', file)
+      formData.append('imagen', file)
       const res = await api.post(`/fincas/${finca.idFinca}/foto`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
@@ -448,8 +448,6 @@ export default function DashboardExperto({ onNavigate }) {
     }
   }
 
-  const FOTO_PLACEHOLDER = 'https://blogtrip.org/wp-content/uploads/2016/04/casa-finca-cafetera-eje-cafetero.jpg'
-
   return (
     <div className="coffeelife-dashboard-container">
 
@@ -518,13 +516,19 @@ export default function DashboardExperto({ onNavigate }) {
             <div className="coffeelife-fincas-grid">
               {fincasPaginadas.map((f, idx) => {
                 const cultivos = cultivosPorFinca[f.idFinca] || []
-                const fotoSrc = fotosPorFinca[f.idFinca] || FOTO_PLACEHOLDER
+                const fotoSrc = fotosPorFinca[f.idFinca] || null
 
                 const cardDelay = Math.min(idx, 5)
                 return (
                   <div key={f.idFinca} className={`coffeelife-finca-card animate-bottom delay-${cardDelay}`}>
                     <div className="finca-card-img-wrapper">
-                      <img src={fotoSrc} alt={f.nombre} />
+                      {fotoSrc ? (
+                        <img src={fotoSrc} alt={f.nombre} />
+                      ) : (
+                        <div className="finca-card-no-foto">
+                          <BiCamera size={24} />
+                        </div>
+                      )}
                       <div className="finca-card-floating-badge">
                         <span className={`status-dot ${f.activo !== false ? 'active' : 'inactive'}`}></span>
                         {f.activo !== false ? 'Activa' : 'Inactiva'}
@@ -585,7 +589,7 @@ export default function DashboardExperto({ onNavigate }) {
 
                       <button
                         className="btn-card-action-trigger"
-                        onClick={() => onNavigate?.('cultivos', { ...f, totalCultivos: cultivos.length })}
+                        onClick={() => onNavigate?.('cultivos', { ...f, totalCultivos: cultivos.length, fotoUrl: fotosPorFinca[f.idFinca] || f.fotoUrl })}
                       >
                         Ver cultivos de la finca
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

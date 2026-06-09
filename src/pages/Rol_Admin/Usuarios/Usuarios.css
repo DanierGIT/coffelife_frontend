@@ -71,3 +71,126 @@
   color: #4b5563;
   border-color: #e5e7eb;
 }
+
+/* ─── Badge de estado (no clickeable) ─── */
+.usuario-status-badge {
+  display: inline-block;
+  min-width: 74px;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+.usuario-status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+.usuario-status-badge.inactive {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* ─── Título de sección de tabla ─── */
+.admin-table-title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* ─── Fila inactiva ─── */
+.fila-inactiva td {
+  opacity: 0.6;
+}
+
+/* ─── Modal detalle usuario ─── */
+.detalle-usuario-body {
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detalle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detalle-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.detalle-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.detalle-value.text-green {
+  color: #166534;
+}
+
+.detalle-value.text-red {
+  color: #b91c1c;
+}
+
+/* ─── Icono de acción (como en fincas) ─── */
+.btn-icon {
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn-icon:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+.btn-icon-ver {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.btn-icon-ver:hover {
+  background: #c8e6c9;
+}
+
+.btn-icon-editar {
+  background: #fff3e0;
+  color: #e65100;
+}
+.btn-icon-editar:hover {
+  background: #ffe0b2;
+}
+
+.btn-icon-activar {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.btn-icon-activar:hover {
+  background: #c8e6c9;
+}
+
+.btn-icon-desactivar {
+  background: #fbe9e7;
+  color: #c62828;
+}
+.btn-icon-desactivar:hover {
+  background: #ffccbc;
+}
+
+.td-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}

@@ -1,20 +1,66 @@
-/**
- * Experto.jsx — estilo idéntico a Administrador.jsx
- * Modal emergente para editar. Errores visibles en pantalla.
- */
 import { useEffect, useState } from 'react'
 import { getExpertos, createExperto, updateExperto } from './api'
 import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
 import "../Administrador/Administrador.css";
-import { BiPlus } from 'react-icons/bi'
+import "../Usuarios/Usuarios.css";
+import { BiPlus, BiShow, BiEdit, BiCheckCircle, BiXCircle } from 'react-icons/bi'
 
 const EMPTY_FORM = {
   nombre: '', apellido: '', correo: '', telefono: '',
   password: '', confirmPassword: '', observaciones: '', activo: true,
 }
 
-// ── Modal de edición ─────────────────────────────────────────────────────────
+function DetalleUsuarioModal({ usuario, onClose }) {
+  if (!usuario) return null;
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+        <div className="modal-header">
+          <h2 className="modal-title">Detalle del experto</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="detalle-usuario-body">
+          <div className="detalle-row">
+            <span className="detalle-label">Nombre</span>
+            <span className="detalle-value">{usuario.nombre} {usuario.apellido}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Correo</span>
+            <span className="detalle-value">{usuario.correo || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Teléfono</span>
+            <span className="detalle-value">{usuario.telefono || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Rol</span>
+            <span className="detalle-value">{usuario.rol?.nombreRol || '—'}</span>
+          </div>
+          <div className="detalle-row">
+            <span className="detalle-label">Estado</span>
+            <span className={`detalle-value ${usuario.activo ? 'text-green' : 'text-red'}`}>
+              {usuario.activo ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+          {usuario.observaciones && (
+            <div className="detalle-row">
+              <span className="detalle-label">Observaciones</span>
+              <span className="detalle-value">{usuario.observaciones}</span>
+            </div>
+          )}
+          {usuario.fechaRegistro && (
+            <div className="detalle-row">
+              <span className="detalle-label">Fecha registro</span>
+              <span className="detalle-value">{new Date(usuario.fechaRegistro).toLocaleDateString('es-CO')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EditModal({ experto, onClose, onSaved }) {
   const [form, setForm] = useState({
     nombre:        experto.nombre        || '',
@@ -103,10 +149,10 @@ function EditModal({ experto, onClose, onSaved }) {
   )
 }
 
-// ── Componente principal ─────────────────────────────────────────────────────
 export default function Experto() {
   const [expertos,        setExpertos]        = useState([])
   const [editingExperto,  setEditingExperto]  = useState(null)
+  const [detalleExperto,  setDetalleExperto]  = useState(null)
   const [form,            setForm]            = useState(EMPTY_FORM)
   const [loading,         setLoading]         = useState(false)
   const [error,           setError]           = useState('')
@@ -168,20 +214,16 @@ export default function Experto() {
   }
 
   const handleToggleActivo = async (exp) => {
-    const next = !exp.activo
-    const accion = next ? 'activar' : 'desactivar'
-    if (!window.confirm(`¿${accion} a ${exp.nombre}?`)) return
     try {
-      await updateExperto(exp.idUsuario, { activo: next })
+      await updateExperto(exp.idUsuario, { activo: !exp.activo })
       obtenerExpertos()
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
   return (
     <>
-      {/* ── Header de sección ── */}
       <div className="section-header-card">
         <div className="section-header-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -227,47 +269,62 @@ export default function Experto() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
+              <th>#</th><th>Nombre</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {expertos.length === 0 ? (
-              <tr><td colSpan={6} style={{ textAlign:'center', padding:'1.5rem', color:'#9ca3af' }}>No hay expertos registrados.</td></tr>
+              <tr><td colSpan={4} className="finca-empty">No hay expertos registrados.</td></tr>
             ) : expertos.map((exp, idx) => (
-              <tr key={exp.idUsuario || exp.id}>
+              <tr key={exp.idUsuario || exp.id} className={exp.activo ? '' : 'fila-inactiva'}>
                 <td>{idx + 1}</td>
                 <td>{exp.nombre} {exp.apellido}</td>
-                <td>{exp.correo}</td>
-                <td>{exp.telefono || '—'}</td>
                 <td>
-                  <span style={{
-                    padding:'3px 10px', borderRadius:20, fontSize:12, fontWeight:600,
-                    background: exp.activo ? '#e8f5e9' : '#fce8e8',
-                    color:      exp.activo ? '#2e7d32' : '#b91c1c',
-                  }}>
+                  <span
+                    className={`usuario-status ${exp.activo ? 'active' : 'inactive'}`}
+                    onClick={() => handleToggleActivo(exp)}
+                    title={exp.activo ? 'Desactivar experto' : 'Activar experto'}
+                  >
                     {exp.activo ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
                 <td>
-                  <button className="btn-edit" onClick={() => setEditingExperto(exp)}>Editar</button>
-                  <button
-                    onClick={() => handleToggleActivo(exp)}
-                    style={{
-                      padding:'6px 14px', borderRadius:8, fontSize:13, fontWeight:500,
-                      cursor:'pointer', marginRight:0,
-                      background: exp.activo ? '#fef3c7' : '#e8f5e9',
-                      color:      exp.activo ? '#92400e' : '#2e7d32',
-                      border:     exp.activo ? '1px solid #fde68a' : '1px solid #c8e6c9',
-                    }}
-                  >
-                    {exp.activo ? 'Desactivar' : 'Activar'}
-                  </button>
+                  <div className="td-actions">
+                    <button
+                      className="btn-icon btn-icon-ver"
+                      onClick={() => setDetalleExperto(exp)}
+                      title="Ver detalle"
+                    >
+                      <BiShow size={16} />
+                    </button>
+                    <button
+                      className="btn-icon btn-icon-editar"
+                      onClick={() => setEditingExperto(exp)}
+                      title="Editar experto"
+                    >
+                      <BiEdit size={16} />
+                    </button>
+                    <button
+                      className={`btn-icon ${exp.activo ? 'btn-icon-desactivar' : 'btn-icon-activar'}`}
+                      onClick={() => handleToggleActivo(exp)}
+                      title={exp.activo ? 'Desactivar' : 'Activar'}
+                    >
+                      {exp.activo ? <BiXCircle size={16} /> : <BiCheckCircle size={16} />}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {detalleExperto && (
+        <DetalleUsuarioModal
+          usuario={detalleExperto}
+          onClose={() => setDetalleExperto(null)}
+        />
+      )}
 
       {editingExperto && (
         <EditModal

@@ -50,16 +50,14 @@ export function AuthProvider({ children }) {
     setUser(userData)
   }
 
-  const register = async (fullName, email, password) => {
-    const parts = fullName.trim().split(/\s+/)
-    const nombre = parts[0] || fullName
-    const apellido = parts.slice(1).join(' ') || nombre
-
+  const register = async (nombre, apellido, email, password, telefono) => {
     const res = await api.post('/register', {
       nombre,
       apellido,
       correo: email,
       password,
+      telefono,
+      nombre_rol: 'cafetero',
     })
 
     return res.data
