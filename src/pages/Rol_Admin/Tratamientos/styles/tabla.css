@@ -68,12 +68,12 @@
   background: #fecaca;
 }
 
+.tabla {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 768px) {
-  .tabla {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
   .tabla th,
   .tabla td {
     padding: 10px;

@@ -76,8 +76,12 @@ export function AuthProvider({ children }) {
   }
 
   // ─────────────────────────────────────────────
-
-
+  // UPDATE USER
+  // ─────────────────────────────────────────────
+  const updateUser = (userData) => {
+    localStorage.setItem('cl_user', JSON.stringify(userData))
+    setUser(userData)
+  }
 
   // ─────────────────────────────────────────────
   // LOGOUT
@@ -97,6 +101,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        updateUser,
         recuperarPassword,
         restablecerPassword,
       }}

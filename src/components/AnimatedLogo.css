@@ -1,0 +1,218 @@
+/* ════════════════════════════════════════
+   AnimatedLogo — Componente reutilizable
+   ════════════════════════════════════════ */
+
+/* ── Raíz: escala según tamaño ── */
+.al-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+/* ── Tamaños ── */
+.al-xl { --al-scale: 1; }
+.al-lg { --al-scale: 0.75; }
+.al-md { --al-scale: 0.5; }
+.al-sm { --al-scale: 0.25; }
+
+/* ── Icon area ── */
+.al-icon-area {
+  position: relative;
+  width: calc(160px * var(--al-scale));
+  height: calc(160px * var(--al-scale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Rings ── */
+.al-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: calc(1.5px * var(--al-scale)) solid #43a047;
+  animation: al-ring-pulse 2.8s ease-out infinite;
+}
+
+.al-ring-1 {
+  width: calc(160px * var(--al-scale));
+  height: calc(160px * var(--al-scale));
+  animation-delay: 0s;
+  opacity: 0;
+}
+
+.al-ring-2 {
+  width: calc(130px * var(--al-scale));
+  height: calc(130px * var(--al-scale));
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+@keyframes al-ring-pulse {
+  0%   { transform: scale(0.6); opacity: 0.6; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+
+/* ── Icon bg ── */
+.al-icon-bg {
+  width: calc(110px * var(--al-scale));
+  height: calc(110px * var(--al-scale));
+  border-radius: calc(32px * var(--al-scale));
+  background: #1b5e20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Scan line ── */
+.al-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(2px * var(--al-scale));
+  background: linear-gradient(90deg, transparent 0%, #a5d6a7 40%, #69f0ae 50%, #a5d6a7 60%, transparent 100%);
+  animation: al-scan 2.4s ease-in-out infinite;
+  top: 0;
+  opacity: 0.85;
+}
+
+@keyframes al-scan {
+  0%   { top: calc(8px * var(--al-scale)); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: calc(102px * var(--al-scale)); opacity: 0; }
+}
+
+/* ── Leaf SVG ── */
+.al-leaf-svg {
+  width: calc(68px * var(--al-scale));
+  height: calc(80px * var(--al-scale));
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Roya dots ── */
+.al-roya {
+  animation: al-roya-appear 2.4s ease-in-out infinite;
+}
+
+.al-roya-1 { r: 5; fill: #ff6d00; }
+.al-roya-2 { r: 3.5; fill: #e64a19; animation-delay: 0.15s; }
+.al-roya-3 { r: 5; fill: #ff6d00; animation-delay: 0.3s; }
+
+@keyframes al-roya-appear {
+  0%, 35% { opacity: 0; }
+  55%     { opacity: 1; }
+  80%     { opacity: 1; }
+  100%    { opacity: 0.3; }
+}
+
+/* ── Reticle ── */
+.al-reticle {
+  animation: al-reticle-show 2.4s ease-in-out infinite;
+  opacity: 0;
+  transform-origin: 22px 44px;
+}
+
+@keyframes al-reticle-show {
+  0%, 45% { opacity: 0; transform: scale(0.5); }
+  65%     { opacity: 1; transform: scale(1); }
+  85%     { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+/* ── Corners ── */
+.al-corner {
+  position: absolute;
+  width: calc(14px * var(--al-scale));
+  height: calc(14px * var(--al-scale));
+  border-color: #69f0ae;
+  border-style: solid;
+  animation: al-corners-show 2.4s ease-in-out infinite;
+  opacity: 0;
+}
+
+.al-corner-tl { top: calc(8px * var(--al-scale)); left: calc(8px * var(--al-scale)); border-width: 2px 0 0 2px; }
+.al-corner-tr { top: calc(8px * var(--al-scale)); right: calc(8px * var(--al-scale)); border-width: 2px 2px 0 0; }
+.al-corner-bl { bottom: calc(8px * var(--al-scale)); left: calc(8px * var(--al-scale)); border-width: 0 0 2px 2px; }
+.al-corner-br { bottom: calc(8px * var(--al-scale)); right: calc(8px * var(--al-scale)); border-width: 0 2px 2px 0; }
+
+@keyframes al-corners-show {
+  0%, 40% { opacity: 0; }
+  60%     { opacity: 1; }
+  85%     { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+/* ── Text area ── */
+.al-text-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: calc(20px * var(--al-scale));
+  gap: 0;
+}
+
+.al-name {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-size: calc(52px * var(--al-scale));
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: #1b5e20;
+  animation: al-name-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  white-space: nowrap;
+}
+
+.al-name span {
+  color: #43a047;
+}
+
+.al-accent {
+  width: calc(48px * var(--al-scale));
+  height: calc(3px * var(--al-scale));
+  background: #43a047;
+  border-radius: calc(2px * var(--al-scale));
+  margin: calc(8px * var(--al-scale)) auto calc(6px * var(--al-scale));
+  animation: al-bar-in 0.8s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.al-tag {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-size: calc(12px * var(--al-scale));
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  color: #81c784;
+  font-style: italic;
+  animation: al-name-in 0.8s 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  white-space: nowrap;
+}
+
+@keyframes al-name-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes al-bar-in {
+  from { width: 0; opacity: 0; }
+  to   { width: calc(48px * var(--al-scale)); opacity: 1; }
+}
+
+/* ── Horizontal layout (icono + texto lado a lado) ── */
+.al-horizontal {
+  flex-direction: row;
+  gap: calc(14px * var(--al-scale));
+}
+
+.al-horizontal .al-text-area {
+  margin-top: 0;
+  align-items: flex-start;
+}
+
+.al-horizontal .al-accent {
+  margin: calc(4px * var(--al-scale)) 0 calc(4px * var(--al-scale));
+}

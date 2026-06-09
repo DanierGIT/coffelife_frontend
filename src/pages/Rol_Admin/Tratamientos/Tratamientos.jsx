@@ -4,6 +4,7 @@ import "./styles/tratamientos.css";
 import "./styles/formulario.css";
 import "./styles/tabla.css";
 import "../Administrador/Administrador.css";
+import { BiPlus } from 'react-icons/bi';
 
 // ─── Servicio inline (usa el api centralizado del proyecto) ───
 const obtenerTratamientos = async () => {
@@ -139,7 +140,6 @@ function TablaTratamientos({ tratamientos, eliminar, editar }) {
     <table className="tabla">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Tipo</th>
           <th>Nombre</th>
           <th>Descripción</th>
@@ -149,14 +149,13 @@ function TablaTratamientos({ tratamientos, eliminar, editar }) {
       <tbody>
         {tratamientos.length === 0 ? (
           <tr>
-            <td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "#999" }}>
+            <td colSpan="4" style={{ textAlign: "center", padding: "30px", color: "#999" }}>
               No hay tratamientos registrados
             </td>
           </tr>
         ) : (
           tratamientos.map((t, idx) => (
             <tr key={t.idTratamiento}>
-              <td>{idx + 1}</td>
               <td>{t.tipoTratamiento?.nombreTipo || '—'}</td>
               <td>{t.nombre}</td>
               <td>{t.descripcion}</td>
@@ -226,10 +225,7 @@ function Tratamientos() {
             gap: '6px',
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <BiPlus size={18} />
           Agregar tratamiento
         </button>
       </div>

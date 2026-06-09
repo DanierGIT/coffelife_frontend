@@ -5,6 +5,7 @@ import {
   FlaskConical, Stethoscope, Tag,
 } from 'lucide-react'
 import api from '../../../services/api'
+import { BiCheck, BiListUl, BiCamera, BiPencil, BiBulb, BiLeaf, BiX } from 'react-icons/bi'
 import './NuevoMonitoreoModal.css'
 
 const hoy = () => new Date().toISOString().slice(0, 10)

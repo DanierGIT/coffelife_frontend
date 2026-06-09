@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
+import { BiPlus, BiCheck, BiMessageDetail, BiCalendar, BiTimeFive } from 'react-icons/bi'
 import './RecomendacionesTab.css'
 
 const getArr = (data) => {
