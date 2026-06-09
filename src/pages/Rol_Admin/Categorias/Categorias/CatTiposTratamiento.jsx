@@ -85,10 +85,13 @@ export default function CatTiposTratamiento() {
     }
   }
 
-  return (
-    <div className="crud-container">
-      <div className="crud-form-card">
-        <h2>Tipos de Tratamiento</h2>
+return (
+  <div className="crud-container">
+
+    <div className="crud-form-card">
+      <h2>Tipos de Tratamiento</h2>
+
+      <form className="crud-form" onSubmit={handleCreate}></form>
 
         <form className="crud-form" onSubmit={handleCreate}>
           <input

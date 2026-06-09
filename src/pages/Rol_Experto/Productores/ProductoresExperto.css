@@ -100,3 +100,15 @@
 }
 
 .prod-footer { font-size: 11px; color: #9ca3af; margin-top: 12px; }
+
+@media (max-width: 768px) {
+  .prod-page { padding: 0 0 1rem; }
+  .prod-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .prod-header h1 { font-size: 18px; }
+  .prod-search { min-width: 0; width: 100%; }
+  .prod-grid { grid-template-columns: 1fr; gap: 12px; }
+}

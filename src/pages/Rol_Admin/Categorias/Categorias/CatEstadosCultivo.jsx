@@ -85,12 +85,14 @@ export default function CatEstadosCultivo() {
     }
   }
 
-  return (
-    <div className="crud-container">
-      <div className="crud-form-card">
-        <h2>Estados de Cultivo</h2>
+  
+   return (
+  <div className="crud-container">
 
-        <form className="crud-form" onSubmit={handleCreate}>
+    <div className="crud-form-card">
+      <h2>Estados de Cultivo</h2>
+
+      <form className="crud-form" onSubmit={handleCreate}>
           <input
             type="text"
             name="nombre"

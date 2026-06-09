@@ -1,5 +1,7 @@
+
 import { useEffect, useState } from 'react'
 import api from '../../../../services/api'
+import '../../Administrador/Administrador.css'
 import './Formulario.css'
 
 const getArrayData = (data) => {
@@ -86,9 +88,10 @@ export default function CatTiposRecomendacion() {
   }
 
   return (
+  <>
     <div className="crud-container">
       <div className="crud-form-card">
-        <h2>Tipos de Recomendacion</h2>
+        <h2>Tipos de Recomendación</h2>
 
         <form className="crud-form" onSubmit={handleCreate}>
           <input
@@ -114,13 +117,24 @@ export default function CatTiposRecomendacion() {
           </button>
         </form>
 
-        {error && <p style={{ color: '#c53030', marginTop: 10, fontSize: 13 }}>{error}</p>}
-        {success && <p style={{ color: '#2e7d32', marginTop: 10, fontSize: 13 }}>{success}</p>}
+        {error && (
+          <p style={{ color: '#c53030', marginTop: 10, fontSize: 13 }}>
+            {error}
+          </p>
+        )}
+
+        {success && (
+          <p style={{ color: '#2e7d32', marginTop: 10, fontSize: 13 }}>
+            {success}
+          </p>
+        )}
       </div>
 
       <div className="crud-table-card">
         {fetching ? (
-          <p style={{ textAlign: 'center', padding: 24, color: '#666' }}>Cargando...</p>
+          <p style={{ textAlign: 'center', padding: 24, color: '#666' }}>
+            Cargando...
+          </p>
         ) : (
           <table>
             <thead>
@@ -178,7 +192,8 @@ export default function CatTiposRecomendacion() {
         />
       )}
     </div>
-  )
+  </>
+)
 }
 
 function EditModal({ row, onClose, onSaved }) {

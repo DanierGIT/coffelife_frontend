@@ -85,10 +85,11 @@ export default function CatEstadosAnalisis() {
     }
   }
 
-  return (
-    <div className="crud-container">
-      <div className="crud-form-card">
-        <h2>Estados de Analisis</h2>
+ return (
+  <div className="crud-container">
+
+    <div className="crud-form-card">
+      <h2>Estados de Analisis</h2>
 
         <form className="crud-form" onSubmit={handleCreate}>
           <input

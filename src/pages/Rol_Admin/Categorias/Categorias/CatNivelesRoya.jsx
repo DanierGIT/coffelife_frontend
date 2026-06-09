@@ -86,9 +86,12 @@ export default function CatNivelesRoya() {
   }
 
   return (
-    <div className="crud-container">
-      <div className="crud-form-card">
-        <h2>Niveles de Roya</h2>
+  <div className="crud-container">
+
+    <div className="crud-form-card">
+      <h2>Niveles de Roya</h2>
+
+      <form className="crud-form" onSubmit={handleCreate}></form>
 
         <form className="crud-form" onSubmit={handleCreate}>
           <input

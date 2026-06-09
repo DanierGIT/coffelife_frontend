@@ -63,9 +63,21 @@ export default function Categorias({ subPage }) {
 
   return (
     <div className="categorias-page">
-      <div className="page-header">
-        <h1>Categorías</h1>
-        <p>Catálogos del sistema</p>
+      <div className="catalogo-banner">
+        <div className="catalogo-banner-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <span className="catalogo-banner-badge">Catálogo Agrícola</span>
+          <h2 style={{ margin: '4px 0 4px', fontSize: '18px', fontWeight: 700, color: '#1b5e20' }}>
+            Categorías del sistema
+          </h2>
+          <p style={{ margin: 0, fontSize: '13px', color: '#4a7c59', lineHeight: 1.5 }}>
+            Administra los diferentes tipos de categorías del sistema. Desde aquí puedes crear, editar, activar o desactivar los catálogos que facilitan la clasificación de los registros.
+          </p>
+        </div>
       </div>
 
       <div className="categorias-tabs">

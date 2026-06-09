@@ -436,6 +436,7 @@ export default function RecomendacionesExperto() {
 
       {/* ── TABLA ── */}
       <div className="admin-table-card">
+        <div className="rec-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
@@ -483,6 +484,7 @@ export default function RecomendacionesExperto() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* ── MODAL EDITAR ── */}

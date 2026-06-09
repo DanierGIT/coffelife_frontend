@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import api from '../../../services/api'
 import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
-import { BiShow, BiArrowBack } from 'react-icons/bi'
+import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -342,6 +342,10 @@ export default function Recomendaciones() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterPrioridad, setFilterPrioridad] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 10
 
   const fincaMap = useMemo(() => {
     const map = {}
@@ -365,6 +369,35 @@ export default function Recomendaciones() {
     })
     return Object.values(map)
   }, [recomendaciones])
+
+  const filteredExpertos = useMemo(() => {
+    let data = expertoRecs
+    if (filterPrioridad) {
+      data = data
+        .map(({ experto, recs }) => ({
+          experto,
+          recs: recs.filter((r) => {
+            const id = r.prioridad?.idPrioridad ?? r.idPrioridad
+            return String(id) === filterPrioridad
+          })
+        }))
+        .filter(({ recs }) => recs.length > 0)
+    }
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase()
+      data = data.filter(({ experto }) => {
+        const nombre = experto ? `${experto.nombre || ''} ${experto.apellido || ''}`.trim() : ''
+        return nombre.toLowerCase().includes(term)
+      })
+    }
+    return data
+  }, [expertoRecs, searchTerm, filterPrioridad])
+
+  const totalPages = Math.max(1, Math.ceil(filteredExpertos.length / ITEMS_PER_PAGE))
+  const paginatedExpertos = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredExpertos.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredExpertos, currentPage])
 
   const fincaRecs = useMemo(() => {
     if (!selectedExperto || !selectedFincaId) return []
@@ -394,7 +427,7 @@ export default function Recomendaciones() {
         api.get('/monitoreos'),
         api.get('/cat_tipos_recomendaciones'),
         api.get('/expertos'),
-        api.get('/fincas'),
+        api.get('/fincas?limit=1000'),
       ])
 
       setMonitoreos(getArrayData(monitoreosRes.data))
@@ -459,11 +492,70 @@ export default function Recomendaciones() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Recomendaciones</h1>
-        <p>Recomendaciones para cultivos</p>
-      </div>
+     <div className="module-header">
+  <div className="module-header-icon">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 12l2 2 4-4" />
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6" />
+      <path d="M12 18h.01" />
+    </svg>
+  </div>
+
+  <div className="module-header-content">
+
+    <span className="module-header-badge">
+      ASISTENCIA TÉCNICA
+    </span>
+
+    <h1>
+      Recomendaciones
+    </h1>
+
+    <p>
+      Gestiona las recomendaciones generadas a partir de los monitoreos
+      realizados en los cultivos. Desde aquí puedes consultar sugerencias
+      técnicas, establecer prioridades, definir fechas límite y realizar
+      seguimiento a las acciones recomendadas para mejorar la producción
+      y la salud de los cafetales.
+    </p>
+
+  </div>
+</div>
       <div className="admin-table-card">
+        <div className="table-toolbar">
+          <div className="search-bar">
+            <BiSearch size={16} />
+            <input
+              placeholder="Buscar experto..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
+            />
+          </div>
+          <div className="filter-group">
+            <select
+              value={filterPrioridad}
+              onChange={(e) => { setFilterPrioridad(e.target.value); setCurrentPage(1) }}
+            >
+              <option value="">Todas las prioridades</option>
+              {prioridades.map((p) => (
+                <option key={p.idPrioridad} value={p.idPrioridad}>
+                  {p.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="table-scroll">
         <table className="admin-table">
           <thead>
             <tr>
@@ -473,13 +565,13 @@ export default function Recomendaciones() {
             </tr>
           </thead>
           <tbody>
-            {expertoRecs.length === 0 ? (
+            {filteredExpertos.length === 0 ? (
               <tr>
                 <td colSpan={3} className="finca-empty">
-                  No hay recomendaciones registradas aun.
+                  {searchTerm ? 'No se encontraron expertos con ese criterio' : 'No hay recomendaciones registradas aun.'}
                 </td>
               </tr>
-            ) : expertoRecs.map(({ experto, recs }) => {
+            ) : paginatedExpertos.map(({ experto, recs }) => {
               const id = experto?.idUsuario || recs[0]?.idExpertoEmisor
               const nombre = experto ? `${experto.nombre || ''} ${experto.apellido || ''}`.trim() : '—'
               const ultima = Math.max(...recs.map((r) => new Date(r.fechaRecomendacion || r.fecha_recomendacion || 0)))
@@ -510,7 +602,25 @@ export default function Recomendaciones() {
             })}
           </tbody>
         </table>
+        </div>
+
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Anterior</button>
+          {Array.from({ length: totalPages }, (_, i) => {
+            const page = i + 1
+            return (
+              <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>
+                {page}
+              </button>
+            )
+          })}
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Siguiente</button>
+          <span className="pagination-info">{filteredExpertos.length} registros</span>
+        </div>
+      )}
 
       {selectedExperto && !selectedFincaId && !detailRecomendacion && (
         <ExpertoFincasModal

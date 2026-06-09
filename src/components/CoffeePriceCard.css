@@ -1,0 +1,87 @@
+.coffee-card {
+  flex: 1;
+  min-width: 240px;
+  max-width: 380px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  border: 1px solid transparent;
+  animation: fadeInUp 0.5s ease 0.45s forwards;
+  opacity: 0;
+}
+
+.coffee-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.09);
+  border-color: #e8f5e9;
+}
+
+.coffee-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #2e7d32;
+  margin-bottom: 2px;
+}
+
+.coffee-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.coffee-card-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+
+.coffee-card-price {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1b5e20;
+  text-align: center;
+}
+
+.coffee-card-unit {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.coffee-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.coffee-card-updated {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.coffee-card-est {
+  font-size: 10px;
+  color: #f59e0b;
+  font-weight: 600;
+  background: #fffbeb;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

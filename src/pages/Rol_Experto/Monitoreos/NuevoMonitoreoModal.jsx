@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import {
-  Info, Camera, FileText, Lightbulb, Check, ChevronRight,
-  ChevronLeft, X, Leaf, Upload, Loader2, ChevronDown,
-  FlaskConical, Stethoscope, Tag,
+  Info, Camera, FileText, Lightbulb, ChevronRight,
+  ChevronLeft, X, Loader2, ChevronDown,
+  FlaskConical, Stethoscope,
 } from 'lucide-react'
 import api from '../../../services/api'
 import { BiCheck, BiListUl, BiCamera, BiPencil, BiBulb, BiLeaf, BiX } from 'react-icons/bi'
@@ -36,7 +36,10 @@ function StepIndicator({ pasoActual }) {
           <div key={p.num} className="nmon-step-wrapper">
             <div className={`nmon-step ${active ? 'nmon-step--active' : ''} ${done ? 'nmon-step--done' : ''}`}>
               <div className="nmon-step-circle">
-                {done ? <Check size={13} strokeWidth={3} /> : <Icon size={13} strokeWidth={2.2} />}
+                {done
+                  ? <BiCheck size={14} />
+                  : <span>{p.num}</span>
+                }
               </div>
               <span className="nmon-step-label">{p.label}</span>
             </div>
@@ -60,13 +63,12 @@ function Paso1({ cultivo, finca, fecha, setFecha, onNext }) {
   }
   return (
     <div className="nmon-paso-body">
-      <div className="nmon-paso-heading">
-        <div className="nmon-paso-heading-icon"><Info size={18} strokeWidth={2} /></div>
-        <div>
-          <h3 className="nmon-paso-title">Información general</h3>
-          <p className="nmon-paso-desc">Confirma los datos básicos de este monitoreo.</p>
-        </div>
-      </div>
+      <div className="nmon-paso-icon">
+  <BiListUl size={32} />
+</div>
+      <h3 className="nmon-paso-title">Información general</h3>
+      <p className="nmon-paso-desc">Confirma los datos básicos de este monitoreo.</p>
+
       <div className="nmon-fields">
         <div className="nmon-field-row">
           <div className="nmon-field">
@@ -114,19 +116,20 @@ function Paso2({ fotos, setFotos, onNext, onBack }) {
   }
   return (
     <div className="nmon-paso-body">
-      <div className="nmon-paso-heading">
-        <div className="nmon-paso-heading-icon"><Camera size={18} strokeWidth={2} /></div>
-        <div>
-          <h3 className="nmon-paso-title">Registro fotográfico</h3>
-          <p className="nmon-paso-desc">Toma fotos del cultivo desde distintos ángulos. Opcional.</p>
-        </div>
-      </div>
+      <div className="nmon-paso-icon">
+  <BiCamera size={32} />
+</div>
+      <h3 className="nmon-paso-title">Registro fotográfico</h3>
+      <p className="nmon-paso-desc">Toma fotos del cultivo desde distintos ángulos. Este paso es opcional.</p>
+
       <div className="nmon-fotos-grid">
-        <button type="button" className="nmon-foto-add" onClick={() => inputRef.current?.click()}>
-          <Upload size={24} strokeWidth={1.5} className="nmon-foto-add-icon" />
+        <div className="nmon-foto-add" onClick={() => inputRef.current?.click()}>
+          <div className="nmon-foto-add-icon">
+            <BiCamera size={28} />
+          </div>
           <span>Agregar fotos</span>
           <small>JPG, PNG, WEBP · Máx. 10 MB</small>
-        </button>
+        </div>
         {fotos.map((foto, i) => (
           <div key={i} className="nmon-foto-preview">
             <img src={foto.preview} alt={`foto-${i}`} />
@@ -140,7 +143,7 @@ function Paso2({ fotos, setFotos, onNext, onBack }) {
         multiple style={{ display: 'none' }} onChange={handleAgregar} />
       {fotos.length > 0 && (
         <p className="nmon-fotos-count">
-          <Check size={12} strokeWidth={3} />
+          <BiCheck size={13} />
           {fotos.length} foto{fotos.length !== 1 ? 's' : ''} lista{fotos.length !== 1 ? 's' : ''}
         </p>
       )}
@@ -160,13 +163,12 @@ function Paso2({ fotos, setFotos, onNext, onBack }) {
 function Paso3({ observaciones, setObservaciones, onNext, onBack }) {
   return (
     <div className="nmon-paso-body">
-      <div className="nmon-paso-heading">
-        <div className="nmon-paso-heading-icon"><FileText size={18} strokeWidth={2} /></div>
-        <div>
-          <h3 className="nmon-paso-title">Observaciones del cultivo</h3>
-          <p className="nmon-paso-desc">Describe el estado actual, plagas o enfermedades. Opcional.</p>
-        </div>
-      </div>
+      <div className="nmon-paso-icon">
+  <BiPencil size={32} />
+</div>
+      <h3 className="nmon-paso-title">Observaciones del cultivo</h3>
+      <p className="nmon-paso-desc">Describe el estado actual, plagas, enfermedades o cualquier aspecto relevante. Opcional.</p>
+
       <div className="nmon-fields">
         <div className="nmon-field">
           <label className="nmon-label">Observaciones</label>
@@ -314,13 +316,11 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
 
   return (
     <div className="nmon-paso-body">
-      <div className="nmon-paso-heading">
-        <div className="nmon-paso-heading-icon"><Lightbulb size={18} strokeWidth={2} /></div>
-        <div>
-          <h3 className="nmon-paso-title">Recomendaciones y tratamiento</h3>
-          <p className="nmon-paso-desc">Opcional. Puedes guardar el monitoreo sin agregar nada aquí.</p>
-        </div>
-      </div>
+      <div className="nmon-paso-icon">
+  <BiBulb size={32} />
+</div>
+      <h3 className="nmon-paso-title">Recomendaciones</h3>
+      <p className="nmon-paso-desc">Agrega una recomendación para este monitoreo o guarda sin ella.</p>
 
       {/* ── Toggle recomendación ── */}
       <div className="nmon-section-toggle">
@@ -460,8 +460,9 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         </button>
         <button className="nmon-btn nmon-btn--guardar" onClick={handleGuardar} disabled={loading}>
           {loading
-            ? <><Loader2 size={14} className="nmon-spin" /> Guardando...</>
-            : <><Check size={14} strokeWidth={3} /> Guardar monitoreo</>}
+            ? <><span className="nmon-spinner" /> Guardando...</>
+            : <><BiCheck size={15} /> Guardar monitoreo</>
+          }
         </button>
       </div>
     </div>
@@ -491,7 +492,9 @@ export default function NuevoMonitoreoModal({ cultivo, finca, expertoId, userId,
       <div className="nmon-modal" onClick={(e) => e.stopPropagation()}>
         <div className="nmon-header">
           <div className="nmon-header-left">
-            <div className="nmon-header-logo"><Leaf size={18} strokeWidth={2} /></div>
+            <span className="nmon-header-icon">
+  <BiLeaf size={30} />
+</span>
             <div>
               <h2 className="nmon-header-title">Nuevo monitoreo</h2>
               <p className="nmon-header-sub">
@@ -500,11 +503,10 @@ export default function NuevoMonitoreoModal({ cultivo, finca, expertoId, userId,
             </div>
           </div>
           <button className="nmon-close" onClick={onClose} aria-label="Cerrar">
-            <X size={16} strokeWidth={2.5} />
-          </button>
-        </div>
 
-        <StepIndicator pasoActual={paso} />
+            <X size={16} strokeWidth={2.5} />
+
+            <BiX size={18} />
 
         <div className="nmon-content">
           {paso === 1 && <Paso1 cultivo={cultivo} finca={finca} fecha={fecha} setFecha={setFecha} onNext={next} />}

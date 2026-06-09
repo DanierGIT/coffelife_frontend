@@ -67,7 +67,7 @@ function AdminApp() {
 
   const renderPage = () => {
     switch (activePage) {
-      case 'dashboard':       return <Dashboard />;
+      case 'dashboard':       return <Dashboard onNavigate={handleNavigate} />;
       case 'administrador':   return <Administrador />;
       case 'experto':         return <Experto />;
       case 'roles':           return <Roles />;

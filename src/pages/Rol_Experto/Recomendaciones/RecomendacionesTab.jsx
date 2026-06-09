@@ -103,10 +103,17 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
 
   return (
     <form className="rtab-form" onSubmit={handleSubmit}>
+<<<<<<< HEAD
       <div className="rtab-form-header">
         <div className="rtab-form-header-icon"><Plus size={15} strokeWidth={2.5} /></div>
         <h3 className="rtab-form-title">Nueva recomendación</h3>
       </div>
+=======
+      <h3 className="rtab-form-title">
+        <BiPlus size={16} />
+        Nueva recomendación
+      </h3>
+>>>>>>> 88fdb5f575d703104f4cd71686d74081fd822746
 
       {/* ── Recomendación ── */}
       <div className="rtab-section">
@@ -215,14 +222,33 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
         )}
       </div>
 
+<<<<<<< HEAD
       {error   && <div className="rtab-alert rtab-alert--error"><AlertCircle size={14} /><span>{error}</span></div>}
       {success && <div className="rtab-alert rtab-alert--success"><CheckCircle size={14} /><span>{success}</span></div>}
+=======
+      {error   && <p className="rtab-error">{error}</p>}
+      {success && (
+        <p className="rtab-success">
+          <BiCheck size={14} />
+          {success}
+        </p>
+      )}
+>>>>>>> 88fdb5f575d703104f4cd71686d74081fd822746
 
       <div className="rtab-form-actions">
         <button type="submit" className="rtab-btn-guardar" disabled={loading}>
           {loading
+<<<<<<< HEAD
             ? <><Loader2 size={14} className="rtab-spin" /> Registrando...</>
             : <><CheckCircle size={14} /> Registrar recomendación</>}
+=======
+            ? <><span className="rtab-spinner" /> Registrando...</>
+            : <>
+                <BiCheck size={14} />
+                Registrar recomendación
+              </>
+          }
+>>>>>>> 88fdb5f575d703104f4cd71686d74081fd822746
         </button>
       </div>
     </form>
@@ -337,7 +363,11 @@ export default function RecomendacionesTab({ cultivo }) {
         </div>
         {recomendaciones.length === 0 ? (
           <div className="rtab-list-empty">
+<<<<<<< HEAD
             <MessageSquare size={28} strokeWidth={1} />
+=======
+            <BiMessageDetail size={32} color="#d1d5db" />
+>>>>>>> 88fdb5f575d703104f4cd71686d74081fd822746
             <p>No hay recomendaciones para este cultivo aún.</p>
           </div>
         ) : (
@@ -355,7 +385,12 @@ export default function RecomendacionesTab({ cultivo }) {
                         <span className="rtab-card-tipo"><Tag size={10} strokeWidth={2.5} />{tipoNombre}</span>
                       )}
                       <span className="rtab-card-fecha">
+<<<<<<< HEAD
                         <Calendar size={10} strokeWidth={2} />Monitoreo {getMonitoreoFecha(r)}
+=======
+                        <BiCalendar size={12} />
+                        Monitoreo {getMonitoreoFecha(r)}
+>>>>>>> 88fdb5f575d703104f4cd71686d74081fd822746
                       </span>
                     </div>
                     {prioNombre && (
@@ -376,7 +411,12 @@ export default function RecomendacionesTab({ cultivo }) {
                   )}
                   {r.fechaLimite && (
                     <p className="rtab-card-limite">
+<<<<<<< HEAD
                       <Clock size={10} strokeWidth={2} />Fecha límite: {normalizeDate(r.fechaLimite)}
+=======
+                      <BiTimeFive size={12} />
+                      Fecha límite: {normalizeDate(r.fechaLimite)}
+>>>>>>> 88fdb5f575d703104f4cd71686d74081fd822746
                     </p>
                   )}
                 </div>

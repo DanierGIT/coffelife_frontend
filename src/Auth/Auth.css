@@ -284,6 +284,11 @@ body {
   gap: 16px;
 }
 
+.auth-field-row {
+  display: flex;
+  gap: 12px;
+}
+
 .auth-field {
   position: relative;
 }

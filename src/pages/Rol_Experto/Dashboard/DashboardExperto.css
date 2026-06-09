@@ -22,7 +22,35 @@
 }
 
 /* ==========================================================================
-   👋 FLEXBOX SUPERIOR: BIENVENIDA Y CARDS KPIs
+   ANIMACIONES DE ENTRADA
+   ========================================================================== */
+@keyframes slideInFromLeft {
+  from { transform: translateX(-80px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+  from { transform: translateX(80px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.animate-left   { animation: slideInFromLeft  0.6s ease-out both; }
+.animate-right  { animation: slideInFromRight 0.6s ease-out both; }
+.animate-bottom { animation: slideInFromBottom 0.6s ease-out both; }
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+/* ==========================================================================
+   ENCABEZADO + KPIs
    ========================================================================== */
 .dashboard-header-flex {
   display: flex;
@@ -33,10 +61,7 @@
   flex-wrap: wrap;
 }
 
-.welcome-banner-text {
-  flex: 1;
-  min-width: 280px;
-}
+.welcome-banner-text { flex: 1; min-width: 280px; }
 
 .welcome-main-title {
   font-size: 2.2rem;
@@ -51,7 +76,6 @@
   margin: 0;
 }
 
-/* Contenedor de las mini tarjetas analíticas */
 .header-kpi-cards-wrapper {
   display: flex;
   gap: 1.25rem;
@@ -79,26 +103,14 @@
   justify-content: center;
 }
 
-/* Colores de iconos basados en el diseño de los mockups */
-.kpi-icon-container.home-kpi {
-  background-color: #eef6e9;
-  color: #437024;
-}
-
-.kpi-icon-container.leaf-kpi {
-  background-color: #fdf2e9;
-  color: #b45309;
-}
-
+.kpi-icon-container.home-kpi,
+.kpi-icon-container.leaf-kpi,
 .kpi-icon-container.task-kpi {
-  background-color: #f5f0e6;
-  color: #78350f;
+  background-color: #eef6e9;
+  color: #2e7d32;
 }
 
-.kpi-data-text {
-  display: flex;
-  flex-direction: column;
-}
+.kpi-data-text { display: flex; flex-direction: column; }
 
 .kpi-number-val {
   font-size: 1.6rem;
@@ -114,8 +126,43 @@
   margin-top: 0.2rem;
 }
 
+/* CoffeePriceCard compacto dentro del header del experto */
+.header-kpi-cards-wrapper .coffee-card {
+  min-width: 160px;
+  max-width: 200px;
+  flex: none;
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(0,0,0,0.01);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  animation: slideInFromRight 0.6s ease-out 0.35s both;
+}
+.header-kpi-cards-wrapper .coffee-card-title {
+  font-size: 10px;
+}
+.header-kpi-cards-wrapper .coffee-card-price {
+  font-size: 20px;
+}
+.header-kpi-cards-wrapper .coffee-card-unit {
+  font-size: 10px;
+}
+.header-kpi-cards-wrapper .coffee-card-updated {
+  font-size: 10px;
+}
+.header-kpi-cards-wrapper .coffee-card-est {
+  font-size: 8px;
+  padding: 1px 6px;
+}
+.header-kpi-cards-wrapper .coffee-card-header {
+  margin-bottom: 0;
+}
+
 /* ==========================================================================
-   📊 BARRA SUPERIOR DE LA SECCIÓN DE FINCAS
+   BARRA SUPERIOR DE FINCAS
    ========================================================================== */
 .fincas-section-top-bar {
   display: flex;
@@ -160,12 +207,11 @@
   transition: background-color 0.2s ease;
 }
 
-.btn-brand-primary:hover {
-  background-color: var(--brand-primary-hover);
-}
+.btn-brand-primary:hover { background-color: var(--brand-primary-hover); }
+.btn-brand-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ==========================================================================
-   🏡 GRILLA DE FINCAS Y TARJETAS REVOLUCIONADAS
+   GRILLA DE TARJETAS DE FINCA
    ========================================================================== */
 .coffeelife-fincas-grid {
   display: grid;
@@ -176,7 +222,7 @@
 .coffeelife-finca-card {
   background: #ffffff;
   border-radius: 28px;
-  overflow: hidden;
+  overflow: visible;          /* visible para que el dropdown no se corte */
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
@@ -186,12 +232,24 @@
   position: relative;
   height: 170px;
   width: 100%;
+  border-radius: 28px 28px 0 0;
+  overflow: hidden;
 }
 
 .finca-card-img-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.finca-card-no-foto {
+  width: 100%;
+  height: 100%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c8e6c9;
 }
 
 .finca-card-floating-badge {
@@ -207,6 +265,7 @@
   align-items: center;
   gap: 0.4rem;
   box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  pointer-events: none;
 }
 
 .status-dot {
@@ -215,14 +274,19 @@
   border-radius: 50%;
   display: inline-block;
 }
-.status-dot.active { background-color: #22c55e; }
+.status-dot.active  { background-color: #22c55e; }
 .status-dot.inactive { background-color: #ef4444; }
 
-.finca-options-trigger {
+/* ── Menú 3 puntos de finca ── */
+.finca-options-menu {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  background-color: rgba(255, 255, 255, 0.9);
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+}
+
+.finca-options-trigger {
+  background-color: rgba(255, 255, 255, 0.92);
   color: var(--brand-dark-text);
   border: none;
   width: 32px;
@@ -232,9 +296,53 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: background-color 0.15s;
 }
 
+.finca-options-trigger:hover { background-color: #ffffff; }
+
+.finca-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 168px;
+  padding: 0.375rem;
+  z-index: 50;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.finca-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.finca-dropdown-item:hover {
+  background-color: #f3f4f6;
+  color: var(--brand-primary);
+}
+
+/* ── Cuerpo de la tarjeta ── */
 .finca-card-main-body {
   padding: 1.4rem;
   display: flex;
@@ -259,9 +367,7 @@
   margin-bottom: 0.5rem;
 }
 
-.finca-owner-info strong {
-  color: var(--brand-dark-text);
-}
+.finca-owner-info strong { color: var(--brand-dark-text); }
 
 .finca-specs-tags {
   display: flex;
@@ -306,19 +412,9 @@
   justify-content: center;
 }
 
-.internal-stat:not(:last-child) {
-  border-right: 1px solid var(--border-subtle);
-}
-
-.internal-stat strong {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.internal-stat span {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
+.internal-stat:not(:last-child) { border-right: 1px solid var(--border-subtle); }
+.internal-stat strong { font-size: 1.05rem; font-weight: 700; }
+.internal-stat span { font-size: 0.7rem; color: var(--text-muted); }
 
 .btn-card-action-trigger {
   background-color: var(--brand-light-green);
@@ -335,20 +431,86 @@
   gap: 0.5rem;
   cursor: pointer;
   margin-top: auto;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
-.btn-card-action-trigger:hover {
-  background-color: #e2edd9;
+.btn-card-action-trigger:hover { background-color: #e2edd9; }
+
+/* ==========================================================================
+   PAGINACIÓN
+   ========================================================================== */
+/* ==========================================================
+   PAGINACIÓN ESTILO MODERNO
+   ========================================================== */
+
+.cl-pagination-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.cl-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cl-page-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.cl-page-btn:hover:not(:disabled) {
+  border-color: #437024;
+  color: #437024;
+  transform: translateY(-2px);
+}
+
+.cl-page-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.cl-page-number.active {
+  background: #437024;
+  color: white;
+  border-color: #437024;
+
+  box-shadow:
+    0 8px 20px rgba(67,112,36,.25),
+    0 2px 8px rgba(67,112,36,.15);
+}
+
+.cl-page-number.active:hover {
+  transform: none;
+}
+
+.cl-pagination-info {
+  display: none;
 }
 
 /* ==========================================================================
-   🔲 MODAL CONFIGURATIONS & INTERACTION MAP
+   MODALES
    ========================================================================== */
 .cl-modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(28, 36, 22, 0.4);
+  background-color: rgba(28, 36, 22, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -362,13 +524,25 @@
   padding: 2rem;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+  box-shadow: 0 20px 40px -5px rgba(0,0,0,0.15);
+  animation: scaleUp 0.18s ease-out;
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
 }
 
 .cl-modal-title {
   font-size: 1.35rem;
   font-weight: 700;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0.35rem 0;
+}
+
+.cl-modal-subtitle {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin: 0 0 1.25rem 0;
 }
 
 .cl-modal-form {
@@ -382,9 +556,7 @@
   gap: 1rem;
 }
 
-.cl-modal-form-row .cl-input-group {
-  flex: 1;
-}
+.cl-modal-form-row .cl-input-group { flex: 1; }
 
 .cl-input-group {
   display: flex;
@@ -407,7 +579,11 @@
   font-size: 0.92rem;
   color: var(--brand-dark-text);
   outline: none;
+  transition: border-color 0.2s;
 }
+
+.cl-input-group input:focus,
+.cl-input-group select:focus { border-color: var(--brand-primary); }
 
 .btn-cl-map-trigger {
   background-color: #ffffff;
@@ -421,7 +597,10 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  transition: border-color 0.2s;
 }
+
+.btn-cl-map-trigger:hover { border-color: var(--brand-primary); }
 
 .cl-map-wrapper {
   margin-top: 1rem;
@@ -451,8 +630,66 @@
   font-size: 0.9rem;
   color: #4b5563;
   cursor: pointer;
+  transition: background-color 0.15s;
 }
 
+.btn-cl-secondary:hover { background-color: #f9fafb; }
+
+.cl-btn-full {
+  width: 100%;
+  margin-top: 0.5rem;
+  justify-content: center;
+}
+
+/* ── Dropzone de foto ── */
+.cl-foto-dropzone {
+  width: 100%;
+  border: 2px dashed #d1d5db;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cl-foto-dropzone:hover {
+  border-color: var(--brand-primary);
+  background: var(--brand-light-green);
+}
+
+.cl-foto-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.cl-foto-placeholder p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.cl-foto-placeholder span {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.cl-foto-preview {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Estados de carga ── */
 .cl-loading-box,
 .cl-state-alert {
   background: #ffffff;
@@ -466,4 +703,54 @@
 .cl-state-alert.error {
   border-left: 4px solid #ef4444;
   color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .coffeelife-dashboard-container {
+    padding: 1.25rem 1rem;
+  }
+  .dashboard-header-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .welcome-main-title {
+    font-size: 1.5rem;
+  }
+  .welcome-subtitle {
+    font-size: 0.9rem;
+  }
+  .header-kpi-cards-wrapper {
+    width: 100%;
+  }
+  .kpi-card-item {
+    flex: 1;
+    min-width: 140px;
+  }
+  .kpi-number-val {
+    font-size: 1.25rem;
+  }
+  .fincas-section-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .top-bar-left-info h2 {
+    font-size: 1.1rem;
+  }
+  .coffeelife-fincas-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .cl-modal-box {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  .cl-modal-form-row {
+    flex-direction: column;
+  }
+  .cl-foto-preview {
+    height: 160px;
+  }
 }
