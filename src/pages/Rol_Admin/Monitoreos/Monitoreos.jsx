@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react'
 import api from '../../../services/api'
 import './Monitoreos.css'
 import '../Administrador/Administrador.css'
-import { BiShow, BiEdit, BiArrowBack, BiSearch } from 'react-icons/bi'
+import '../Usuarios/Usuarios.css'
+import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -137,9 +138,6 @@ function ListaMonitoreosModal({ finca, monitoreos, onBack, onVerDetalle, onEdita
                 <div className="mon-list-acciones">
                   <button className="btn-icon btn-icon-ver" onClick={() => onVerDetalle(m)} title="Ver detalle">
                     <BiShow size={16} />
-                  </button>
-                  <button className="btn-icon btn-icon-editar" onClick={() => onEditar(m)} title="Editar">
-                    <BiEdit size={16} />
                   </button>
                 </div>
               </div>
@@ -374,13 +372,13 @@ export default function Monitoreos() {
                     <span className="mon-finca-count">{cantidad} monitoreo{cantidad !== 1 ? 's' : ''}</span>
                   </td>
                   <td>
-                    <div className="acciones-monitoreo">
+                    <div className="td-actions">
                       <button
-                        className="btn-mon-ver-finca"
+                        className="btn-icon btn-icon-ver"
                         onClick={() => setSelectedFinca(f)}
+                        title="Ver monitoreos"
                       >
-                        <BiShow size={14} />
-                        Ver detalles
+                        <BiShow size={16} />
                       </button>
                     </div>
                   </td>
