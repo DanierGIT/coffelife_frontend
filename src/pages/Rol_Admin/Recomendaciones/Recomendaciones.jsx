@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import api from '../../../services/api'
 import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
+import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
@@ -585,17 +586,19 @@ export default function Recomendaciones() {
                     <span className="rec-exp-ultima">Última: {fmt(ultima)}</span>
                   </td>
                   <td>
-                    <button
-                      className="btn-rec-ver"
-                      onClick={() => {
-                        setSelectedExperto(experto || { idUsuario: id })
-                        setSelectedFincaId(null)
-                        setDetailRecomendacion(null)
-                      }}
-                    >
-                      <BiShow size={14} />
-                      Ver detalles
-                    </button>
+                    <div className="td-actions">
+                      <button
+                        className="btn-icon btn-icon-ver"
+                        onClick={() => {
+                          setSelectedExperto(experto || { idUsuario: id })
+                          setSelectedFincaId(null)
+                          setDetailRecomendacion(null)
+                        }}
+                        title="Ver recomendaciones"
+                      >
+                        <BiShow size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )
