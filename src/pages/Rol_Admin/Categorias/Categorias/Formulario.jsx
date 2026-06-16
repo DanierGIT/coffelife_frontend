@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react'
+import { BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../../components/ToggleSwitch'
 import { getData, createData, updateData, deleteData } from './api'
+import '../../Usuarios/Usuarios.css'
 import './Formulario.css'
+
+const getLocalToggles = (key) => {
+  try { return JSON.parse(localStorage.getItem(key) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => val === true || val === 1
 
 // Convierte camelCase → snake_case para el payload del backend
 function toSnake(str) {
@@ -80,13 +90,23 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
   const [success,    setSuccess]    = useState('')
 
   const getId = (row) => row[idField]
+  const storageKey = endpoint.replace(/^\//, '').replace(/\//g, '_') + '_toggles'
 
   const fetchData = async () => {
     setFetching(true)
     setError('')
     try {
       const res = await getData(endpoint)
-      setData(Array.isArray(res) ? res : (res?.data ?? []))
+      const raw = Array.isArray(res) ? res : (res?.data ?? [])
+      const localToggles = getLocalToggles(storageKey)
+      const merged = raw.map(item => {
+        const id = item[idField]
+        return {
+          ...item,
+          activo: id in localToggles ? localToggles[id] : normalizeActivo(item.activo)
+        }
+      })
+      setData(merged)
     } catch (err) {
       setError(err?.response?.data?.message || 'Error al cargar datos.')
     } finally {
@@ -121,17 +141,16 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
   }
 
   const handleToggleActivo = async (item) => {
-    const nextState = item.activo === undefined ? false : !item.activo
-    const accion = nextState ? 'activar' : 'desactivar'
-    if (!window.confirm(`¿${accion} este registro?`)) return
-    setError('')
-    setSuccess('')
+    const newActivo = !item.activo
+    setData(prev => prev.map(r => r[idField] === item[idField] ? { ...r, activo: newActivo } : r))
     try {
-      await updateData(endpoint, item[idField], { activo: nextState })
-      setSuccess(`Registro ${accion}do correctamente.`)
-      fetchData()
+      const toggles = getLocalToggles(storageKey)
+      toggles[item[idField]] = newActivo
+      localStorage.setItem(storageKey, JSON.stringify(toggles))
+      await updateData(endpoint, item[idField], { activo: newActivo ? 1 : 0 })
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setData(prev => prev.map(r => r[idField] === item[idField] ? { ...r, activo: item.activo } : r))
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
@@ -186,21 +205,22 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
                 <tr key={getId(row)}>
                   <td>{idx + 1}</td>
                   {fields.slice(1).map(f => <td key={f.name}>{row[f.name] ?? '—'}</td>)}
-                  <td className="actions">
-                    <button
-                      type="button"
-                      className="edit-btn"
-                      onClick={() => setEditingRow(row)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      className={row.activo === false ? 'edit-btn' : 'delete-btn'}
-                      onClick={() => handleToggleActivo(row)}
-                    >
-                      {row.activo === false ? 'Activar' : 'Desactivar'}
-                    </button>
+                  <td>
+                    <div className="td-actions">
+                      <button
+                        type="button"
+                        className="btn-icon btn-icon-editar"
+                        onClick={() => setEditingRow(row)}
+                        title="Editar"
+                      >
+                        <BiEdit size={16} />
+                      </button>
+                      <ToggleSwitch
+                        active={row.activo !== false}
+                        onClick={() => handleToggleActivo(row)}
+                        title={row.activo === false ? 'Activar' : 'Desactivar'}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

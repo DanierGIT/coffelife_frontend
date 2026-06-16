@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import api from '../../../services/api'
 import './Monitoreos.css'
 import '../Administrador/Administrador.css'
-import { BiShow, BiEdit, BiArrowBack, BiSearch } from 'react-icons/bi'
+import '../Usuarios/Usuarios.css'
+import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -138,9 +139,6 @@ function ListaMonitoreosModal({ finca, monitoreos, onBack, onVerDetalle, onEdita
                   <button className="btn-icon btn-icon-ver" onClick={() => onVerDetalle(m)} title="Ver detalle">
                     <BiShow size={16} />
                   </button>
-                  <button className="btn-icon btn-icon-editar" onClick={() => onEditar(m)} title="Editar">
-                    <BiEdit size={16} />
-                  </button>
                 </div>
               </div>
             )
@@ -212,15 +210,12 @@ export default function Monitoreos() {
   const [error,      setError]      = useState('')
   const [success,    setSuccess]    = useState('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterFinca, setFilterFinca] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const editCatalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
   const filteredFincas = useMemo(() => {
     let data = fincas
-    if (filterFinca) {
-      data = data.filter((f) => String(f.idFinca) === filterFinca)
-    }
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
       data = data.filter((f) =>
@@ -228,7 +223,7 @@ export default function Monitoreos() {
       )
     }
     return data
-  }, [fincas, searchTerm, filterFinca])
+  }, [fincas, searchTerm])
 
   const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
   const paginatedFincas = useMemo(() => {
@@ -262,24 +257,36 @@ export default function Monitoreos() {
     }
   }
 
-  const getCatalogos = async () => {
+  const loadMonitoreosFincas = async () => {
     try {
-      const [cultivosRes, expertosRes, fincasRes] = await Promise.all([
+      const [mRes, fRes] = await Promise.all([
+        api.get('/monitoreos', { params: { limit: 100 } }),
+        api.get('/fincas?limit=1000'),
+      ])
+      setMonitoreos(Array.isArray(mRes.data) ? mRes.data : (mRes.data?.data ?? []))
+      setFincas(getArrayData(fRes.data))
+    } catch {
+      // silencioso
+    }
+  }
+
+  const loadEditCatalogs = async () => {
+    if (editCatalogsLoaded.current) return
+    editCatalogsLoaded.current = true
+    try {
+      const [cultivosRes, expertosRes] = await Promise.all([
         api.get('/cultivos'),
         api.get('/expertos'),
-        api.get('/fincas?limit=1000'),
       ])
       setCultivos(Array.isArray(cultivosRes.data) ? cultivosRes.data : (cultivosRes.data?.data ?? []))
       setExpertos(Array.isArray(expertosRes.data) ? expertosRes.data : (expertosRes.data?.data ?? []))
-      setFincas(getArrayData(fincasRes.data))
     } catch {
       // silencioso
     }
   }
 
   useEffect(() => {
-    getMonitoreos()
-    getCatalogos()
+    loadMonitoreosFincas()
   }, [])
 
   const handleVerDetalle = (m) => setDetailMonitoreo(m)
@@ -340,19 +347,10 @@ export default function Monitoreos() {
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
             />
           </div>
-          <div className="filter-group">
-            <select
-              value={filterFinca}
-              onChange={(e) => { setFilterFinca(e.target.value); setCurrentPage(1) }}
-            >
-              <option value="">Todas las fincas</option>
-              {fincas.map((f) => (
-                <option key={f.idFinca} value={f.idFinca}>
-                  {f.nombreFinca}
-                </option>
-              ))}
-            </select>
-          </div>
+        </div>
+        <div className="tabla-header">
+          <h2>Lista de Monitoreos</h2>
+          <span className="contador">{monitoreos.length} monitoreo{monitoreos.length !== 1 ? 's' : ''}</span>
         </div>
         <div className="table-scroll">
         <table className="admin-table">
@@ -374,13 +372,13 @@ export default function Monitoreos() {
                     <span className="mon-finca-count">{cantidad} monitoreo{cantidad !== 1 ? 's' : ''}</span>
                   </td>
                   <td>
-                    <div className="acciones-monitoreo">
+                    <div className="td-actions">
                       <button
-                        className="btn-mon-ver-finca"
+                        className="btn-icon btn-icon-ver"
                         onClick={() => setSelectedFinca(f)}
+                        title="Ver monitoreos"
                       >
-                        <BiShow size={14} />
-                        Ver detalles
+                        <BiShow size={16} />
                       </button>
                     </div>
                   </td>
@@ -415,7 +413,7 @@ export default function Monitoreos() {
           monitoreos={fincaMonitoreos[selectedFinca.idFinca] || []}
           onBack={handleCerrarFinca}
           onVerDetalle={handleVerDetalle}
-          onEditar={(m) => setEditingMonitoreo(m)}
+                  onEditar={(m) => { loadEditCatalogs(); setEditingMonitoreo(m) }}
         />
       )}
 

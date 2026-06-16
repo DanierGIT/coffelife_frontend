@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 // Reutilizamos el CSS de Administrador para coherencia visual
 import '../Administrador/Administrador.css'
-import { BiPlus } from 'react-icons/bi'
+import '../Usuarios/Usuarios.css'
+import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi'
 
 // ── Modal editar ─────────────────────────────────────────────────────────────
 function EditModal({ rol, onClose, onSaved }) {
@@ -123,7 +124,7 @@ export default function Roles() {
   return (
     <>
       {/* ── Header de sección: Roles ── */}
-      <div className="section-header-card">
+      <div className="section-header-card" style={{ position: 'relative' }}>
         <div className="section-header-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -138,13 +139,13 @@ export default function Roles() {
             Configuración y gestión de los perfiles de acceso en CoffeeLife. Define las jerarquías y los niveles de permisos del sistema para diferenciar las funciones operativas de administradores, expertos agrícolas y productores cafeteros.
           </p>
         </div>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
         <button
           className="btn-primary"
           onClick={() => setShowCrearModal(true)}
           style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
             background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
             border: 'none',
             padding: '10px 22px',
@@ -180,8 +181,22 @@ export default function Roles() {
                 <td>{rol.nombreRol || rol.nombre_rol || rol.nombre}</td>
                 <td>{rol.descripcion || '—'}</td>
                 <td>
-                  <button className="btn-edit"   onClick={() => setEditingRol(rol)}>Editar</button>
-                  <button className="btn-delete" onClick={() => handleDelete(rol)}>Eliminar</button>
+                  <div className="td-actions">
+                    <button
+                      className="btn-icon btn-icon-editar"
+                      onClick={() => setEditingRol(rol)}
+                      title="Editar rol"
+                    >
+                      <BiEdit size={16} />
+                    </button>
+                    <button
+                      className="btn-icon btn-icon-eliminar"
+                      onClick={() => handleDelete(rol)}
+                      title="Eliminar rol"
+                    >
+                      <BiTrash size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

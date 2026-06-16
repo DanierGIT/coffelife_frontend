@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
 import { BiShow, BiEdit, BiCheckCircle, BiXCircle } from "react-icons/bi";
 import PasswordStrength from "../../../components/PasswordStrength";
@@ -168,6 +168,18 @@ function RequisitosPassword({ roleName }) {
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
+  const rolesLoaded = useRef(false);
+
+  const loadRoles = async () => {
+    if (rolesLoaded.current) return
+    rolesLoaded.current = true
+    try {
+      const r = await api.get("/cat_roles")
+      setRoles(r.data.data || r.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -196,13 +208,6 @@ export default function Usuarios() {
 
   useEffect(() => {
     getUsuarios();
-
-    api
-      .get("/cat_roles")
-      .then((r) =>
-        setRoles(r.data.data || r.data)
-      )
-      .catch((err) => console.error(err));
   }, []);
 
   const handleChange = (e) => {
@@ -446,7 +451,7 @@ export default function Usuarios() {
                           </button>
                           <button
                             className="btn-icon btn-icon-editar"
-                            onClick={() => setEditingUsuario(u)}
+                            onClick={() => { loadRoles(); setEditingUsuario(u) }}
                             title="Editar usuario"
                           >
                             <BiEdit size={16} />

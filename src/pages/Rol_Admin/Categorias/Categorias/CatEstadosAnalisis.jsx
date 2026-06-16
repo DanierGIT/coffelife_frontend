@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
 import api from '../../../../services/api'
+import { BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../../components/ToggleSwitch'
+import '../../Usuarios/Usuarios.css'
 import './Formulario.css'
+
+const STORAGE_KEY = 'cat_estados_analisis_toggles'
+
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => val === true || val === 1
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -26,7 +38,16 @@ export default function CatEstadosAnalisis() {
 
     try {
       const res = await api.get('/cat_estados_analisis')
-      setEstados(getArrayData(res.data))
+      const data = getArrayData(res.data)
+      const localToggles = getLocalToggles()
+      const merged = data.map(item => {
+        const id = item.idEstado
+        return {
+          ...item,
+          activo: id in localToggles ? localToggles[id] : normalizeActivo(item.activo)
+        }
+      })
+      setEstados(merged)
     } catch (err) {
       setError(err?.response?.data?.message || 'Error al cargar estados de analisis.')
     } finally {
@@ -69,19 +90,16 @@ export default function CatEstadosAnalisis() {
   }
 
   const handleToggleActivo = async (item) => {
-    const nextState = item.activo === undefined ? false : !item.activo
-    const accion = nextState ? 'activar' : 'desactivar'
-    if (!window.confirm(`¿${accion} este estado de analisis?`)) return
-
-    setError('')
-    setSuccess('')
-
+    const newActivo = !item.activo
+    setEstados(prev => prev.map(e => e.idEstado === item.idEstado ? { ...e, activo: newActivo } : e))
     try {
-      await api.put(`/cat_estados_analisis/${item.idEstado}`, { activo: nextState })
-      setSuccess(`Estado de analisis ${accion}do correctamente.`)
-      cargarEstados()
+      const toggles = getLocalToggles()
+      toggles[item.idEstado] = newActivo
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await api.put(`/cat_estados_analisis/${item.idEstado}`, { activo: newActivo ? 1 : 0 })
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setEstados(prev => prev.map(e => e.idEstado === item.idEstado ? { ...e, activo: item.activo } : e))
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
@@ -146,22 +164,22 @@ export default function CatEstadosAnalisis() {
                     <td>{idx + 1}</td>
                     <td>{estado.nombreEstado}</td>
                     <td>{estado.descripcion || '-'}</td>
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="edit-btn"
-                        onClick={() => setEditingRow(estado)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        className={estado.activo === false ? 'edit-btn' : 'delete-btn'}
-                        onClick={() => handleToggleActivo(estado)}
-                      >
-                        {estado.activo === false ? 'Activar' : 'Desactivar'}
-                      </button>
+                    <td>
+                      <div className="td-actions">
+                        <button
+                          type="button"
+                          className="btn-icon btn-icon-editar"
+                          onClick={() => setEditingRow(estado)}
+                          title="Editar"
+                        >
+                          <BiEdit size={16} />
+                        </button>
+                        <ToggleSwitch
+                          active={estado.activo !== false}
+                          onClick={() => handleToggleActivo(estado)}
+                          title={estado.activo === false ? 'Activar' : 'Desactivar'}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))

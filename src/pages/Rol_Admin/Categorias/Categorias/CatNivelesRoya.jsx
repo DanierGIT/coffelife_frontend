@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
 import api from '../../../../services/api'
+import { BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../../components/ToggleSwitch'
+import '../../Usuarios/Usuarios.css'
 import './Formulario.css'
+
+const STORAGE_KEY = 'cat_niveles_roya_toggles'
+
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => val === true || val === 1
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -26,7 +38,16 @@ export default function CatNivelesRoya() {
 
     try {
       const res = await api.get('/cat_niveles_roya')
-      setNiveles(getArrayData(res.data))
+      const data = getArrayData(res.data)
+      const localToggles = getLocalToggles()
+      const merged = data.map(item => {
+        const id = item.idNivel
+        return {
+          ...item,
+          activo: id in localToggles ? localToggles[id] : normalizeActivo(item.activo)
+        }
+      })
+      setNiveles(merged)
     } catch (err) {
       setError(err?.response?.data?.message || 'Error al cargar niveles de roya.')
     } finally {
@@ -69,19 +90,16 @@ export default function CatNivelesRoya() {
   }
 
   const handleToggleActivo = async (item) => {
-    const nextState = item.activo === undefined ? false : !item.activo
-    const accion = nextState ? 'activar' : 'desactivar'
-    if (!window.confirm(`¿${accion} este nivel de roya?`)) return
-
-    setError('')
-    setSuccess('')
-
+    const newActivo = !item.activo
+    setNiveles(prev => prev.map(e => e.idNivel === item.idNivel ? { ...e, activo: newActivo } : e))
     try {
-      await api.put(`/cat_niveles_roya/${item.idNivel}`, { activo: nextState })
-      setSuccess(`Nivel de roya ${accion}do correctamente.`)
-      cargarNiveles()
+      const toggles = getLocalToggles()
+      toggles[item.idNivel] = newActivo
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await api.put(`/cat_niveles_roya/${item.idNivel}`, { activo: newActivo ? 1 : 0 })
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setNiveles(prev => prev.map(e => e.idNivel === item.idNivel ? { ...e, activo: item.activo } : e))
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
@@ -148,22 +166,22 @@ export default function CatNivelesRoya() {
                     <td>{idx + 1}</td>
                     <td>{nivel.nombreNivel}</td>
                     <td>{nivel.descripcion || '-'}</td>
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="edit-btn"
-                        onClick={() => setEditingRow(nivel)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        className={nivel.activo === false ? 'edit-btn' : 'delete-btn'}
-                        onClick={() => handleToggleActivo(nivel)}
-                      >
-                        {nivel.activo === false ? 'Activar' : 'Desactivar'}
-                      </button>
+                    <td>
+                      <div className="td-actions">
+                        <button
+                          type="button"
+                          className="btn-icon btn-icon-editar"
+                          onClick={() => setEditingRow(nivel)}
+                          title="Editar"
+                        >
+                          <BiEdit size={16} />
+                        </button>
+                        <ToggleSwitch
+                          active={nivel.activo !== false}
+                          onClick={() => handleToggleActivo(nivel)}
+                          title={nivel.activo === false ? 'Activar' : 'Desactivar'}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))

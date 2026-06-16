@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import api from '../../../services/api'
 import { BiUser, BiMapPin, BiChevronLeft, BiTime, BiCalendar, BiTimeFive, BiPlus, BiDotsVerticalRounded, BiLeaf, BiCamera, BiFile, BiLayer, BiChevronRight } from 'react-icons/bi'
 import './CultivosExperto.css'
@@ -171,17 +171,43 @@ export default function CultivosExperto({ finca, onNavigate }) {
 
   const FOTO_PLACEHOLDER = 'https://blogtrip.org/wp-content/uploads/2016/04/paisaje-cafetero-parque-nacional-cafe-eje-cafetero.jpg'
 
+  const estadosLoaded = useRef(false)
+
+  const loadEstados = async () => {
+    if (estadosLoaded.current) return
+    estadosLoaded.current = true
+    try {
+      const res = await api.get('/cat_estados_cultivo')
+      const est = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      setEstados(est)
+    } catch {
+      // silencioso
+    }
+  }
+
+  const loadStats = async (cultivosList) => {
+    try {
+      const res = await api.get('/monitoreos')
+      const monitoreos = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      const statsMap = {}
+      cultivosList.forEach((c) => {
+        const deCultivo = monitoreos.filter((m) => Number(m.idCultivo) === Number(c.idCultivo))
+        let totalImagenes = 0
+        deCultivo.forEach((m) => { totalImagenes += (m.imagenes?.length || 0) })
+        statsMap[c.idCultivo] = { monitoreos: deCultivo.length, imagenes: totalImagenes }
+      })
+      setStats(statsMap)
+    } catch {
+      // silencioso
+    }
+  }
+
   useEffect(() => {
     if (!finca?.idFinca) return
     const fetchData = async () => {
       try {
-        const [cultivosRes, estadosRes, monitoreosRes] = await Promise.all([
-          api.get('/cultivos'),
-          api.get('/cat_estados_cultivo'),
-          api.get('/monitoreos'),
-        ])
-
-        const todos = Array.isArray(cultivosRes.data) ? cultivosRes.data : (cultivosRes.data?.data ?? [])
+        const res = await api.get('/cultivos')
+        const todos = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
         const filtrados = todos.filter((c) => Number(c.idFinca) === Number(finca.idFinca))
         setCultivos(filtrados)
 
@@ -189,18 +215,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
         filtrados.forEach((c) => { if (c.fotoUrl) fotosIniciales[c.idCultivo] = c.fotoUrl })
         setFotosPorCultivo(fotosIniciales)
 
-        const est = Array.isArray(estadosRes.data) ? estadosRes.data : (estadosRes.data?.data ?? [])
-        setEstados(est)
-
-        const monitoreos = Array.isArray(monitoreosRes.data) ? monitoreosRes.data : (monitoreosRes.data?.data ?? [])
-        const statsMap = {}
-        filtrados.forEach((c) => {
-          const deCultivo = monitoreos.filter((m) => Number(m.idCultivo) === Number(c.idCultivo))
-          let totalImagenes = 0
-          deCultivo.forEach((m) => { totalImagenes += (m.imagenes?.length || 0) })
-          statsMap[c.idCultivo] = { monitoreos: deCultivo.length, imagenes: totalImagenes }
-        })
-        setStats(statsMap)
+        loadStats(filtrados)
       } catch {
         setError('No se pudieron cargar los cultivos.')
       } finally {
@@ -213,6 +228,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleEditClick = (cultivo) => {
+    loadEstados()
     setEditando(cultivo)
     setForm({
       nombre_cultivo: cultivo.nombreCultivo || cultivo.nombre_cultivo || '',
@@ -351,7 +367,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
           <h2>Cultivos de la finca</h2>
           <span className="badge-count">{cultivos.length} cultivos</span>
         </div>
-        <button className="btn-brand-primary" onClick={() => { handleCancelEdit(); setShowModal(true) }}>
+        <button className="btn-brand-primary" onClick={() => { loadEstados(); handleCancelEdit(); setShowModal(true) }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
