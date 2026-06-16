@@ -4,7 +4,8 @@ import "./styles/tratamientos.css";
 import "./styles/formulario.css";
 import "./styles/tabla.css";
 import "../Administrador/Administrador.css";
-import { BiPlus } from 'react-icons/bi';
+import "../Usuarios/Usuarios.css";
+import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi';
 
 // ─── Servicio inline (usa el api centralizado del proyecto) ───
 const obtenerTratamientos = async () => {
@@ -166,8 +167,14 @@ function TablaTratamientos({ tratamientos, tiposTratamiento, eliminar, editar })
               <td>{t.nombre}</td>
               <td>{t.descripcion}</td>
               <td className="acciones">
-                <button className="editar"   onClick={() => editar(t)}>Editar</button>
-                <button className="eliminar" onClick={() => eliminar(t.idTratamiento)}>Eliminar</button>
+                <div className="td-actions">
+                  <button className="btn-icon btn-icon-editar" onClick={() => editar(t)} title="Editar tratamiento">
+                    <BiEdit size={16} />
+                  </button>
+                  <button className="btn-icon btn-icon-eliminar" onClick={() => eliminar(t.idTratamiento)} title="Eliminar tratamiento">
+                    <BiTrash size={16} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))

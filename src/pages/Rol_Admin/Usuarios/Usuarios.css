@@ -188,6 +188,14 @@
   background: #ffccbc;
 }
 
+.btn-icon-eliminar {
+  background: #fbe9e7;
+  color: #c62828;
+}
+.btn-icon-eliminar:hover {
+  background: #ffccbc;
+}
+
 .td-actions {
   display: flex;
   gap: 6px;

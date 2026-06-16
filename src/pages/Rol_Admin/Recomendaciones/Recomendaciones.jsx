@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import api from '../../../services/api'
 import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
+import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
@@ -672,3 +673,5 @@ export default function Recomendaciones() {
     </>
   )
 }
+
+//jhon
