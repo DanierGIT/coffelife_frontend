@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
@@ -274,7 +274,15 @@ export default function Fincas() {
     try {
       const res = await api.get('/fincas?limit=1000')
       const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
-      setFincasRaw(data)
+      const localToggles = getLocalToggles()
+      const merged = data.map(item => {
+        const id = item.idFinca
+        return {
+          ...item,
+          activo: id in localToggles ? localToggles[id] : normalizeActivo(item.activo)
+        }
+      })
+      setFincasRaw(merged)
     } catch (err) {
       console.error("Error cargando fincas:", err)
       setError('No se pudieron cargar las fincas.')
@@ -329,7 +337,7 @@ export default function Fincas() {
   }, [])
 
   // Filtros en memoria utilizando UseMemo
-  const filteredFincas = useMemo(() => {
+  const filteredFincas = (() => {
     let data = fincas
     if (filterExperto) {
       data = data.filter((f) => String(f.idExpertoAsignado) === filterExperto)
@@ -472,19 +480,21 @@ export default function Fincas() {
   }
 
   const handleToggleActivo = async (idFinca, newActivo) => {
-    // Optimistic update usando función para tener el estado más reciente
-    setFincas((prev) =>
-      prev.map((f) =>
-        f.idFinca === idFinca ? { ...f, activo: newActivo } : f
+    const revert = () => {
+      setFincasRaw((prev) =>
+        prev.map((f) => f.idFinca === idFinca ? { ...f, activo: !newActivo } : f)
       )
+    }
+    setFincasRaw((prev) =>
+      prev.map((f) => f.idFinca === idFinca ? { ...f, activo: newActivo } : f)
     )
     try {
-      const nuevoEstado = !finca.activo
-      await api.put(`/fincas/${finca.idFinca}`, { activo: nuevoEstado })
-      setFincasRaw((prev) =>
-        prev.map((f) => f.idFinca === finca.idFinca ? { ...f, activo: nuevoEstado } : f)
-      )
+      const toggles = getLocalToggles()
+      toggles[idFinca] = newActivo
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await api.put(`/fincas/${idFinca}`, { activo: newActivo ? 1 : 0 })
     } catch (err) {
+      revert()
       setError(err?.response?.data?.message || 'No se pudo cambiar el estado de la finca.')
     }
   }
@@ -626,7 +636,12 @@ export default function Fincas() {
           </svg>
         </div>
         <div className="module-header-content">
-          <span className="module-header-badge">GESTIÓN AGRÍCOLA</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span className="module-header-badge">GESTIÓN AGRÍCOLA</span>
+            <button className="btn-primary" onClick={() => setShowCrearModal(true)}>
+              <BiPlus size={16} /> Agregar finca
+            </button>
+          </div>
           <h1>Fincas</h1>
           <p>
             Administra las fincas registradas en CoffeeLife. Desde aquí puedes
@@ -638,20 +653,6 @@ export default function Fincas() {
       </div>
 
       {loading && <Loading type="overlay" text="Cargando datos del módulo..." />}
-
-      <div className="admin-form-card">
-        <div className="map-card-header">
-          <div className="map-card-title">
-            <BiMapPin size={20} />
-            <span>Mapa de fincas registradas</span>
-            <span className="map-card-badge">{fincas.length} fincas</span>
-          </div>
-          <button className="btn-primary" onClick={() => setShowMap(!showMap)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            {showMap ? <><BiHide size={16} /> Ocultar mapa</> : <><BiShow size={16} /> Mostrar mapa</>}
-          </button>
-        </div>
-        {showMap && <MapaGeneral fincas={fincas} />}
-      </div>
 
       <div className="admin-table-card">
         <div className="table-toolbar">
@@ -698,11 +699,13 @@ export default function Fincas() {
                 </div>
               )}
             </div>
-            <button className="btn-primary" onClick={() => setShowCrearModal(true)}>
-              <BiPlus size={16} /> Agregar finca
+            <button className="btn-secondary" onClick={() => setShowMap(!showMap)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {showMap ? <><BiHide size={16} /> Ocultar mapa</> : <><BiShow size={16} /> Mostrar mapa</>}
             </button>
           </div>
         </div>
+
+        {showMap && <MapaGeneral fincas={fincas} />}
 
         <div className="table-scroll">
           <table className="admin-table">
@@ -752,9 +755,11 @@ export default function Fincas() {
                       <button className="btn-icon btn-icon-editar" onClick={() => openEditModal(f)} title="Editar finca">
                         <BiEdit size={16} />
                       </button>
-                      <button className={`btn-icon btn-icon-toggle ${f.activo ? 'desactivar' : 'activar'}`} onClick={() => handleToggleActivo(f)} title={f.activo ? 'Desactivar finca' : 'Activar finca'}>
-                        {f.activo ? <BiToggleRight size={16} /> : <BiToggleLeft size={16} />}
-                      </button>
+                      <ToggleSwitch
+                        active={f.activo !== false}
+                        onClick={(e, next) => handleToggleActivo(f.idFinca, next)}
+                        title={f.activo === false ? 'Activar finca' : 'Desactivar finca'}
+                      />
                     </td>
                   </tr>
                 ))
