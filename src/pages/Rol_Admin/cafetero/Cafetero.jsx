@@ -7,6 +7,7 @@ import "../Administrador/Administrador.css"
 import "../Usuarios/Usuarios.css"
 import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
+import Loading from '../../../components/Loading'
 
 function DetalleUsuarioModal({ usuario, onClose }) {
   if (!usuario) return null;
@@ -148,7 +149,7 @@ function EditModal({ cafetero, onClose, onSaved }) {
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "Guardando…" : "Guardar cambios"}
+              {loading ? <Loading type="inline" text="Guardando…" /> : "Guardar cambios"}
             </button>
           </div>
         </form>
@@ -162,6 +163,7 @@ export default function Cafetero() {
   const [editingCafetero, setEditing]   = useState(null)
   const [detalleCafetero, setDetalle]   = useState(null)
   const [loading,         setLoading]   = useState(false)
+  const [pageLoading,     setPageLoading] = useState(true)
   const [error,           setError]     = useState("")
   const [success,         setSuccess]   = useState("")
   const [showCrearModal,  setShowCrearModal] = useState(false)
@@ -172,12 +174,15 @@ export default function Cafetero() {
   })
 
   const getCafeteros = async () => {
+    setPageLoading(true)
     try {
       const res = await api.get("/cafeteros")
       setCafeteros(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
     } catch (err) {
       setError("No se pudieron cargar los cafeteros.")
       console.error("Error al obtener cafeteros:", err)
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -226,6 +231,8 @@ export default function Cafetero() {
       setError(err?.response?.data?.message || "No se pudo cambiar el estado.")
     }
   }
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <div className="admin-page">
@@ -374,7 +381,7 @@ export default function Cafetero() {
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => { setShowCrearModal(false); setError(''); }}>Cancelar</button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creando…' : 'Crear cafetero'}
+                  {loading ? <Loading type="inline" text="Creando…" /> : 'Crear cafetero'}
                 </button>
               </div>
             </form>

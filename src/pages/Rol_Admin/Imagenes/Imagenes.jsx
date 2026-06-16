@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import api from '../../../services/api'
 import './Imagenes.css'
+import Loading from '../../../components/Loading'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 
@@ -61,7 +62,7 @@ function EditModal({ imagen, monitoreos, onClose, onSaved }) {
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar cambios'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
@@ -75,6 +76,7 @@ export default function Imagenes() {
   const [monitoreos,    setMonitoreos]    = useState([])
   const [editingImagen, setEditingImagen] = useState(null)
   const [loading,       setLoading]       = useState(false)
+  const [pageLoading,   setPageLoading]   = useState(true)
   const monitoreosLoaded = useRef(false)
   const [error,         setError]         = useState('')
   const [success,       setSuccess]       = useState('')
@@ -85,11 +87,14 @@ export default function Imagenes() {
   })
 
   const getImagenes = async () => {
+    setPageLoading(true)
     try {
       const res = await api.get('/imagenes')
       setImagenes(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
     } catch {
       setError('No se pudieron cargar las imágenes.')
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -138,6 +143,8 @@ export default function Imagenes() {
     }
   }
 
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
+
   return (
     <div>
       <h1 className="admin-page-title">Imágenes</h1>
@@ -164,7 +171,7 @@ export default function Imagenes() {
           {success && <p className="monitoreo-success">{success}</p>}
           <div className="admin-form-actions">
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Registrando...' : '+ Registrar imagen'}
+              {loading ? <Loading type="inline" text="Registrando..." /> : '+ Registrar imagen'}
             </button>
           </div>
         </form>

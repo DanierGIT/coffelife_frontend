@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import './TratamientosExperto.css'
+import Loading from '../../../components/Loading'
+import '../../../components/cargando.css'
 
 export default function TratamientosExperto() {
   const [monitoreos,   setMonitoreos]   = useState([])
@@ -77,7 +79,7 @@ export default function TratamientosExperto() {
       </div>
 
       {loading ? (
-        <p style={{ color: '#9ca3af', fontSize: 14 }}>Cargando…</p>
+        <Loading type="content" text="Cargando…" />
       ) : (
         <div className="trat-content">
           {/* Panel izquierdo: selección de monitoreo */}
@@ -182,7 +184,7 @@ export default function TratamientosExperto() {
 
               <div className="trat-form-actions">
                 <button type="submit" className="btn-enviar" disabled={saving || !form.id_tratamiento}>
-                  {saving ? 'Enviando…' : 'Enviar recomendación'}
+                  {saving ? <Loading type="inline" text="Enviando…" /> : 'Enviar recomendación'}
                 </button>
               </div>
             </form>

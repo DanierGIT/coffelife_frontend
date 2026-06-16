@@ -5,8 +5,8 @@ import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import './Fincas.css'
 import '../Administrador/Administrador.css'
-import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiPlus, BiInfoCircle, BiHide, BiShow, BiTrash, BiSearch, BiFilter } from 'react-icons/bi'
-import ToggleSwitch from '../../../components/ToggleSwitch'
+import Loading from '../../../components/Loading'
+import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiTrash, BiSearch, BiFilter } from 'react-icons/bi'
 
 delete L.Icon.Default.prototype._getIconUrl
 
@@ -652,8 +652,7 @@ export default function Fincas() {
         </div>
       </div>
 
-      {/* Spinner de Carga General */}
-      {loading && <div className="loading-spinner-overlay">Cargando datos del módulo...</div>}
+      {loading && <Loading type="overlay" text="Cargando datos del módulo..." />}
 
       <div className="admin-table-card">
         <div className="table-toolbar">
@@ -809,7 +808,7 @@ export default function Fincas() {
               {error && <p className="modal-error">{error}</p>}
               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Registrando...' : 'Registrar finca'}
+                  {loading ? <Loading type="inline" text="Registrando..." /> : 'Registrar finca'}
                 </button>
                 <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
               </div>
@@ -900,7 +899,7 @@ export default function Fincas() {
                 </button>
               </div>
               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Guardando...' : 'Guardar cambios'}</button>
+                <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}</button>
                 <button type="button" className="btn-secondary" onClick={() => setEditingFinca(null)}>Cancelar</button>
               </div>
             </form>

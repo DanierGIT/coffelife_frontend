@@ -6,6 +6,7 @@ import "../Administrador/Administrador.css";
 import "../Usuarios/Usuarios.css";
 import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
+import Loading from '../../../components/Loading'
 
 const EMPTY_FORM = {
   nombre: '', apellido: '', correo: '', telefono: '',
@@ -141,7 +142,7 @@ function EditModal({ experto, onClose, onSaved }) {
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar cambios'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
@@ -156,16 +157,20 @@ export default function Experto() {
   const [detalleExperto,  setDetalleExperto]  = useState(null)
   const [form,            setForm]            = useState(EMPTY_FORM)
   const [loading,         setLoading]         = useState(false)
+  const [pageLoading,     setPageLoading]     = useState(true)
   const [error,           setError]           = useState('')
   const [success,         setSuccess]         = useState('')
   const [showCrearModal,  setShowCrearModal]  = useState(false)
 
   const obtenerExpertos = async () => {
+    setPageLoading(true)
     try {
       const data = await getExpertos()
       setExpertos(Array.isArray(data) ? data : (data?.data ?? []))
     } catch (err) {
       console.error('Error al obtener expertos', err)
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -222,6 +227,8 @@ export default function Experto() {
       setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <>
@@ -367,7 +374,7 @@ export default function Experto() {
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => { setShowCrearModal(false); setError(''); }}>Cancelar</button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creando…' : 'Crear experto'}
+                  {loading ? <Loading type="inline" text="Creando…" /> : 'Crear experto'}
                 </button>
               </div>
             </form>

@@ -3,6 +3,7 @@ import api from "../../../services/api";
 import { BiShow, BiEdit, BiCheckCircle, BiXCircle } from "react-icons/bi";
 import PasswordStrength from "../../../components/PasswordStrength";
 import { validatePassword, PASSWORD_RULES } from "../../../utils/passwordValidator";
+import Loading from "../../../components/Loading";
 import "./Usuarios.css";
 import "../Administrador/Administrador.css";
 
@@ -136,7 +137,7 @@ function EditUsuarioModal({ usuario, roles, onClose, onSaved }) {
           {success && <p className="rec-success">{success}</p>}
           <div className="admin-form-actions">
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "Guardando..." : "Guardar cambios"}
+              {loading ? <Loading type="inline" text="Guardando..." /> : "Guardar cambios"}
             </button>
           </div>
         </form>
@@ -182,6 +183,7 @@ export default function Usuarios() {
   }
 
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -197,12 +199,15 @@ export default function Usuarios() {
   });
 
   const getUsuarios = async () => {
+    setPageLoading(true)
     try {
       const res = await api.get("/usuarios");
       setUsuarios(res.data.data || res.data);
     } catch (err) {
       console.error(err);
       setError("No se pudieron cargar los usuarios.");
+    } finally {
+      setPageLoading(false)
     }
   };
 
@@ -290,6 +295,8 @@ export default function Usuarios() {
 
   const [detalleUsuario, setDetalleUsuario] = useState(null)
   const [editingUsuario, setEditingUsuario] = useState(null)
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <>
@@ -400,7 +407,7 @@ export default function Usuarios() {
               disabled={loading}
             >
               {loading
-                ? "Registrando..."
+                ? <Loading type="inline" text="Registrando..." />
                 : "Registrar usuario"}
             </button>
           </div>

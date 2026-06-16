@@ -8,15 +8,8 @@ import api from '../../../services/api'
 // Reutilizamos el CSS de Administrador para coherencia visual
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
-import { BiPlus, BiEdit } from 'react-icons/bi'
-import ToggleSwitch from '../../../components/ToggleSwitch'
-
-// ── Helpers para toggle activo (backend no persiste siempre) ─────────────────
-const STORAGE_KEY = 'roles_toggles'
-const getLocalToggles = () => {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') } catch { return {} }
-}
-const normalizeActivo = (val) => val === true || val === 1
+import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi'
+import Loading from '../../../components/Loading'
 
 // ── Modal editar ─────────────────────────────────────────────────────────────
 function EditModal({ rol, onClose, onSaved }) {
@@ -66,7 +59,7 @@ function EditModal({ rol, onClose, onSaved }) {
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar cambios'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
@@ -81,11 +74,13 @@ export default function Roles() {
   const [editingRol,  setEditingRol]  = useState(null)
   const [form, setForm] = useState({ nombre: '', descripcion: '' })
   const [loading,     setLoading]     = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const [error,       setError]       = useState('')
   const [success,     setSuccess]     = useState('')
   const [showCrearModal, setShowCrearModal] = useState(false)
 
   const cargarRoles = async () => {
+    setPageLoading(true)
     try {
       const res  = await api.get('/cat_roles')
       const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? res.data?.roles ?? [])
@@ -100,6 +95,8 @@ export default function Roles() {
       setRoles(merged)
     } catch {
       setError('Error al cargar roles.')
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -137,22 +134,7 @@ export default function Roles() {
     }
   }
 
-  const handleToggleActivo = async (id, newActivo) => {
-    setRoles((prev) =>
-      prev.map((r) => ((r.idRol || r.id) === id ? { ...r, activo: newActivo } : r))
-    )
-    try {
-      const toggles = getLocalToggles()
-      toggles[id] = newActivo
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
-      await api.put(`/cat_roles/${id}`, { activo: newActivo ? 1 : 0 })
-    } catch (err) {
-      setRoles((prev) =>
-        prev.map((r) => ((r.idRol || r.id) === id ? { ...r, activo: !newActivo } : r))
-      )
-      setError(err?.response?.data?.message || 'No se pudo cambiar el estado del rol.')
-    }
-  }
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <>
@@ -257,7 +239,7 @@ export default function Roles() {
               {error && <p className="modal-error">{error}</p>}
               <div className="modal-actions">
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creando...' : 'Crear rol'}
+                  {loading ? <Loading type="inline" text="Creando..." /> : 'Crear rol'}
                 </button>
                 <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>
                   Cancelar

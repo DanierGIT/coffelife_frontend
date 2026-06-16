@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./cultivos.css";
 import api from "../../../services/api";
 import "../Administrador/Administrador.css";
+import Loading from "../../../components/Loading";
 
 export default function Cultivos() {
 
@@ -12,6 +13,7 @@ export default function Cultivos() {
 
   const [cultivos,  setCultivos]  = useState([]);
   const [cargando,  setCargando]  = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error,     setError]     = useState("");
   const [editando,  setEditando]  = useState(false);
   const [idEditar,  setIdEditar]  = useState(null);
@@ -19,11 +21,14 @@ export default function Cultivos() {
   useEffect(() => { cargarCultivos(); }, []);
 
   const cargarCultivos = async () => {
+    setPageLoading(true)
     try {
       const res = await api.get("/cultivos");
       setCultivos(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (e) {
       setError("Error al cargar cultivos");
+    } finally {
+      setPageLoading(false)
     }
   };
 
@@ -79,6 +84,8 @@ export default function Cultivos() {
     setIdFinca(""); setIdEstado("");
     setEditando(false); setIdEditar(null); setError("");
   };
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <div className="rl-container">
@@ -139,7 +146,7 @@ export default function Cultivos() {
 
         <div className="rl-actions">
           <button className="rl-btn" onClick={guardar} disabled={cargando}>
-            {cargando ? "Guardando..." : editando ? "Actualizar" : "Guardar"}
+            {cargando ? <Loading type="inline" text="Guardando..." /> : editando ? "Actualizar" : "Guardar"}
           </button>
           {editando && (
             <button className="rl-btn-cancel" onClick={limpiarFormulario}>
