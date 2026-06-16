@@ -4,7 +4,8 @@ import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
 import "../Administrador/Administrador.css";
 import "../Usuarios/Usuarios.css";
-import { BiPlus, BiShow, BiEdit, BiCheckCircle, BiXCircle } from 'react-icons/bi'
+import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../components/ToggleSwitch'
 
 const EMPTY_FORM = {
   nombre: '', apellido: '', correo: '', telefono: '',
@@ -224,7 +225,7 @@ export default function Experto() {
 
   return (
     <>
-      <div className="section-header-card">
+      <div className="section-header-card" style={{ position: 'relative' }}>
         <div className="section-header-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="8" r="4" />
@@ -240,13 +241,13 @@ export default function Experto() {
             Gestiona los usuarios con rol de Experto dentro del sistema. Desde aquí puedes registrar nuevos expertos, editar su información personal, y activar o desactivar su acceso a la plataforma CoffeeLife.
           </p>
         </div>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"
           onClick={() => setShowCrearModal(true)}
           style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
             background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
             border: 'none',
             padding: '10px 22px',
@@ -304,13 +305,11 @@ export default function Experto() {
                     >
                       <BiEdit size={16} />
                     </button>
-                    <button
-                      className={`btn-icon ${exp.activo ? 'btn-icon-desactivar' : 'btn-icon-activar'}`}
+                    <ToggleSwitch
+                      active={exp.activo}
                       onClick={() => handleToggleActivo(exp)}
                       title={exp.activo ? 'Desactivar' : 'Activar'}
-                    >
-                      {exp.activo ? <BiXCircle size={16} /> : <BiCheckCircle size={16} />}
-                    </button>
+                    />
                   </div>
                 </td>
               </tr>

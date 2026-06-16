@@ -254,6 +254,11 @@
   gap: 6px;
 }
 
+.rec-list-placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .rec-form-row {
@@ -264,5 +269,27 @@
     min-width: unset;
     width: 100%;
   }
+}
+
+.tabla-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.tabla-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+.contador {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
 }
 

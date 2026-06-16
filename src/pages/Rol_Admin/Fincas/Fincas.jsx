@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
@@ -140,6 +140,18 @@ function MapaGeneral({ fincas }) {
       </MapContainer>
     </div>
   )
+}
+
+const STORAGE_KEY = 'fincas_toggles'
+
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => {
+  if (val === null || val === undefined) return true
+  return val === true || val === 1 || val === '1'
 }
 
 export default function Fincas() {
@@ -337,13 +349,13 @@ export default function Fincas() {
       )
     }
     return data
-  }, [fincas, searchTerm, filterExperto, filterEstado, filterCafetero])
+  })()
 
   const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
-  const paginatedFincas = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredFincas.slice(start, start + ITEMS_PER_PAGE)
-  }, [filteredFincas, currentPage])
+  const paginatedFincas = filteredFincas.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    (currentPage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+  )
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -458,7 +470,13 @@ export default function Fincas() {
     }
   }
 
-  const handleToggleActivo = async (finca) => {
+  const handleToggleActivo = async (idFinca, newActivo) => {
+    // Optimistic update usando función para tener el estado más reciente
+    setFincas((prev) =>
+      prev.map((f) =>
+        f.idFinca === idFinca ? { ...f, activo: newActivo } : f
+      )
+    )
     try {
       const nuevoEstado = !finca.activo
       await api.put(`/fincas/${finca.idFinca}`, { activo: nuevoEstado })
