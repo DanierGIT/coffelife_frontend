@@ -4,6 +4,8 @@ import L from 'leaflet'
 import api from '../../../services/api'
 import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight, BiCamera } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
+import Loading from '../../../components/Loading'
+import '../../../components/cargando.css'
 import './DashboardExperto.css'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -163,7 +165,7 @@ function FotoFincaModal({ finca, onClose, onFotoActualizada }) {
         <div className="cl-modal-actions" style={{ marginTop: '1.25rem' }}>
           <button className="btn-cl-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-brand-primary" onClick={handleUpload} disabled={!file || uploading}>
-            {uploading ? 'Subiendo...' : 'Guardar foto'}
+            {uploading ? <Loading type="inline" text="Subiendo..." /> : 'Guardar foto'}
           </button>
         </div>
       </div>
@@ -240,7 +242,7 @@ function EditarFincaModal({ finca, cafeteros, onClose, onGuardado }) {
           <div className="cl-modal-actions">
             <button type="button" className="btn-cl-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-brand-primary" disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar cambios'}
+              {saving ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
@@ -521,7 +523,7 @@ export default function DashboardExperto({ onNavigate }) {
         </div>
 
         {loading ? (
-          <div className="cl-loading-box"><p>Cargando fincas asignadas...</p></div>
+          <Loading type="content" text="Cargando fincas asignadas..." />
         ) : fincasAsignadas.length === 0 ? (
           <div className="cl-loading-box alert"><p>No se encontraron fincas asignadas para tu perfil de experto.</p></div>
         ) : (
@@ -698,7 +700,7 @@ export default function DashboardExperto({ onNavigate }) {
               <div className="cl-modal-actions">
                 <button type="button" className="btn-cl-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
                 <button type="submit" className="btn-brand-primary" disabled={saving}>
-                  {saving ? 'Registrando...' : 'Registrar Finca'}
+                  {saving ? <Loading type="inline" text="Registrando..." /> : 'Registrar Finca'}
                 </button>
               </div>
             </form>

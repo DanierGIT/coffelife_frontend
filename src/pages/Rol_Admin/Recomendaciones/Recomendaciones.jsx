@@ -4,6 +4,7 @@ import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
+import Loading from '../../../components/Loading'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -144,7 +145,7 @@ function EditModal({ recomendacion, onClose, onSaved, monitoreos, tipos, experto
             </button>
 
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar'}
             </button>
           </div>
         </form>
@@ -339,7 +340,7 @@ export default function Recomendaciones() {
   const [selectedExperto, setSelectedExperto] = useState(null)
   const [selectedFincaId, setSelectedFincaId] = useState(null)
   const [detailRecomendacion, setDetailRecomendacion] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -402,11 +403,14 @@ export default function Recomendaciones() {
   }, [selectedExperto, selectedFincaId, expertoRecs])
 
   const getRecomendaciones = async () => {
+    setLoading(true)
     try {
       const res = await api.get('/recomendaciones?limit=1000')
       setRecomendaciones(getArrayData(res.data))
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudieron cargar las recomendaciones.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -479,6 +483,8 @@ export default function Recomendaciones() {
     setSelectedFincaId(null)
     setDetailRecomendacion(null)
   }
+
+  if (loading) return <Loading type="content" text="Cargando..." />
 
   return (
     <>
@@ -575,8 +581,7 @@ export default function Recomendaciones() {
                         setDetailRecomendacion(null)
                       }}
                     >
-                      <BiShow size={14} />
-                      Ver detalles
+                      <BiShow size={16} />
                     </button>
                   </td>
                 </tr>

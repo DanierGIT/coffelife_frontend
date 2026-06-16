@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
+import Loading from '../../../components/Loading'
 import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 import './Administrador.css'
@@ -130,7 +131,7 @@ function EditModal({ admin, onClose, onSaved }) {
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando…' : 'Guardar'}
+              {loading ? <Loading type="inline" text="Guardando…" /> : 'Guardar'}
             </button>
           </div>
         </form>
@@ -259,7 +260,7 @@ export default function Administrador() {
 
       <div className="admin-table-card">
         {fetching ? (
-          <p style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Cargando administradores…</p>
+          <Loading type="content" size="sm" text="Cargando administradores…" />
         ) : (
           <table className="admin-table">
             <thead>
@@ -351,7 +352,7 @@ export default function Administrador() {
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => { setShowCrearModal(false); setError(''); }}>Cancelar</button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creando…' : 'Crear administrador'}
+                  {loading ? <Loading type="inline" text="Creando…" /> : 'Crear administrador'}
                 </button>
               </div>
             </form>

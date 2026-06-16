@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../../components/ToggleSwitch'
+import Loading from '../../../../components/Loading'
 import { getData, createData, updateData, deleteData } from './api'
 import '../../Usuarios/Usuarios.css'
 import './Formulario.css'
@@ -70,7 +71,7 @@ function EditModal({ fields, idField, row, onClose, onSaved, endpoint }) {
           <div className="cat-modal-actions">
             <button type="button" className="cat-btn-cancel" onClick={onClose}>Cancelar</button>
             <button type="submit" className="cat-btn-save" disabled={loading}>
-              {loading ? 'Guardando…' : 'Guardar'}
+              {loading ? <Loading type="inline" text="Guardando…" /> : 'Guardar'}
             </button>
           </div>
         </form>
@@ -173,7 +174,7 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
             />
           ))}
           <button type="submit" disabled={loading}>
-            {loading ? 'Creando…' : 'Crear'}
+            {loading ? <Loading type="inline" text="Creando…" /> : 'Crear'}
           </button>
         </form>
         {error   && <p style={{ color: '#c53030', marginTop: 10, fontSize: 13 }}>{error}</p>}
@@ -183,7 +184,7 @@ const Formulario = ({ title, fields, endpoint, idField }) => {
       {/* ── TABLA ── */}
       <div className="crud-table-card">
         {fetching ? (
-          <p style={{ textAlign: 'center', padding: 24, color: '#666' }}>Cargando…</p>
+          <Loading type="content" text="Cargando…" />
         ) : (
           <table>
             <thead>

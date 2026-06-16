@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import { BiSearch } from 'react-icons/bi'
 import './HistorialExperto.css'
+import Loading from '../../../components/Loading'
+import '../../../components/cargando.css'
 
 const fmt = (v) => v ? new Date(v).toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' }) : '—'
 
@@ -56,7 +58,7 @@ export default function HistorialExperto() {
 
       <div className="hist-table-wrap">
         {loading ? (
-          <p className="hist-empty">Cargando…</p>
+          <Loading type="content" text="Cargando…" />
         ) : filtered.length === 0 ? (
           <p className="hist-empty">No hay resultados.</p>
         ) : (

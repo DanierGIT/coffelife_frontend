@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import api from '../../../services/api'
 import { BiImage } from 'react-icons/bi'
 import './EscanerIA.css'
+import Loading from '../../../components/Loading'
+import '../../../components/cargando.css'
 
 // ── Sub-tab: Fotos del caficultor ─────────────────────────────────────────────
 function FotosCaficultor() {
@@ -19,7 +21,7 @@ function FotosCaficultor() {
   return (
     <div className="escaner-fotos">
       {loading ? (
-        <p className="escaner-empty">Cargando imágenes…</p>
+        <Loading type="content" text="Cargando imágenes…" />
       ) : imagenes.length === 0 ? (
         <div className="escaner-no-fotos">
           <BiImage size={48} color="#9ca3af" />
@@ -92,7 +94,7 @@ function EscanearPlanta() {
     <div className="escaner-analisis">
       <div className="escaner-analisis-list">
         <h3>Análisis recientes</h3>
-        {loading ? <p className="escaner-empty">Cargando…</p> : analisis.length === 0 ? (
+        {loading ? <Loading type="content" text="Cargando…" /> : analisis.length === 0 ? (
           <p className="escaner-empty">No hay análisis registrados.</p>
         ) : (
           analisis.map(a => (
