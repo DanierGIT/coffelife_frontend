@@ -575,8 +575,7 @@ export default function Recomendaciones() {
                         setDetailRecomendacion(null)
                       }}
                     >
-                      <BiShow size={14} />
-                      Ver detalles
+                      <BiShow size={16} />
                     </button>
                   </td>
                 </tr>

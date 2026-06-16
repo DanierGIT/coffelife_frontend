@@ -8,7 +8,15 @@ import api from '../../../services/api'
 // Reutilizamos el CSS de Administrador para coherencia visual
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
-import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi'
+import { BiPlus, BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../components/ToggleSwitch'
+
+// ── Helpers para toggle activo (backend no persiste siempre) ─────────────────
+const STORAGE_KEY = 'roles_toggles'
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') } catch { return {} }
+}
+const normalizeActivo = (val) => val === true || val === 1
 
 // ── Modal editar ─────────────────────────────────────────────────────────────
 function EditModal({ rol, onClose, onSaved }) {
@@ -80,8 +88,16 @@ export default function Roles() {
   const cargarRoles = async () => {
     try {
       const res  = await api.get('/cat_roles')
-      const data = res.data
-      setRoles(Array.isArray(data) ? data : (data?.data ?? data?.roles ?? []))
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? res.data?.roles ?? [])
+      const localToggles = getLocalToggles()
+      const merged = data.map(item => {
+        const id = item.idRol || item.id
+        return {
+          ...item,
+          activo: id in localToggles ? localToggles[id] : normalizeActivo(item.activo)
+        }
+      })
+      setRoles(merged)
     } catch {
       setError('Error al cargar roles.')
     }
@@ -118,6 +134,23 @@ export default function Roles() {
       cargarRoles()
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo eliminar el rol.')
+    }
+  }
+
+  const handleToggleActivo = async (id, newActivo) => {
+    setRoles((prev) =>
+      prev.map((r) => ((r.idRol || r.id) === id ? { ...r, activo: newActivo } : r))
+    )
+    try {
+      const toggles = getLocalToggles()
+      toggles[id] = newActivo
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await api.put(`/cat_roles/${id}`, { activo: newActivo ? 1 : 0 })
+    } catch (err) {
+      setRoles((prev) =>
+        prev.map((r) => ((r.idRol || r.id) === id ? { ...r, activo: !newActivo } : r))
+      )
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado del rol.')
     }
   }
 
@@ -169,17 +202,23 @@ export default function Roles() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th><th>Nombre del rol</th><th>Descripción</th><th>Acciones</th>
+              <th>#</th><th>Nombre del rol</th><th>Descripción</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {roles.length === 0 ? (
-              <tr><td colSpan={4} style={{ textAlign:'center', padding:'1.5rem', color:'#9ca3af' }}>No hay roles registrados.</td></tr>
+              <tr><td colSpan={5} style={{ textAlign:'center', padding:'1.5rem', color:'#9ca3af' }}>No hay roles registrados.</td></tr>
             ) : roles.map((rol, idx) => (
               <tr key={rol.idRol || rol.id}>
                 <td>{idx + 1}</td>
                 <td>{rol.nombreRol || rol.nombre_rol || rol.nombre}</td>
-                <td>{rol.descripcion || '—'}</td>
+                <td>{rol.descripcion || <span className="rec-list-placeholder">(Sin descripción)</span>}</td>
+                <td>
+                  <span className={`estado-badge ${rol.activo !== false ? 'badge-active' : 'badge-inactive'}`}>
+                    <span className="badge-dot" />
+                    {rol.activo !== false ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
                 <td>
                   <div className="td-actions">
                     <button
@@ -189,13 +228,11 @@ export default function Roles() {
                     >
                       <BiEdit size={16} />
                     </button>
-                    <button
-                      className="btn-icon btn-icon-eliminar"
-                      onClick={() => handleDelete(rol)}
-                      title="Eliminar rol"
-                    >
-                      <BiTrash size={16} />
-                    </button>
+                    <ToggleSwitch
+                      active={rol.activo !== false}
+                      onClick={(e, next) => handleToggleActivo(rol.idRol || rol.id, next)}
+                      title={rol.activo === false ? 'Activar rol' : 'Desactivar rol'}
+                    />
                   </div>
                 </td>
               </tr>
