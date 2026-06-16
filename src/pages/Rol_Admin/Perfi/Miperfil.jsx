@@ -12,7 +12,7 @@ import {
 function getInitials(nombre = '', apellido = '') {
   return ((nombre[0] || '') + (apellido[0] || '')).toUpperCase() || 'U'
 }
-
+//.
 export default function MiPerfil() {
   const { user, logout, updateUser } = useAuth()
 
