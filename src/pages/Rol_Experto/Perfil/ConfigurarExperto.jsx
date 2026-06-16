@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import './PerfilExperto.css'
+import '../../../components/cargando.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import { BiSave, BiCamera } from 'react-icons/bi'
@@ -202,7 +203,7 @@ export default function ConfigurarExperto({ onNavigate }) {
               <button type="button" className="ep-btn-cancel" onClick={goBack}>Cancelar</button>
               <button type="submit" className="ep-btn-save" disabled={saving}>
                 {saving
-                  ? <><span className="ep-btn-spinner" />Guardando…</>
+                  ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0'}} /> Guardando…</>
                   : <><BiSave size={14} />Guardar cambios</>
                 }
               </button>
@@ -234,7 +235,7 @@ export default function ConfigurarExperto({ onNavigate }) {
               <button type="button" className="ep-btn-cancel" onClick={goBack}>Cancelar</button>
               <button type="submit" className="ep-btn-save" disabled={saving}>
                 {saving
-                  ? <><span className="ep-btn-spinner" />Guardando…</>
+                  ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0'}} /> Guardando…</>
                   : <><BiSave size={14} />Actualizar contraseña</>
                 }
               </button>

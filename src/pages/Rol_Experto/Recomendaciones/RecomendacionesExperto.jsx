@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import './RecomendacionesExperto.css'
+import '../../../components/cargando.css'
 
 // ─────────────────────────────────────────────
 // 
@@ -164,7 +165,7 @@ function EditModal({ recomendacion, onClose, onSaved, tipos, prioridades, expert
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+              {loading ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Guardando...</> : 'Guardar'}
             </button>
           </div>
         </form>
@@ -431,7 +432,7 @@ export default function RecomendacionesExperto() {
 
           <div className="admin-form-actions">
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Registrando...' : 'Registrar recomendación'}
+              {loading ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Registrando...</> : 'Registrar recomendación'}
             </button>
           </div>
         </form>

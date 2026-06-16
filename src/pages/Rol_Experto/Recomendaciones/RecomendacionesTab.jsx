@@ -8,6 +8,7 @@ import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import { BiPlus, BiCheck, BiMessageDetail, BiCalendar, BiTimeFive } from 'react-icons/bi'
 import './RecomendacionesTab.css'
+import '../../../components/cargando.css'
 
 const getArr = (data) => {
   if (Array.isArray(data)) return data
@@ -226,7 +227,7 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
       <div className="rtab-form-actions">
         <button type="submit" className="rtab-btn-guardar" disabled={loading}>
           {loading
-            ? <><span className="rtab-spinner" /> Registrando...</>
+            ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Registrando...</>
             : <>
                 <BiCheck size={14} />
                 Registrar recomendación
@@ -312,7 +313,7 @@ export default function RecomendacionesTab({ cultivo }) {
   if (loadingData) {
     return (
       <div className="detalle-tab-content rtab-loading">
-        <Loader2 size={20} className="rtab-spin" />
+        <div className="loader" style={{width: '24px', borderWidth: '2px'}} />
         <span>Cargando recomendaciones...</span>
       </div>
     )

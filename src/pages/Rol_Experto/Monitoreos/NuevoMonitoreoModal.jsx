@@ -7,6 +7,7 @@ import {
 import api from '../../../services/api'
 import { BiCheck, BiListUl, BiCamera, BiPencil, BiBulb, BiLeaf, BiX } from 'react-icons/bi'
 import './NuevoMonitoreoModal.css'
+import '../../../components/cargando.css'
 
 const hoy = () => new Date().toISOString().slice(0, 10)
 
@@ -339,7 +340,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
 
       {agregarRec && (
         loadingCat
-          ? <div className="nmon-loading-cat"><Loader2 size={16} className="nmon-spin" /><span>Cargando catálogos...</span></div>
+          ? <div className="nmon-loading-cat"><div className="loader" style={{width: '18px', borderWidth: '2px'}} /><span>Cargando catálogos...</span></div>
           : (
             <div className="nmon-fields nmon-fields--rec">
               <div className="nmon-field-row">
@@ -460,7 +461,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         </button>
         <button className="nmon-btn nmon-btn--guardar" onClick={handleGuardar} disabled={loading}>
           {loading
-            ? <><span className="nmon-spinner" /> Guardando...</>
+            ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Guardando...</>
             : <><BiCheck size={15} /> Guardar monitoreo</>
           }
         </button>

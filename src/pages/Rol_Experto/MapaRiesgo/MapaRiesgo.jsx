@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import { BiTargetLock, BiMapPin } from 'react-icons/bi'
 import './MapaRiesgo.css'
+import '../../../components/cargando.css'
 
 const NIVEL_CLASS = (n = '') => {
   const l = n.toLowerCase()
@@ -58,7 +59,7 @@ export default function MapaRiesgo() {
         {/* Mapa simulado */}
         <div className="mapa-container">
           {loading ? (
-            <div className="mapa-loading">Cargando mapa…</div>
+            <div className="mapa-loading"><div className="loader" /><p>Cargando mapa…</p></div>
           ) : (
             <div className="mapa-visual">
               {/* Representación visual con puntos de calor */}
@@ -104,7 +105,7 @@ export default function MapaRiesgo() {
           <h3>Fincas en el mapa</h3>
           <div className="mapa-fincas-list">
             {loading ? (
-              <p className="mapa-empty">Cargando…</p>
+              <div className="mapa-empty"><div className="loader" style={{width: '32px'}} /><p>Cargando…</p></div>
             ) : fincasConRiesgo.length === 0 ? (
               <p className="mapa-empty">No hay fincas registradas.</p>
             ) : (

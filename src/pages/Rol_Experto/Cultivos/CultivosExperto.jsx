@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import api from '../../../services/api'
 import { BiUser, BiMapPin, BiChevronLeft, BiTime, BiCalendar, BiTimeFive, BiPlus, BiDotsVerticalRounded, BiLeaf, BiCamera, BiFile, BiLayer, BiChevronRight } from 'react-icons/bi'
 import './CultivosExperto.css'
+import '../../../components/cargando.css'
 
 /* ==========================================================================
    📸 MODAL CAMBIAR FOTO DE CULTIVO
@@ -93,7 +94,7 @@ function FotoCultivoModal({ cultivo, onClose, onFotoActualizada }) {
         <div className="cl-modal-actions" style={{ marginTop: '1.25rem' }}>
           <button className="btn-cl-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-brand-primary" onClick={handleUpload} disabled={!file || uploading}>
-            {uploading ? 'Subiendo...' : 'Guardar foto'}
+            {uploading ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Subiendo...</> : 'Guardar foto'}
           </button>
         </div>
       </div>
@@ -377,7 +378,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
 
       {/* 🖼️ CONTENIDO PRINCIPAL: GRILLA O ESTADOS */}
       {loading ? (
-        <div className="state-message-box"><p>Cargando cultivos...</p></div>
+        <div className="state-message-box"><div className="loader" /><p>Cargando cultivos...</p></div>
       ) : error ? (
         <div className="state-message-box error"><p>{error}</p></div>
       ) : cultivos.length === 0 ? (
@@ -478,7 +479,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
               <div className="cl-modal-actions">
                 <button type="button" className="btn-cl-secondary" onClick={() => { setShowModal(false); handleCancelEdit() }}>Cancelar</button>
                 <button type="submit" className="btn-brand-primary" disabled={saving}>
-                  {saving ? 'Guardando...' : editando ? 'Guardar Cambios' : 'Registrar Cultivo'}
+                  {saving ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Guardando...</> : editando ? 'Guardar Cambios' : 'Registrar Cultivo'}
                 </button>
               </div>
             </form>

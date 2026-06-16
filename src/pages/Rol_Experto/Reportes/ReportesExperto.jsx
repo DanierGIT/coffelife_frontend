@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import './ReportesExperto.css'
+import '../../../components/cargando.css'
 
 export default function ReportesExperto() {
   const [stats,   setStats]   = useState(null)
@@ -31,7 +32,7 @@ export default function ReportesExperto() {
     }).finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p style={{ color: '#9ca3af', fontSize: 14 }}>Cargando reportes…</p>
+  if (loading) return <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '2rem', color: '#9ca3af', fontSize: 14 }}><div className="loader" /><p>Cargando reportes…</p></div>
   if (!stats) return null
 
   const total = stats.altaRoya + stats.mediaRoya + stats.bajaRoya || 1

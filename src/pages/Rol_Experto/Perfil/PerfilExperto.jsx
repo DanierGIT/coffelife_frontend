@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './PerfilExperto.css'
+import '../../../components/cargando.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import { BiEnvelope, BiPhone, BiCog, BiLogOut } from 'react-icons/bi'
@@ -43,7 +44,7 @@ export default function PerfilExperto({ onNavigate }) {
 
   if (loading) return (
     <div className="ep-loading">
-      <div className="ep-spinner" />
+      <div className="loader" />
       <p>Cargando perfil...</p>
     </div>
   )
