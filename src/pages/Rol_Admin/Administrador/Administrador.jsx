@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
-import { BiPlus, BiShow, BiEdit, BiCheckCircle, BiXCircle } from 'react-icons/bi'
+import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../components/ToggleSwitch'
 import './Administrador.css'
 import '../Usuarios/Usuarios.css'
 
@@ -215,7 +216,7 @@ export default function Administrador() {
 
   return (
     <>
-      <div className="section-header-card">
+      <div className="section-header-card" style={{ position: 'relative' }}>
         <div className="section-header-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="8" r="4" />
@@ -231,13 +232,13 @@ export default function Administrador() {
             Gestiona los usuarios con rol de Administrador dentro del sistema. Desde aquí puedes registrar nuevos administradores, editar su información personal y activar o desactivar su acceso a la plataforma CoffeeLife.
           </p>
         </div>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"
           onClick={() => setShowCrearModal(true)}
           style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
             background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
             border: 'none',
             padding: '10px 22px',
@@ -298,13 +299,11 @@ export default function Administrador() {
                       >
                         <BiEdit size={16} />
                       </button>
-                      <button
-                        className={`btn-icon ${admin.activo ? 'btn-icon-desactivar' : 'btn-icon-activar'}`}
+                      <ToggleSwitch
+                        active={admin.activo}
                         onClick={() => handleToggleActivo(admin)}
                         title={admin.activo ? 'Desactivar' : 'Activar'}
-                      >
-                        {admin.activo ? <BiXCircle size={16} /> : <BiCheckCircle size={16} />}
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>

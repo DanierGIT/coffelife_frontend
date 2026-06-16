@@ -202,3 +202,46 @@
   align-items: center;
   white-space: nowrap;
 }
+
+/* ─── Toggle switch ─── */
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.25s;
+  background: #cbd5e1;
+}
+
+.toggle-switch.active {
+  background: #2e7d32;
+}
+
+.toggle-switch.inactive {
+  background: #dc2626;
+}
+
+.toggle-switch:hover {
+  opacity: 0.85;
+}
+
+.toggle-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+
+.toggle-switch.active .toggle-switch-knob {
+  transform: translateX(18px);
+}

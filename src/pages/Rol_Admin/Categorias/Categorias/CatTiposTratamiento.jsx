@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
 import api from '../../../../services/api'
+import { BiEdit } from 'react-icons/bi'
+import ToggleSwitch from '../../../../components/ToggleSwitch'
+import '../../Usuarios/Usuarios.css'
 import './Formulario.css'
+
+const STORAGE_KEY = 'cat_tipos_tratamiento_toggles'
+
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => val === true || val === 1
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -26,7 +38,16 @@ export default function CatTiposTratamiento() {
 
     try {
       const res = await api.get('/cat_tipos_tratamientos')
-      setTipos(getArrayData(res.data))
+      const data = getArrayData(res.data)
+      const localToggles = getLocalToggles()
+      const merged = data.map(item => {
+        const id = item.idTipo
+        return {
+          ...item,
+          activo: id in localToggles ? localToggles[id] : normalizeActivo(item.activo)
+        }
+      })
+      setTipos(merged)
     } catch (err) {
       setError(err?.response?.data?.message || 'Error al cargar tipos de tratamiento.')
     } finally {
@@ -69,19 +90,16 @@ export default function CatTiposTratamiento() {
   }
 
   const handleToggleActivo = async (item) => {
-    const nextState = item.activo === undefined ? false : !item.activo
-    const accion = nextState ? 'activar' : 'desactivar'
-    if (!window.confirm(`¿${accion} este tipo de tratamiento?`)) return
-
-    setError('')
-    setSuccess('')
-
+    const newActivo = !item.activo
+    setTipos(prev => prev.map(e => e.idTipo === item.idTipo ? { ...e, activo: newActivo } : e))
     try {
-      await api.put(`/cat_tipos_tratamiento/${item.idTipo}`, { activo: nextState })
-      setSuccess(`Tipo de tratamiento ${accion}do correctamente.`)
-      cargarTipos()
+      const toggles = getLocalToggles()
+      toggles[item.idTipo] = newActivo
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await api.put(`/cat_tipos_tratamiento/${item.idTipo}`, { activo: newActivo ? 1 : 0 })
     } catch (err) {
-      setError(err?.response?.data?.message || `No se pudo ${accion}.`)
+      setTipos(prev => prev.map(e => e.idTipo === item.idTipo ? { ...e, activo: item.activo } : e))
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado.')
     }
   }
 
@@ -148,22 +166,22 @@ return (
                     <td>{idx + 1}</td>
                     <td>{tipo.nombreTipo}</td>
                     <td>{tipo.descripcion || '-'}</td>
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="edit-btn"
-                        onClick={() => setEditingRow(tipo)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        className={tipo.activo === false ? 'edit-btn' : 'delete-btn'}
-                        onClick={() => handleToggleActivo(tipo)}
-                      >
-                        {tipo.activo === false ? 'Activar' : 'Desactivar'}
-                      </button>
+                    <td>
+                      <div className="td-actions">
+                        <button
+                          type="button"
+                          className="btn-icon btn-icon-editar"
+                          onClick={() => setEditingRow(tipo)}
+                          title="Editar"
+                        >
+                          <BiEdit size={16} />
+                        </button>
+                        <ToggleSwitch
+                          active={tipo.activo !== false}
+                          onClick={() => handleToggleActivo(tipo)}
+                          title={tipo.activo === false ? 'Activar' : 'Desactivar'}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))

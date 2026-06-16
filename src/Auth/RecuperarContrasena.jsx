@@ -10,26 +10,39 @@ import "./RecuperarContrasena.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend-coffe-lifee-production.up.railway.app";
 
-async function apiFetch(ruta, body) {
-  const response = await fetch(`${API_BASE_URL}${ruta}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+async function apiFetch(ruta, body, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), options.timeout || 15000);
 
-  const data = await response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}${ruta}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      data.message ||
-        data.error ||
-        "Ocurrió un error en el servidor"
-    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+          data.error ||
+          "Ocurrió un error en el servidor"
+      );
+    }
+
+    return data;
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("El servidor no respondió a tiempo. Intenta de nuevo.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return data;
 }
 
 /* =========================================================

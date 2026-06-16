@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
@@ -6,6 +6,7 @@ import { useAuth } from '../../../context/AuthContext'
 import './Fincas.css'
 import '../Administrador/Administrador.css'
 import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiCheckCircle, BiTrash, BiSearch, BiFilter } from 'react-icons/bi'
+import ToggleSwitch from '../../../components/ToggleSwitch'
 
 delete L.Icon.Default.prototype._getIconUrl
 
@@ -172,6 +173,18 @@ function MapaGeneral({ fincas }) {
   )
 }
 
+const STORAGE_KEY = 'fincas_toggles'
+
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => {
+  if (val === null || val === undefined) return true
+  return val === true || val === 1 || val === '1'
+}
+
 export default function Fincas() {
 
   const { user } = useAuth()
@@ -236,7 +249,7 @@ export default function Fincas() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [showFilters, handleClickOutside])
 
-  const filteredFincas = useMemo(() => {
+  const filteredFincas = (() => {
     let data = fincas
     if (filterExperto) {
       data = data.filter((f) => String(f.idExpertoAsignado) === filterExperto)
@@ -257,13 +270,13 @@ export default function Fincas() {
       )
     }
     return data
-  }, [fincas, searchTerm, filterExperto, filterEstado, filterCafetero])
+  })()
 
   const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
-  const paginatedFincas = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredFincas.slice(start, start + ITEMS_PER_PAGE)
-  }, [filteredFincas, currentPage])
+  const paginatedFincas = filteredFincas.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    (currentPage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+  )
 
   const [showUbicacionModal, setShowUbicacionModal] = useState(false)
   const [ubicacionTarget, setUbicacionTarget] = useState('create')
@@ -325,7 +338,7 @@ export default function Fincas() {
         const result = {
           ...finca,
           totalCultivos: cultivosPorFinca[finca.idFinca] || 0,
-          activo: finca.activo !== undefined ? finca.activo : true,
+          activo: normalizeActivo(finca.activo),
           nombreCafetero: cafetero ? `${cafetero.nombre} ${cafetero.apellido}` : null,
           idCafeteroAsignado: finca.idUsuario || null,
         }
@@ -570,16 +583,27 @@ export default function Fincas() {
     }
   }
 
-  const handleToggleActivo = async (finca) => {
+  const handleToggleActivo = async (idFinca, newActivo) => {
+    // Optimistic update usando función para tener el estado más reciente
+    setFincas((prev) =>
+      prev.map((f) =>
+        f.idFinca === idFinca ? { ...f, activo: newActivo } : f
+      )
+    )
     try {
-      const nuevoEstado = !finca.activo
-      await api.put(`/fincas/${finca.idFinca}`, { activo: nuevoEstado })
+      await api.put(`/fincas/${idFinca}`, { activo: newActivo ? 1 : 0 })
+      // Limpiar el toggle de localStorage, el servidor es ahora la fuente de verdad
+      const toggles = getLocalToggles()
+      delete toggles[idFinca]
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await getFincas()
+    } catch (err) {
+      // Revert usando función para evitar closures stale
       setFincas((prev) =>
         prev.map((f) =>
-          f.idFinca === finca.idFinca ? { ...f, activo: nuevoEstado } : f
+          f.idFinca === idFinca ? { ...f, activo: !newActivo } : f
         )
       )
-    } catch (err) {
       setError(
         err?.response?.data?.message ||
         'No se pudo cambiar el estado de la finca.'
@@ -996,13 +1020,11 @@ export default function Fincas() {
 <BiEdit size={16} />
                     </button>
 
-                    <button
-                      className={`btn-icon btn-icon-toggle ${f.activo ? 'desactivar' : 'activar'}`}
-                      onClick={() => handleToggleActivo(f)}
-                      title={f.activo ? 'Desactivar finca' : 'Activar finca'}
-                    >
-{f.activo ? <BiToggleRight size={16} /> : <BiToggleLeft size={16} />}
-                    </button>
+                    <ToggleSwitch
+                      active={normalizeActivo(f.activo)}
+                      onClick={(e, next) => handleToggleActivo(f.idFinca, next)}
+                      title={normalizeActivo(f.activo) ? 'Desactivar finca' : 'Activar finca'}
+                    />
 
                   </td>
 
@@ -1559,3 +1581,4 @@ export default function Fincas() {
     </>
   )
 }
+//jhon

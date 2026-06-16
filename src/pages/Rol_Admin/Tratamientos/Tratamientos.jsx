@@ -225,7 +225,7 @@ function Tratamientos() {
 
   return (
     <div className="contenedor-tratamientos">
-      <div className="module-header">
+      <div className="module-header" style={{ position: 'relative' }}>
   <div className="module-header-icon">
     <svg
       width="28"
@@ -263,12 +263,13 @@ function Tratamientos() {
     </p>
 
   </div>
-</div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"
           onClick={() => setShowCrearModal(true)}
           style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
             background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
             border: 'none',
             padding: '10px 22px',
@@ -285,7 +286,7 @@ function Tratamientos() {
           <BiPlus size={18} />
           Agregar tratamiento
         </button>
-      </div>
+</div>
 
       <div className="card">
         <div className="tabla-header">

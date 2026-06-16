@@ -210,15 +210,11 @@ export default function Monitoreos() {
   const [error,      setError]      = useState('')
   const [success,    setSuccess]    = useState('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterFinca, setFilterFinca] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 10
 
   const filteredFincas = useMemo(() => {
     let data = fincas
-    if (filterFinca) {
-      data = data.filter((f) => String(f.idFinca) === filterFinca)
-    }
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
       data = data.filter((f) =>
@@ -226,7 +222,7 @@ export default function Monitoreos() {
       )
     }
     return data
-  }, [fincas, searchTerm, filterFinca])
+  }, [fincas, searchTerm])
 
   const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
   const paginatedFincas = useMemo(() => {
@@ -338,19 +334,10 @@ export default function Monitoreos() {
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
             />
           </div>
-          <div className="filter-group">
-            <select
-              value={filterFinca}
-              onChange={(e) => { setFilterFinca(e.target.value); setCurrentPage(1) }}
-            >
-              <option value="">Todas las fincas</option>
-              {fincas.map((f) => (
-                <option key={f.idFinca} value={f.idFinca}>
-                  {f.nombreFinca}
-                </option>
-              ))}
-            </select>
-          </div>
+        </div>
+        <div className="tabla-header">
+          <h2>Lista de Monitoreos</h2>
+          <span className="contador">{monitoreos.length} monitoreo{monitoreos.length !== 1 ? 's' : ''}</span>
         </div>
         <div className="table-scroll">
         <table className="admin-table">
