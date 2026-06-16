@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import api from '../../../services/api'
 import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
@@ -346,6 +346,7 @@ export default function Recomendaciones() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterPrioridad, setFilterPrioridad] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const catalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
   const fincaMap = useMemo(() => {
@@ -422,7 +423,9 @@ export default function Recomendaciones() {
     }
   }
 
-  const getCatalogos = async () => {
+  const loadCatalogos = async () => {
+    if (catalogsLoaded.current) return
+    catalogsLoaded.current = true
     try {
       const [monitoreosRes, tiposRes, expertosRes, fincasRes] = await Promise.all([
         api.get('/monitoreos'),
@@ -450,7 +453,6 @@ export default function Recomendaciones() {
 
   useEffect(() => {
     getRecomendaciones()
-    getCatalogos()
   }, [])
 
   const getTipoNombre = (recomendacion) => {
@@ -586,19 +588,18 @@ export default function Recomendaciones() {
                     <span className="rec-exp-ultima">Última: {fmt(ultima)}</span>
                   </td>
                   <td>
-                    <div className="td-actions">
-                      <button
-                        className="btn-icon btn-icon-ver"
-                        onClick={() => {
-                          setSelectedExperto(experto || { idUsuario: id })
-                          setSelectedFincaId(null)
-                          setDetailRecomendacion(null)
-                        }}
-                        title="Ver recomendaciones"
-                      >
-                        <BiShow size={16} />
-                      </button>
-                    </div>
+                    <button
+                      className="btn-rec-ver"
+                      onClick={() => {
+                        loadCatalogos()
+                        setSelectedExperto(experto || { idUsuario: id })
+                        setSelectedFincaId(null)
+                        setDetailRecomendacion(null)
+                      }}
+                    >
+                      <BiShow size={14} />
+                      Ver detalles
+                    </button>
                   </td>
                 </tr>
               )
@@ -672,3 +673,5 @@ export default function Recomendaciones() {
     </>
   )
 }
+
+//jhon

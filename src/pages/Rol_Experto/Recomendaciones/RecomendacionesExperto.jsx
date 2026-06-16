@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import './RecomendacionesExperto.css'
@@ -192,6 +192,8 @@ export default function RecomendacionesExperto() {
   const [recomendaciones, setRecomendaciones] = useState([])
   const [editingRec,      setEditingRec]      = useState(null)
 
+  const catalogsLoaded = useRef(false)
+
   // ── Filtros cascada formulario ──
   const [fincaSeleccionada,   setFincaSeleccionada]   = useState('')
   const [cultivoSeleccionado, setCultivoSeleccionado] = useState('')
@@ -256,7 +258,9 @@ export default function RecomendacionesExperto() {
     }
   }
 
-  const getCatalogos = async () => {
+  const loadCatalogos = async () => {
+    if (catalogsLoaded.current) return
+    catalogsLoaded.current = true
     try {
       const [asignacionesRes, cultivosRes, monitoreosRes, tiposRes] = await Promise.all([
         api.get('/asignaciones_expertos'),
@@ -292,8 +296,7 @@ export default function RecomendacionesExperto() {
 
   useEffect(() => {
     if (expertoId) {
-      getRecomendaciones()
-      getCatalogos()
+      getRecomendaciones().finally(() => loadCatalogos())
     }
   }, [expertoId])
 

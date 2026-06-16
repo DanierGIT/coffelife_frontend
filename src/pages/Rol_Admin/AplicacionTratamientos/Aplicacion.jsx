@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import './aplicacion.css'
 import api from '../../../services/api'
 import '../Administrador/Administrador.css'
@@ -34,6 +34,7 @@ export default function Aplicacion() {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [idEditar, setIdEditar] = useState(null)
   const [showCrearModal, setShowCrearModal] = useState(false)
+  const catalogsLoaded = useRef(false)
 
   const [formModal, setFormModal] = useState({
     idTratamiento: '',
@@ -52,7 +53,9 @@ export default function Aplicacion() {
     }
   }
 
-  const cargarCatalogos = async () => {
+  const loadCatalogos = async () => {
+    if (catalogsLoaded.current) return
+    catalogsLoaded.current = true
     try {
       const [tratamientosRes, usuariosRes] = await Promise.all([
         api.get('/tratamientos'),
@@ -68,7 +71,6 @@ export default function Aplicacion() {
 
   useEffect(() => {
     cargarAplicaciones()
-    cargarCatalogos()
   }, [])
 
   const limpiarFormulario = () => {
@@ -110,6 +112,7 @@ export default function Aplicacion() {
   }
 
   const abrirEditar = (aplicacion) => {
+    loadCatalogos()
     setIdEditar(aplicacion.idAplicacion)
 
     setFormModal({
@@ -182,7 +185,7 @@ export default function Aplicacion() {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button
           className="btn-primary"
-          onClick={() => setShowCrearModal(true)}
+          onClick={() => { loadCatalogos(); setShowCrearModal(true) }}
           style={{
             background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
             border: 'none',

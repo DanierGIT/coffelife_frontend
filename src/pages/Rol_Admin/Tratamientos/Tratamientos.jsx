@@ -205,7 +205,7 @@ function Tratamientos() {
     } catch { /* silencioso */ }
   };
 
-  useEffect(() => { cargarDatos(); cargarTipos(); }, []);
+  useEffect(() => { cargarDatos().then(() => cargarTipos()); }, []);
 
   const eliminar = async (id) => {
     if (!confirm("¿Seguro que deseas eliminar este tratamiento?")) return;
