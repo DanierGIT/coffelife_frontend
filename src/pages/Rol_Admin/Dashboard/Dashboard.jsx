@@ -27,39 +27,42 @@ export default function Dashboard({ onNavigate }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const fetchSecondaryStats = async () => {
+    try {
+      const [fincasRes, expertosRes] = await Promise.allSettled([
+        api.get('/fincas'),
+        api.get('/expertos'),
+      ])
+
+      const fincas = fincasRes.status === 'fulfilled' ? getArrayData(fincasRes.value.data) : []
+      const fincasConUbicacion = fincas.filter((f) => f.latitud && f.longitud).length
+
+      const expertosData = expertosRes.status === 'fulfilled'
+        ? (Array.isArray(expertosRes.value.data) ? expertosRes.value.data : (expertosRes.value.data?.data ?? []))
+        : []
+      const expertosActivos = expertosData.filter((e) => {
+        const a = e.activo
+        return a === undefined || a === null || a === true || a === 1 || a === '1' || a === 'true'
+      }).length
+      const expertosInactivos = expertosData.length - expertosActivos
+
+      setStats(prev => ({ ...prev, fincasConUbicacion, expertosActivos, expertosInactivos }))
+    } catch {
+      // silencioso
+    }
+  }
+
   useEffect(() => {
     const fetchDashboard = async () => {
       setLoading(true)
       setError('')
 
       try {
-        const [dashboardRes, fincasRes, expertosRes] = await Promise.allSettled([
-          api.get('/dashboard'),
-          api.get('/fincas'),
-          api.get('/expertos'),
-        ])
+        const res = await api.get('/dashboard')
+        const resumen = res.data?.resumen || {}
+        setStats(prev => ({ ...prev, fincas: Number(resumen.totalFincas || 0) }))
 
-        if (dashboardRes.status === 'rejected') throw dashboardRes.reason
-
-        const resumen = dashboardRes.value.data?.resumen || {}
-        const fincas = fincasRes.status === 'fulfilled' ? getArrayData(fincasRes.value.data) : []
-        const fincasConUbicacion = fincas.filter((f) => f.latitud && f.longitud).length
-
-        const expertosData = expertosRes.status === 'fulfilled'
-          ? (Array.isArray(expertosRes.value.data) ? expertosRes.value.data : (expertosRes.value.data?.data ?? []))
-          : []
-        const expertosActivos = expertosData.filter((e) => {
-          const a = e.activo
-          return a === undefined || a === null || a === true || a === 1 || a === '1' || a === 'true'
-        }).length
-        const expertosInactivos = expertosData.length - expertosActivos
-
-        setStats({
-          fincas: Number(resumen.totalFincas || 0),
-          fincasConUbicacion,
-          expertosActivos,
-          expertosInactivos,
-        })
+        fetchSecondaryStats()
       } catch (err) {
         setError(err?.response?.data?.message || 'No se pudo cargar el dashboard.')
       } finally {
