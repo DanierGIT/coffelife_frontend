@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import api from '../../../services/api'
 import './Monitoreos.css'
 import '../Administrador/Administrador.css'
@@ -214,6 +214,7 @@ export default function Monitoreos() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFinca, setFilterFinca] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const editCatalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
   const filteredFincas = useMemo(() => {
@@ -262,24 +263,36 @@ export default function Monitoreos() {
     }
   }
 
-  const getCatalogos = async () => {
+  const loadMonitoreosFincas = async () => {
     try {
-      const [cultivosRes, expertosRes, fincasRes] = await Promise.all([
+      const [mRes, fRes] = await Promise.all([
+        api.get('/monitoreos', { params: { limit: 100 } }),
+        api.get('/fincas?limit=1000'),
+      ])
+      setMonitoreos(Array.isArray(mRes.data) ? mRes.data : (mRes.data?.data ?? []))
+      setFincas(getArrayData(fRes.data))
+    } catch {
+      // silencioso
+    }
+  }
+
+  const loadEditCatalogs = async () => {
+    if (editCatalogsLoaded.current) return
+    editCatalogsLoaded.current = true
+    try {
+      const [cultivosRes, expertosRes] = await Promise.all([
         api.get('/cultivos'),
         api.get('/expertos'),
-        api.get('/fincas?limit=1000'),
       ])
       setCultivos(Array.isArray(cultivosRes.data) ? cultivosRes.data : (cultivosRes.data?.data ?? []))
       setExpertos(Array.isArray(expertosRes.data) ? expertosRes.data : (expertosRes.data?.data ?? []))
-      setFincas(getArrayData(fincasRes.data))
     } catch {
       // silencioso
     }
   }
 
   useEffect(() => {
-    getMonitoreos()
-    getCatalogos()
+    loadMonitoreosFincas()
   }, [])
 
   const handleVerDetalle = (m) => setDetailMonitoreo(m)
@@ -415,7 +428,7 @@ export default function Monitoreos() {
           monitoreos={fincaMonitoreos[selectedFinca.idFinca] || []}
           onBack={handleCerrarFinca}
           onVerDetalle={handleVerDetalle}
-          onEditar={(m) => setEditingMonitoreo(m)}
+                  onEditar={(m) => { loadEditCatalogs(); setEditingMonitoreo(m) }}
         />
       )}
 

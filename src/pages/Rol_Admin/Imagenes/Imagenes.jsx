@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import api from '../../../services/api'
 import './Imagenes.css'
 
@@ -75,6 +75,7 @@ export default function Imagenes() {
   const [monitoreos,    setMonitoreos]    = useState([])
   const [editingImagen, setEditingImagen] = useState(null)
   const [loading,       setLoading]       = useState(false)
+  const monitoreosLoaded = useRef(false)
   const [error,         setError]         = useState('')
   const [success,       setSuccess]       = useState('')
 
@@ -92,7 +93,9 @@ export default function Imagenes() {
     }
   }
 
-  const getMonitoreos = async () => {
+  const loadMonitoreos = async () => {
+    if (monitoreosLoaded.current) return
+    monitoreosLoaded.current = true
     try {
       const res = await api.get('/monitoreos')
       setMonitoreos(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
@@ -103,7 +106,6 @@ export default function Imagenes() {
 
   useEffect(() => {
     getImagenes()
-    getMonitoreos()
   }, [])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
@@ -191,7 +193,7 @@ export default function Imagenes() {
                 <td>{fmt(img.fechaRegistro)}</td>
                 <td>{fmt(img.fechaActualizacion)}</td>
                 <td>
-                  <button className="btn-edit"   onClick={() => setEditingImagen(img)}>Editar</button>
+                  <button className="btn-edit"   onClick={() => { loadMonitoreos(); setEditingImagen(img) }}>Editar</button>
                   <button className="btn-delete" onClick={() => handleDelete(img.idImagen)}>Eliminar</button>
                 </td>
               </tr>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import api from '../../../services/api'
 import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
@@ -345,6 +345,7 @@ export default function Recomendaciones() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterPrioridad, setFilterPrioridad] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const catalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
   const fincaMap = useMemo(() => {
@@ -421,7 +422,9 @@ export default function Recomendaciones() {
     }
   }
 
-  const getCatalogos = async () => {
+  const loadCatalogos = async () => {
+    if (catalogsLoaded.current) return
+    catalogsLoaded.current = true
     try {
       const [monitoreosRes, tiposRes, expertosRes, fincasRes] = await Promise.all([
         api.get('/monitoreos'),
@@ -449,7 +452,6 @@ export default function Recomendaciones() {
 
   useEffect(() => {
     getRecomendaciones()
-    getCatalogos()
   }, [])
 
   const getTipoNombre = (recomendacion) => {
@@ -588,6 +590,7 @@ export default function Recomendaciones() {
                     <button
                       className="btn-rec-ver"
                       onClick={() => {
+                        loadCatalogos()
                         setSelectedExperto(experto || { idUsuario: id })
                         setSelectedFincaId(null)
                         setDetailRecomendacion(null)

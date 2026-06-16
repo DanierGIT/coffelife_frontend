@@ -345,6 +345,33 @@ export default function DashboardExperto({ onNavigate }) {
     setPaginaActual(n)
   }
 
+  const fetchEnrichment = async (unicas) => {
+    try {
+      const [cultivosRes, cafeterosRes] = await Promise.all([
+        api.get('/cultivos'),
+        api.get('/cafeteros'),
+      ])
+
+      const cafeterosData = Array.isArray(cafeterosRes.data)
+        ? cafeterosRes.data : (cafeterosRes.data?.data ?? [])
+      setCafeteros(cafeterosData)
+
+      setFincasAsignadas(prev => prev.map(f => {
+        const cafetero = cafeterosData.find((c) => Number(c.idUsuario) === Number(f.idUsuario) || Number(c.idCafetero) === Number(f.idFinca))
+        return { ...f, nombreCafetero: cafetero ? `${cafetero.nombre} ${cafetero.apellido}` : null }
+      }))
+
+      const todosCultivos = getArrayData(cultivosRes.data)
+      const cultivosMap = {}
+      unicas.forEach((f) => {
+        cultivosMap[f.idFinca] = todosCultivos.filter((c) => Number(c.idFinca) === Number(f.idFinca))
+      })
+      setCultivosPorFinca(cultivosMap)
+    } catch {
+      // silencioso
+    }
+  }
+
   const fetchData = async () => {
     setLoading(true)
     setError('')
@@ -354,15 +381,7 @@ export default function DashboardExperto({ onNavigate }) {
         return
       }
 
-      const [asignacionesRes, cultivosRes, cafeterosRes] = await Promise.all([
-        api.get('/asignaciones_expertos'),
-        api.get('/cultivos'),
-        api.get('/cafeteros'),
-      ])
-
-      const cafeterosData = Array.isArray(cafeterosRes.data)
-        ? cafeterosRes.data : (cafeterosRes.data?.data ?? [])
-      setCafeteros(cafeterosData)
+      const asignacionesRes = await api.get('/asignaciones_expertos')
 
       const asignaciones = getArrayData(asignacionesRes.data).filter(
         (a) => Number(a.idExperto) === Number(idExperto)
@@ -370,7 +389,6 @@ export default function DashboardExperto({ onNavigate }) {
 
       const fincas = asignaciones.map((a) => {
         const f = a.finca || {}
-        const cafetero = cafeterosData.find((c) => Number(c.idUsuario) === Number(f.idUsuario))
         const exp = a.experto || {}
         return {
           idFinca: f.idFinca || a.idFinca,
@@ -382,7 +400,7 @@ export default function DashboardExperto({ onNavigate }) {
           activo: f.activo,
           fechaAsignada: a.fechaAsignada,
           fotoUrl: f.fotoUrl || null,
-          nombreCafetero: cafetero ? `${cafetero.nombre} ${cafetero.apellido}` : null,
+          nombreCafetero: null,
           nombreExperto: exp.nombre && exp.apellido ? `${exp.nombre} ${exp.apellido}` : null,
         }
       }).filter((f) => f.idFinca)
@@ -394,12 +412,7 @@ export default function DashboardExperto({ onNavigate }) {
       unicas.forEach((f) => { if (f.fotoUrl) fotosIniciales[f.idFinca] = f.fotoUrl })
       setFotosPorFinca(fotosIniciales)
 
-      const todosCultivos = getArrayData(cultivosRes.data)
-      const cultivosMap = {}
-      unicas.forEach((f) => {
-        cultivosMap[f.idFinca] = todosCultivos.filter((c) => Number(c.idFinca) === Number(f.idFinca))
-      })
-      setCultivosPorFinca(cultivosMap)
+      fetchEnrichment(unicas)
     } catch (err) {
       setError(err?.response?.status === 403
         ? 'Acceso denegado por el servidor.'
