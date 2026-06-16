@@ -3,6 +3,7 @@ import './miperfil.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import PasswordStrength from '../../../components/PasswordStrength'
+import Loading from '../../../components/Loading'
 import {
   BiEnvelope, BiPhone, BiUser, BiLogOut,
   BiCloudUpload, BiSave, BiLockAlt,
@@ -166,12 +167,7 @@ export default function MiPerfil() {
     setFotoPreview(URL.createObjectURL(file))
   }
 
-  if (loading) return (
-    <div className="mp-loading">
-      <div className="mp-spinner" />
-      <p>Cargando perfil...</p>
-    </div>
-  )
+  if (loading) return <Loading type="content" text="Cargando perfil..." />
 
   const displayName = `${data.nombre} ${data.apellido}`.trim() || data.correo || 'Usuario'
   const fotoSrc     = fotoPreview || data.fotoPerfil || null

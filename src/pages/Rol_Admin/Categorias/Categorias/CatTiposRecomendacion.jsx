@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import api from '../../../../services/api'
 import { BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../../components/ToggleSwitch'
+import Loading from '../../../../components/Loading'
 import '../../Usuarios/Usuarios.css'
 import '../../Administrador/Administrador.css'
 import './Formulario.css'
@@ -131,7 +132,7 @@ export default function CatTiposRecomendacion() {
           />
 
           <button type="submit" disabled={loading}>
-            {loading ? 'Creando...' : 'Crear'}
+            {loading ? <Loading type="inline" text="Creando..." /> : 'Crear'}
           </button>
         </form>
 
@@ -150,9 +151,7 @@ export default function CatTiposRecomendacion() {
 
       <div className="crud-table-card">
         {fetching ? (
-          <p style={{ textAlign: 'center', padding: 24, color: '#666' }}>
-            Cargando...
-          </p>
+          <Loading type="content" text="Cargando..." />
         ) : (
           <table>
             <thead>
@@ -289,7 +288,7 @@ function EditModal({ row, onClose, onSaved }) {
             </button>
 
             <button type="submit" className="cat-btn-save" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar'}
             </button>
           </div>
         </form>

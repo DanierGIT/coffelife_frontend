@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import './DetalleCultivoExperto.css'
 import '../Cultivos/CultivosExperto.css'
+import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 import MonitoreosExperto from '../Monitoreos/MonitoreosExperto'
 
@@ -37,7 +38,7 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
         return (
           <div className="detalle-tab-content">
             {loading ? (
-              <div className="detalle-empty"><div className="loader" /><p>Cargando resumen...</p></div>
+              <Loading type="content" text="Cargando resumen..." />
             ) : ultimo ? (
               <div className="detalle-resumen-card">
                 <div className="detalle-resumen-header">

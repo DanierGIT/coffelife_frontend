@@ -4,6 +4,7 @@ import './Monitoreos.css'
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
+import Loading from '../../../components/Loading'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -98,7 +99,7 @@ function EditModal({ monitoreo, onClose, onSaved, cultivos, expertos, fincaMap }
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar cambios'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
@@ -206,7 +207,7 @@ export default function Monitoreos() {
   const [editingMonitoreo, setEditingMonitoreo] = useState(null)
   const [selectedFinca, setSelectedFinca] = useState(null)
   const [detailMonitoreo, setDetailMonitoreo] = useState(null)
-  const [loading,    setLoading]    = useState(false)
+  const [loading,    setLoading]    = useState(true)
   const [error,      setError]      = useState('')
   const [success,    setSuccess]    = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -258,6 +259,7 @@ export default function Monitoreos() {
   }
 
   const loadMonitoreosFincas = async () => {
+    setLoading(true)
     try {
       const [mRes, fRes] = await Promise.all([
         api.get('/monitoreos', { params: { limit: 100 } }),
@@ -267,6 +269,8 @@ export default function Monitoreos() {
       setFincas(getArrayData(fRes.data))
     } catch {
       // silencioso
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -297,6 +301,8 @@ export default function Monitoreos() {
     setSelectedFinca(null)
     setDetailMonitoreo(null)
   }
+
+  if (loading) return <Loading type="content" text="Cargando..." />
 
   return (
     <>

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import { BiBuildings, BiUser, BiGroup, BiListUl, BiCog } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
+import Loading from '../../../components/Loading'
 import './Dashboard.css'
 
 const getArrayData = (data) => {
@@ -75,6 +76,7 @@ export default function Dashboard({ onNavigate }) {
 
   return (
     <div className="dashboard">
+      {loading && <Loading type="overlay" text="Cargando dashboard..." />}
       <div className="welcome-banner-text animate-left">
         <div className="welcome-banner-row">
           <div className="welcome-avatar-sm">

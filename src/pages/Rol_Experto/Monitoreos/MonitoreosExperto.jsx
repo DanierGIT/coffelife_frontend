@@ -4,6 +4,7 @@ import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import NuevoMonitoreoModal from './NuevoMonitoreoModal'
 import './MonitoreosExperto.css'
+import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 
 export default function MonitoreosExperto({ cultivo, finca }) {
@@ -45,7 +46,7 @@ export default function MonitoreosExperto({ cultivo, finca }) {
       </div>
 
       {loading ? (
-        <div className="empty-state"><div className="loader" /><p>Cargando monitoreos...</p></div>
+        <Loading type="content" text="Cargando monitoreos..." />
       ) : monitoreos.length === 0 ? (
         <div className="empty-state">No hay monitoreos registrados.</div>
       ) : (

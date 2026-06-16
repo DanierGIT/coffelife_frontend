@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './PerfilExperto.css'
+import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
@@ -42,12 +43,7 @@ export default function PerfilExperto({ onNavigate }) {
       .finally(() => setLoading(false))
   }, [user])
 
-  if (loading) return (
-    <div className="ep-loading">
-      <div className="loader" />
-      <p>Cargando perfil...</p>
-    </div>
-  )
+  if (loading) return <Loading type="content" text="Cargando perfil..." />
 
   const displayName = `${form.nombre} ${form.apellido}`.trim() || form.correo || 'Experto'
   const fotoSrc     = form.fotoPerfil || null

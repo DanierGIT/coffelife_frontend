@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import './Prioridades.css'
 import api from '../../../services/api'
 import { BiPlus } from 'react-icons/bi'
+import Loading from '../../../components/Loading'
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -17,9 +18,11 @@ export default function Prioridades() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const [showCrearModal, setShowCrearModal] = useState(false)
 
   const cargarPrioridades = async () => {
+    setPageLoading(true)
     try {
       setError('')
 
@@ -32,6 +35,8 @@ export default function Prioridades() {
       } catch (err) {
         setError(err?.response?.data?.message || 'No se pudieron cargar las prioridades.')
       }
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -95,6 +100,8 @@ export default function Prioridades() {
       setError(err?.response?.data?.message || 'No se pudo eliminar la prioridad.')
     }
   }
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <div className="prioridades-container">
@@ -194,7 +201,7 @@ export default function Prioridades() {
               {error && <p className="modal-error">{error}</p>}
               <div className="modal-actions">
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creando...' : 'Crear prioridad'}
+                  {loading ? <Loading type="inline" text="Creando..." /> : 'Crear prioridad'}
                 </button>
                 <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
               </div>

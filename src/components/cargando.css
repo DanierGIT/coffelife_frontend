@@ -1,5 +1,4 @@
-
-
+/* ─── Core spinner ─── */
 .loader {
   width: 50px;
   aspect-ratio: 1;
@@ -10,7 +9,7 @@
   animation: l15 1s infinite linear;
 }
 .loader::before,
-.loader::after {    
+.loader::after {
   content: "";
   grid-area: 1/1;
   margin: 2px;
@@ -22,6 +21,96 @@
   margin: 8px;
   animation-duration: 3s;
 }
-@keyframes l15{ 
-  100%{transform: rotate(1turn)}
+@keyframes l15 {
+  100% { transform: rotate(1turn) }
+}
+
+/* ─── Full-page overlay ─── */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+}
+.loader-overlay .loader {
+  width: 60px;
+  border-width: 5px;
+  border-right-color: #15803d;
+}
+.loader-overlay p {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 1rem;
+  color: #374151;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Content area (inline block, centered) ─── */
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 3rem 2rem;
+  width: 100%;
+  min-height: 200px;
+}
+.loader-content .loader {
+  width: 44px;
+  border-width: 4px;
+  border-right-color: #15803d;
+}
+.loader-content p {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* ─── Inline (buttons, small indicators) ─── */
+.loader-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  vertical-align: middle;
+}
+.loader-inline .loader {
+  width: 18px;
+  border-width: 2px;
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+  border-right-color: currentColor;
+}
+.loader-inline p {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ─── Sizes ─── */
+.loader-sm .loader {
+  width: 32px;
+  border-width: 3px;
+}
+.loader-sm p {
+  font-size: 0.8rem;
+}
+.loader-lg .loader {
+  width: 72px;
+  border-width: 6px;
+  border-right-color: #15803d;
+}
+.loader-lg p {
+  font-size: 1.1rem;
 }

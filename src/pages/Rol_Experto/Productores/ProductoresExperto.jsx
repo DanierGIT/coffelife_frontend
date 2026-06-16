@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import { BiSearch, BiGroup } from 'react-icons/bi'
 import './ProductoresExperto.css'
+import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 
 export default function ProductoresExperto() {
@@ -52,7 +53,7 @@ export default function ProductoresExperto() {
       {error && <p className="prod-error">{error}</p>}
 
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '2rem', color: '#9ca3af', fontSize: 14 }}><div className="loader" /><p>Cargando…</p></div>
+        <Loading type="content" text="Cargando…" />
       ) : filtered.length === 0 ? (
         <div className="prod-empty-state">
           <BiGroup size={48} color="#9ca3af" />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../../services/api'
 import './TratamientosExperto.css'
+import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 
 export default function TratamientosExperto() {
@@ -78,7 +79,7 @@ export default function TratamientosExperto() {
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '2rem', color: '#9ca3af', fontSize: 14 }}><div className="loader" /><p>Cargando…</p></div>
+        <Loading type="content" text="Cargando…" />
       ) : (
         <div className="trat-content">
           {/* Panel izquierdo: selección de monitoreo */}
@@ -183,7 +184,7 @@ export default function TratamientosExperto() {
 
               <div className="trat-form-actions">
                 <button type="submit" className="btn-enviar" disabled={saving || !form.id_tratamiento}>
-                  {saving ? <><div className="loader" style={{width: '16px', borderWidth: '2px', margin: '0', display: 'inline-block', verticalAlign: 'middle'}} /> Enviando…</> : 'Enviar recomendación'}
+                  {saving ? <Loading type="inline" text="Enviando…" /> : 'Enviar recomendación'}
                 </button>
               </div>
             </form>

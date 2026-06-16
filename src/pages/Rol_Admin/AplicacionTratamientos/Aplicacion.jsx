@@ -3,6 +3,7 @@ import './aplicacion.css'
 import api from '../../../services/api'
 import '../Administrador/Administrador.css'
 import { BiPlus } from 'react-icons/bi'
+import Loading from '../../../components/Loading'
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -29,6 +30,7 @@ export default function Aplicacion() {
   const [tratamientos, setTratamientos] = useState([])
   const [usuarios, setUsuarios] = useState([])
   const [cargando, setCargando] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const [error, setError] = useState('')
   const [exito, setExito] = useState('')
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -45,11 +47,14 @@ export default function Aplicacion() {
   })
 
   const cargarAplicaciones = async () => {
+    setPageLoading(true)
     try {
       const res = await api.get('/aplicaciones_tratamientos')
       setAplicaciones(getArrayData(res.data))
     } catch (err) {
       setError(err?.response?.data?.message || 'Error al cargar aplicaciones.')
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -175,6 +180,8 @@ export default function Aplicacion() {
       setError(err?.response?.data?.message || 'Error al eliminar.')
     }
   }
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <div className="rl-container">
@@ -331,7 +338,7 @@ export default function Aplicacion() {
             <div className="modal-actions">
               <button className="btn-cancelar" onClick={cerrarModal}>Cancelar</button>
               <button className="btn-guardar" onClick={actualizar} disabled={cargando}>
-                {cargando ? 'Guardando...' : 'Guardar cambios'}
+                {cargando ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
               </button>
             </div>
           </div>
@@ -380,7 +387,7 @@ export default function Aplicacion() {
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setShowCrearModal(false)}>Cancelar</button>
               <button className="btn-primary" onClick={guardar} disabled={cargando}>
-                {cargando ? 'Guardando...' : 'Guardar'}
+                {cargando ? <Loading type="inline" text="Guardando..." /> : 'Guardar'}
               </button>
             </div>
           </div>

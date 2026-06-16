@@ -6,6 +6,7 @@ import "./styles/tabla.css";
 import "../Administrador/Administrador.css";
 import "../Usuarios/Usuarios.css";
 import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi';
+import Loading from '../../../components/Loading';
 
 // ─── Servicio inline (usa el api centralizado del proyecto) ───
 const obtenerTratamientos = async () => {
@@ -191,6 +192,7 @@ function Tratamientos() {
   const [tratamientoEditar, setTratamientoEditar] = useState(null);
   const [modalAbierto,      setModalAbierto]      = useState(false);
   const [showCrearModal, setShowCrearModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const cargarDatos = async () => {
     const datos = await obtenerTratamientos();
@@ -205,7 +207,18 @@ function Tratamientos() {
     } catch { /* silencioso */ }
   };
 
-  useEffect(() => { cargarDatos().then(() => cargarTipos()); }, []);
+  useEffect(() => {
+    const initLoad = async () => {
+      setLoading(true)
+      try {
+        await cargarDatos()
+        await cargarTipos()
+      } finally {
+        setLoading(false)
+      }
+    }
+    initLoad()
+  }, []);
 
   const eliminar = async (id) => {
     if (!confirm("¿Seguro que deseas eliminar este tratamiento?")) return;
@@ -222,6 +235,8 @@ function Tratamientos() {
     setTratamientoEditar(null);
     setModalAbierto(false);
   };
+
+  if (loading) return <Loading type="content" text="Cargando..." />
 
   return (
     <div className="contenedor-tratamientos">

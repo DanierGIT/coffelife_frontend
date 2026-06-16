@@ -9,6 +9,7 @@ import api from '../../../services/api'
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
 import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi'
+import Loading from '../../../components/Loading'
 
 // ── Modal editar ─────────────────────────────────────────────────────────────
 function EditModal({ rol, onClose, onSaved }) {
@@ -58,7 +59,7 @@ function EditModal({ rol, onClose, onSaved }) {
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar cambios'}
+              {loading ? <Loading type="inline" text="Guardando..." /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
@@ -73,17 +74,21 @@ export default function Roles() {
   const [editingRol,  setEditingRol]  = useState(null)
   const [form, setForm] = useState({ nombre: '', descripcion: '' })
   const [loading,     setLoading]     = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const [error,       setError]       = useState('')
   const [success,     setSuccess]     = useState('')
   const [showCrearModal, setShowCrearModal] = useState(false)
 
   const cargarRoles = async () => {
+    setPageLoading(true)
     try {
       const res  = await api.get('/cat_roles')
       const data = res.data
       setRoles(Array.isArray(data) ? data : (data?.data ?? data?.roles ?? []))
     } catch {
       setError('Error al cargar roles.')
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -120,6 +125,8 @@ export default function Roles() {
       setError(err?.response?.data?.message || 'No se pudo eliminar el rol.')
     }
   }
+
+  if (pageLoading) return <Loading type="content" text="Cargando..." />
 
   return (
     <>
@@ -220,7 +227,7 @@ export default function Roles() {
               {error && <p className="modal-error">{error}</p>}
               <div className="modal-actions">
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creando...' : 'Crear rol'}
+                  {loading ? <Loading type="inline" text="Creando..." /> : 'Crear rol'}
                 </button>
                 <button type="button" className="btn-secondary" onClick={() => setShowCrearModal(false)}>
                   Cancelar

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import './ExpertoLayout.css'
 import AnimatedLogo from '../../../components/AnimatedLogo'
+import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 import api from '../../../services/api'
 import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut } from 'react-icons/bi'
@@ -126,7 +127,7 @@ function FincasTable({ user, onAction }) {
   if (loading) {
     return (
       <div className="fincas-table-card">
-        <div className="fincas-empty-state"><div className="loader" /><p>Cargando fincas asignadas...</p></div>
+        <Loading type="content" text="Cargando fincas asignadas..." />
       </div>
     )
   }
