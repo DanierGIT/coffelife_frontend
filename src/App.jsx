@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import AdminLayout from './layouts/AdminLayout'
 import 'leaflet/dist/leaflet.css'
 
 // ── Auth ──
+import Landing  from './Auth/Landing'
 import Login    from './Auth/Login'
 import Register from './Auth/Register'
 import RecuperarContrasena from './Auth/RecuperarContrasena'
@@ -149,7 +150,25 @@ function ExpertoApp() {
 // ─────────────────────────────────────────────
 function AppContent() {
   const { user, loading } = useAuth()
-  const [authPage, setAuthPage] = useState('login')
+  const [authPage, setAuthPage] = useState('landing')
+
+  // Navegación con History API para que el botón "atrás" del navegador funcione
+  useEffect(() => {
+    window.history.replaceState({ authPage: 'landing' }, '')
+  }, [])
+
+  useEffect(() => {
+    const onPopState = (e) => {
+      if (e.state?.authPage) setAuthPage(e.state.authPage)
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const goTo = (page) => {
+    window.history.pushState({ authPage: page }, '')
+    setAuthPage(page)
+  }
 
   if (loading) {
     return (
@@ -160,16 +179,20 @@ function AppContent() {
   }
 
   if (!user) {
-    if (authPage === 'register') return <Register onGoLogin={() => setAuthPage('login')} />
+    if (authPage === 'landing')
+      return <Landing onGoLogin={() => goTo('login')} onGoRegister={() => goTo('register')} />
 
- if (authPage === 'recuperar') { //  NUEVO
-      return <RecuperarContrasena onIrAlLogin={() => setAuthPage('login')} />
+    if (authPage === 'register') return <Register onGoLogin={() => goTo('login')} onGoLanding={() => goTo('landing')} />
+
+ if (authPage === 'recuperar') {
+      return <RecuperarContrasena onIrAlLogin={() => goTo('login')} />
     }
 
     return (
       <Login
-        onGoRegister={() => setAuthPage('register')}
-        onGoRecuperar={() => setAuthPage('recuperar')} // 👈 NUEVO
+        onGoRegister={() => goTo('register')}
+        onGoRecuperar={() => goTo('recuperar')}
+        onGoLanding={() => goTo('landing')}
       />
     )
   }

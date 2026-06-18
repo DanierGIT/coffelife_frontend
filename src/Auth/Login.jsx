@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 import AnimatedLogo from '../components/AnimatedLogo'
+import Loading from '../components/Loading'
+import '../components/cargando.css'
 import { BiEnvelope, BiLockAlt, BiShow, BiHide, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt } from 'react-icons/bi'
 
 // const GoogleIcon = () => (
@@ -46,7 +48,7 @@ const EyeIcon = () => <BiShow size={16} />
 
 const EyeOffIcon = () => <BiHide size={16} />
 
-export default function Login({ onGoRegister, onGoRecuperar }) {
+export default function Login({ onGoRegister, onGoRecuperar, onGoLanding }) {
   const { login } = useAuth()
 
   const [form,     setForm]     = useState({ email: '', password: '' })
@@ -54,6 +56,18 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
   const [showPass, setShowPass] = useState(false)
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
+  const [loadingNav, setLoadingNav] = useState(false)
+  const navRef = useRef(false)
+
+  const goNav = (fn) => {
+    if (navRef.current) return
+    navRef.current = true
+    setLoadingNav(true)
+    setTimeout(() => {
+      setLoadingNav(false)
+      setTimeout(() => { navRef.current = false; fn() }, 80)
+    }, 500)
+  }
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -77,6 +91,7 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
 
   return (
     <div className="auth-page">
+      {loadingNav && <Loading type="overlay" text="Cargando..." />}
 
       {/* ══ PANEL IZQUIERDO ══ */}
       <div className="auth-left">
@@ -84,7 +99,7 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
         <Dots className="auth-dots" />
 
         <div className="auth-left-content">
-          <div className="auth-logo">
+          <div className="auth-logo" onClick={() => goNav(onGoLanding)} style={{ cursor: 'pointer' }}>
             <AnimatedLogo size="xl" showTagline />
           </div>
 
@@ -136,7 +151,7 @@ export default function Login({ onGoRegister, onGoRecuperar }) {
         <RightDots />
 
         <div className="auth-card">
-          <div className="auth-card-icon">
+          <div className="auth-card-icon" onClick={() => goNav(onGoLanding)} style={{ cursor: 'pointer' }}>
             <AnimatedLogo size="md" horizontal />
           </div>
 

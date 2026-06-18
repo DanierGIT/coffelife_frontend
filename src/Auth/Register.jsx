@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { validatePassword } from '../utils/passwordValidator'
 import './Auth.css'
 import AnimatedLogo from '../components/AnimatedLogo'
+import Loading from '../components/Loading'
+import '../components/cargando.css'
 import PasswordStrength from '../components/PasswordStrength'
 import { BiUser, BiEnvelope, BiLockAlt, BiShow, BiHide, BiCheckCircle, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt, BiPhone } from 'react-icons/bi'
 
@@ -52,7 +54,7 @@ const EyeIcon = () => <BiShow size={16} />
 
 const EyeOffIcon = () => <BiHide size={16} />
 
-export default function Register({ onGoLogin }) {
+export default function Register({ onGoLogin, onGoLanding }) {
   const { register } = useAuth()
 
   const [form, setForm] = useState({
@@ -63,6 +65,18 @@ export default function Register({ onGoLogin }) {
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
   const [success,  setSuccess]  = useState(false)
+  const [loadingNav, setLoadingNav] = useState(false)
+  const navRef = useRef(false)
+
+  const goNav = (fn) => {
+    if (navRef.current) return
+    navRef.current = true
+    setLoadingNav(true)
+    setTimeout(() => {
+      setLoadingNav(false)
+      setTimeout(() => { navRef.current = false; fn() }, 80)
+    }, 500)
+  }
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -98,7 +112,7 @@ export default function Register({ onGoLogin }) {
           <div className="auth-left-bg" />
           <Dots className="auth-dots" />
           <div className="auth-left-content">
-            <div className="auth-logo">
+            <div className="auth-logo" onClick={() => goNav(onGoLanding)} style={{ cursor: 'pointer' }}>
               <AnimatedLogo size="lg" showTagline />
             </div>
           </div>
@@ -132,6 +146,7 @@ export default function Register({ onGoLogin }) {
 
   return (
     <div className="auth-page">
+      {loadingNav && <Loading type="overlay" text="Cargando..." />}
 
       {/* ══ PANEL IZQUIERDO ══ */}
       <div className="auth-left">
@@ -139,7 +154,7 @@ export default function Register({ onGoLogin }) {
         <Dots className="auth-dots" />
 
         <div className="auth-left-content">
-          <div className="auth-logo">
+          <div className="auth-logo" onClick={() => goNav(onGoLanding)} style={{ cursor: 'pointer' }}>
             <AnimatedLogo size="lg" showTagline />
           </div>
 
@@ -191,7 +206,7 @@ export default function Register({ onGoLogin }) {
         <RightDots />
 
         <div className="auth-card">
-          <div className="auth-card-icon">
+          <div className="auth-card-icon" onClick={() => goNav(onGoLanding)} style={{ cursor: 'pointer' }}>
             <AnimatedLogo size="sm" showText={false} />
           </div>
 
