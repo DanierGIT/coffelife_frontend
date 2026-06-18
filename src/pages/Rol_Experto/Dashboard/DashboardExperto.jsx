@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
+import { useAuth } from '../../../context/AuthContext'
 import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight, BiCamera } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import Loading from '../../../components/Loading'
@@ -329,6 +330,7 @@ export default function DashboardExperto({ onNavigate }) {
   const [fincaParaFoto, setFincaParaFoto] = useState(null)
 
   const payload = decodeTokenPayload()
+  const { user } = useAuth()
   const nombreExperto = payload?.nombre || 'Experto'
   const idExperto = payload?.id
 
@@ -469,8 +471,19 @@ export default function DashboardExperto({ onNavigate }) {
       {/* KPIs HEADER */}
       <div className="dashboard-header-flex">
         <div className="welcome-banner-text animate-left">
-          <h1 className="welcome-main-title">¡Hola, {nombreExperto}!</h1>
-          <p className="welcome-subtitle">Aquí puedes gestionar las fincas que tienes asignadas.</p>
+          <div className="welcome-banner-row">
+            <div className="welcome-avatar-sm">
+              {user?.fotoPerfil ? (
+                <img src={user.fotoPerfil} alt="avatar" className="welcome-avatar-img-sm" />
+              ) : (
+                <BiUser size={20} />
+              )}
+            </div>
+            <div>
+              <h1 className="welcome-main-title">¡Hola, {user?.nombre || nombreExperto}!</h1>
+              <p className="welcome-subtitle">Aquí puedes gestionar las fincas que tienes asignadas.</p>
+            </div>
+          </div>
         </div>
 
         <div className="header-kpi-cards-wrapper animate-right">

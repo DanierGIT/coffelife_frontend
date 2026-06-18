@@ -63,7 +63,13 @@ export default function MonitoreosExperto({ cultivo, finca }) {
                 <div className="monitor-header-clickable" onClick={() => setExpandedId(isOpen ? null : mid)}>
                   <div className="monitor-date">
                     <BiCalendar size={16} />
-                    {m.fechaMonitoreo}
+                    {m.fechaMonitoreo
+                      ? (() => {
+                          const d = new Date(m.fechaMonitoreo + (m.fechaMonitoreo.includes('T') ? '' : 'T12:00:00'))
+                          return isNaN(d) ? 'No hay datos por ahora' : d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
+                        })()
+                      : 'No hay datos por ahora'
+                    }
                   </div>
                   <svg className="monitor-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6"/>

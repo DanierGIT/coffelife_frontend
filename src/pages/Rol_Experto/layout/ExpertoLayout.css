@@ -499,12 +499,23 @@
   flex-shrink: 0;
 }
 
-/* ─── Barra de volver ─── */
+/* ─── Barra de volver (flotante, sin espacio) ─── */
 .back-bar {
-  padding: 12px 2rem 0;
+  height: 0;
+  overflow: visible;
+  position: sticky;
+  top: 64px;
+  z-index: 50;
+  pointer-events: none;
 }
 .back-bar .back-btn {
-  margin-bottom: 0;
+  pointer-events: auto;
+  margin-left: 2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  opacity: 0.85;
+}
+.back-bar .back-btn:hover {
+  opacity: 1;
 }
 
 /* ─── Responsive ─── */
@@ -554,4 +565,8 @@
     padding: 8px 8px;
     font-size: 11px;
   }
+}
+/* ─── Sin padding para páginas full-width ─── */
+.experto-main--full {
+  padding: 0;
 }

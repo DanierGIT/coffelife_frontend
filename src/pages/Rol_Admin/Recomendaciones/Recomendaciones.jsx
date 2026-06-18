@@ -345,6 +345,7 @@ export default function Recomendaciones() {
   const [success, setSuccess] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [loadingCatalogs, setLoadingCatalogs] = useState(false)
   const catalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
@@ -574,11 +575,13 @@ export default function Recomendaciones() {
                   <td>
                     <button
                       className="btn-rec-ver"
-                      onClick={() => {
-                        loadCatalogos()
+                      onClick={async () => {
+                        setLoadingCatalogs(true)
+                        await loadCatalogos()
                         setSelectedExperto(experto || { idUsuario: id })
                         setSelectedFincaId(null)
                         setDetailRecomendacion(null)
+                        setLoadingCatalogs(false)
                       }}
                     >
                       <BiShow size={16} />
@@ -608,6 +611,8 @@ export default function Recomendaciones() {
           <span className="pagination-info">{filteredExpertos.length} registros</span>
         </div>
       )}
+
+      {loadingCatalogs && <Loading type="overlay" text="Cargando datos de recomendaciones..." />}
 
       {selectedExperto && !selectedFincaId && !detailRecomendacion && (
         <ExpertoFincasModal

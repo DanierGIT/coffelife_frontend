@@ -16,7 +16,8 @@
 .coffeelife-container {
   background-color: var(--bg-coffeelife);
   min-height: 100vh;
-  padding: 2.5rem 2rem; /* Sincronizado con el contenedor del dashboard */
+  padding: 2.5rem 2rem;
+  margin: -32px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--brand-dark-text);
 }
@@ -26,29 +27,29 @@
    ========================================================================== */
 .finca-detail-header-card {
   background: #ffffff;
-  border-radius: 28px; /* Cambiado a 28px para hacer match con las fincas del dashboard */
-  padding: 1.75rem;
+  border-radius: 28px;
+  padding: 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   box-shadow: var(--card-shadow);
-  margin-bottom: 3rem; /* Aumentado a 3rem para mantener consistencia de ritmo */
+  margin-bottom: 1rem;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.01);
 }
 
 .finca-detail-left {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: center;
   flex: 1;
   min-width: 300px;
 }
 
 .finca-detail-img-container {
-  width: 150px;
-  height: 100px;
+  width: 120px;
+  height: 80px;
   border-radius: 18px;
   overflow: hidden;
 }
@@ -82,18 +83,18 @@
 }
 
 .finca-detail-title {
-  font-size: 2rem; /* Ajustado para jerarquía */
-  font-weight: 800; /* Peso premium de CoffeeLife */
-  margin: 0 0 0.4rem 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem 0;
   color: var(--brand-dark-text);
 }
 
 .finca-detail-meta {
   display: flex;
-  gap: 1.25rem;
-  margin-bottom: 0.75rem;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-size: 0.82rem;
 }
 
 .meta-item {
@@ -122,14 +123,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 1.25rem;
-  min-width: 350px;
+  gap: 1rem;
+  min-width: 320px;
 }
 
 /* Contenedor de Contadores Rápidos (KPIs Mini) */
 .kpi-cards-container {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   width: 100%;
 }
 
@@ -137,11 +138,11 @@
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.01);
   box-shadow: var(--card-shadow);
-  border-radius: 20px; /* Consistencia con KPIs superiores */
-  padding: 0.85rem 1.1rem;
+  border-radius: 20px;
+  padding: 0.65rem 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.65rem;
   flex: 1;
 }
 
@@ -520,6 +521,7 @@
 
 @media (max-width: 768px) {
   .coffeelife-container {
+    margin: -1rem;
     padding: 1rem;
   }
   .finca-detail-header-card {
