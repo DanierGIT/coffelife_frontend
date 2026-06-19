@@ -23,9 +23,11 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
   const [totalMons, setTotalMons] = useState(0)
   const [totalFotos, setTotalFotos] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
 
   useEffect(() => {
     if (!cultivo?.idCultivo) return
+    setImgLoaded(false)
     setLoading(true)
     api.get('/monitoreos', { params: { id_cultivo: cultivo.idCultivo } })
       .then((res) => {
@@ -86,9 +88,16 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
       <div className="finca-detail-header-card">
         <div className="finca-detail-left">
           <div className="finca-detail-img-container">
+            {!imgLoaded && (
+              <div className="finca-detail-img-loader">
+                <Loading type="inline" />
+              </div>
+            )}
             <img
-              src="https://blogtrip.org/wp-content/uploads/2016/04/paisaje-cafetero-parque-nacional-cafe-eje-cafetero.jpg"
+              src={cultivo?.fotoUrl || "https://blogtrip.org/wp-content/uploads/2016/04/paisaje-cafetero-parque-nacional-cafe-eje-cafetero.jpg"}
               alt="Cultivo"
+              onLoad={() => setImgLoaded(true)}
+              style={{ display: imgLoaded ? 'block' : 'none' }}
             />
           </div>
           <div className="finca-detail-info">

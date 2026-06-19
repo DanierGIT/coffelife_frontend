@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiBuildings, BiUser, BiGroup, BiListUl, BiCog } from 'react-icons/bi'
+import { BiBuildings, BiUser, BiGroup, BiListUl, BiCog, BiDroplet } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import Loading from '../../../components/Loading'
 import './Dashboard.css'
@@ -14,6 +14,7 @@ const getArrayData = (data) => {
 
 const quickLinks = [
   { icon: <BiListUl size={20} />, label: 'Gestión de Fincas', desc: 'Administrar fincas registradas', color: '#e8f5e9', page: 'fincas' },
+  { icon: <BiDroplet size={20} />, label: 'Insumos agrícolas', desc: 'Gestiona fertilizantes y más', color: '#e8f5e9', page: 'insumos' },
   { icon: <BiCog size={20} />, label: 'Configura tus categorías', desc: 'Categorías y parámetros', color: '#e8f5e9', page: 'categorias' },
 ]
 

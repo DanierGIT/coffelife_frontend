@@ -31,13 +31,13 @@ const getPrioridadStyle = (nombre) => {
 // ─────────────────────────────────────────────
 // FORMULARIO
 // ─────────────────────────────────────────────
-function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, expertoId, userId, onGuardado }) {
+function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, insumos, expertoId, userId, onGuardado }) {
   const [form, setForm] = useState({
     id_monitoreo: '', id_tipo: '', id_prioridad: '',
     descripcion: '', fecha_limite: '',
   })
   const [tratForm, setTratForm] = useState({
-    id_tratamiento: '', dosis: '', frecuencia: '', observaciones: '',
+    id_tratamiento: '', id_insumo: '', dosis: '', frecuencia: '', observaciones: '',
   })
   const [agregarTrat, setAgregarTrat] = useState(false)
   const [loading, setLoading]   = useState(false)
@@ -62,36 +62,31 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
         id_tipo:           form.id_tipo      ? Number(form.id_tipo)      : null,
         id_experto_emisor: expertoId         ? Number(expertoId)         : null,
         id_prioridad:      form.id_prioridad ? Number(form.id_prioridad) : null,
+        id_tratamiento:    agregarTrat && tratForm.id_tratamiento ? Number(tratForm.id_tratamiento) : null,
         descripcion:       form.descripcion.trim(),
         fecha_limite:      form.fecha_limite || null,
       })
       const idRecomendacion =
         resRec.data?.data?.idRecomendacion ?? resRec.data?.idRecomendacion
 
-      // 2 — Crear aplicacion_tratamiento + recomendacion_tratamiento
+      // 2 — Crear aplicacion_tratamiento
       if (agregarTrat && idRecomendacion) {
-        const resApl = await api.post('/aplicaciones_tratamientos', {
-          id_tratamiento: Number(tratForm.id_tratamiento),
-          id_usuario:     userId ? Number(userId) : null,
-          dosis:          tratForm.dosis.trim(),
-          frecuencia:     tratForm.frecuencia    || null,
-          observaciones:  tratForm.observaciones || null,
-        })
-        const idAplicacion =
-          resApl.data?.data?.idAplicacion ?? resApl.data?.idAplicacion
-
-        if (idAplicacion) {
-          await api.post('/recomendacion_tratamientos', {
-            id_recomendacion: Number(idRecomendacion),
-            id_aplicacion:    Number(idAplicacion),
-            dosis_ajustada:   tratForm.dosis.trim() || null,
-            notas:            tratForm.observaciones || null,
-          })
+        const hoy = new Date().toISOString().slice(0, 10)
+        const insumo = tratForm.id_insumo ? insumos.find(i => Number(i.idInsumo) === Number(tratForm.id_insumo)) : null
+        let obs = tratForm.observaciones?.trim() || null
+        if (insumo) {
+          obs = obs ? `[${insumo.nombre}] ${obs}` : `[${insumo.nombre}]`
         }
+        await api.post('/aplicaciones_tratamientos', {
+          id_tratamiento:   Number(tratForm.id_tratamiento),
+          id_usuario:       userId ? Number(userId) : null,
+          fecha_aplicacion: hoy,
+          observacion:      obs,
+        })
       }
 
       setForm({ id_monitoreo: '', id_tipo: '', id_prioridad: '', descripcion: '', fecha_limite: '' })
-      setTratForm({ id_tratamiento: '', dosis: '', frecuencia: '', observaciones: '' })
+      setTratForm({ id_tratamiento: '', id_insumo: '', dosis: '', frecuencia: '', observaciones: '' })
       setAgregarTrat(false)
       setSuccess('Recomendación registrada correctamente.')
       setTimeout(() => setSuccess(''), 3500)
@@ -188,7 +183,7 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
                     <option value="">Seleccionar tratamiento...</option>
                     {tratamientos.map((t) => (
                       <option key={t.idTratamiento} value={t.idTratamiento}>
-                        {t.nombre}
+                        {t.nombre}{t.insumo?.nombre ? ` — ${t.insumo.nombre}` : ''}
                       </option>
                     ))}
                   </select>
@@ -212,6 +207,22 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
                 <input className="rtab-input" type="text" name="observaciones" value={tratForm.observaciones}
                   onChange={handleTratChange} placeholder="Ej: Aplicar en la mañana" />
               </div>
+            </div>
+            <div className="rtab-row">
+              <div className="rtab-field">
+                <label className="rtab-label">Producto a aplicar (Insumo)</label>
+                <div className="rtab-select-wrap">
+                  <select className="rtab-select" name="id_insumo" value={tratForm.id_insumo}
+                    onChange={handleTratChange}>
+                    <option value="">Seleccionar insumo...</option>
+                    {insumos.map((ins) => (
+                      <option key={ins.idInsumo} value={ins.idInsumo}>{ins.nombre}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={13} className="rtab-select-icon" />
+                </div>
+              </div>
+              <div className="rtab-field" />
             </div>
           </div>
         )}
@@ -252,6 +263,7 @@ export default function RecomendacionesTab({ cultivo }) {
   const [tipos,           setTipos]           = useState([])
   const [prioridades,     setPrioridades]     = useState([])
   const [tratamientos,    setTratamientos]    = useState([])
+  const [insumos,         setInsumos]         = useState([])
   const [recomendaciones, setRecomendaciones] = useState([])
   const [loadingData,     setLoadingData]     = useState(true)
   const [error,           setError]           = useState('')
@@ -260,17 +272,19 @@ export default function RecomendacionesTab({ cultivo }) {
     if (!cultivo?.idCultivo) return
     setLoadingData(true)
     try {
-      const [monRes, tiposRes, recRes, tratRes] = await Promise.all([
+      const [monRes, tiposRes, recRes, tratRes, insumosRes] = await Promise.all([
         api.get('/monitoreos', { params: { id_cultivo: cultivo.idCultivo } }),
         api.get('/cat_tipos_recomendaciones'),
         api.get('/recomendaciones'),
         api.get('/tratamientos'),
+        api.get('/insumos'),
       ])
       const todosMonitoreos = Array.isArray(monRes.data)
         ? monRes.data : (monRes.data?.data ?? [])
       setMonitoreos(todosMonitoreos)
       setTipos(getArr(tiposRes.data))
       setTratamientos(getArr(tratRes.data))
+      setInsumos(getArr(insumosRes.data))
       const idsMonitoreos = todosMonitoreos.map((m) => m.idMonitoreo)
       setRecomendaciones(
         getArr(recRes.data).filter((r) => idsMonitoreos.includes(Number(r.idMonitoreo)))
@@ -328,7 +342,8 @@ export default function RecomendacionesTab({ cultivo }) {
       ) : (
         <NuevaRecomendacionForm
           monitoreos={monitoreos} tipos={tipos} prioridades={prioridades}
-          tratamientos={tratamientos} expertoId={expertoId} userId={userId}
+          tratamientos={tratamientos} insumos={insumos}
+          expertoId={expertoId} userId={userId}
           onGuardado={cargarDatos}
         />
       )}

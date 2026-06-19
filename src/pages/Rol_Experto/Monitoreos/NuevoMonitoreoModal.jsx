@@ -197,6 +197,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
   const [tipos,           setTipos]         = useState([])
   const [prioridades,     setPrioridades]   = useState([])
   const [tratamientos,    setTratamientos]  = useState([])
+  const [insumos,         setInsumos]       = useState([])
   const [loadingCat,      setLoadingCat]    = useState(true)
   const [loading,         setLoading]       = useState(false)
   const [error,           setError]         = useState('')
@@ -208,18 +209,20 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
     id_tipo: '', id_prioridad: '', descripcion: '', fecha_limite: '',
   })
   const [tratForm, setTratForm] = useState({
-    id_tratamiento: '', dosis: '', frecuencia: '', observaciones: '',
+    id_tratamiento: '', id_insumo: '', dosis: '', frecuencia: '', observaciones: '',
   })
 
   useEffect(() => {
     const cargar = async () => {
       try {
-        const [tiposRes, tratRes] = await Promise.all([
+        const [tiposRes, tratRes, insumosRes] = await Promise.all([
           api.get('/cat_tipos_recomendaciones'),
           api.get('/tratamientos'),
+          api.get('/insumos'),
         ])
         setTipos(getArr(tiposRes.data))
         setTratamientos(getArr(tratRes.data))
+        setInsumos(getArr(insumosRes.data))
         try {
           const r = await api.get('/categorias/prioridades')
           setPrioridades(getArr(r.data))
@@ -251,6 +254,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
     }
     setError('')
     setLoading(true)
+    let createdMonitoreoId = null
     try {
       // 1 — Monitoreo
       const resM = await api.post('/monitoreos', {
@@ -260,6 +264,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         observaciones:   observaciones || null,
       })
       const idMonitoreo = resM.data?.data?.idMonitoreo ?? resM.data?.idMonitoreo
+      createdMonitoreoId = idMonitoreo
 
       // 2 — Fotos
       if (fotos.length > 0 && idMonitoreo) {
@@ -278,6 +283,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
           id_tipo:           recForm.id_tipo      ? Number(recForm.id_tipo)      : null,
           id_experto_emisor: expertoId            ? Number(expertoId)            : null,
           id_prioridad:      recForm.id_prioridad ? Number(recForm.id_prioridad) : null,
+          id_tratamiento:    agregarTrat && tratForm.id_tratamiento ? Number(tratForm.id_tratamiento) : null,
           descripcion:       recForm.descripcion.trim(),
           fecha_limite:      recForm.fecha_limite || null,
         })
@@ -285,32 +291,30 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
           resRec.data?.data?.idRecomendacion ?? resRec.data?.idRecomendacion
 
         if (agregarTrat && idRecomendacion) {
-          // 3a — Crear aplicacion_tratamiento primero
-          const resApl = await api.post('/aplicaciones_tratamientos', {
-            id_tratamiento: Number(tratForm.id_tratamiento),
-            id_usuario:     userId ? Number(userId) : null,
-            dosis:          tratForm.dosis.trim(),
-            frecuencia:     tratForm.frecuencia    || null,
-            observaciones:  tratForm.observaciones || null,
-          })
-          const idAplicacion =
-            resApl.data?.data?.idAplicacion ?? resApl.data?.idAplicacion
-
-          // 3b — Vincular recomendacion_tratamiento
-          if (idAplicacion) {
-            await api.post('/recomendacion_tratamientos', {
-              id_recomendacion: Number(idRecomendacion),
-              id_aplicacion:    Number(idAplicacion),
-              dosis_ajustada:   tratForm.dosis.trim() || null,
-              notas:            tratForm.observaciones || null,
-            })
+          const hoy = new Date().toISOString().slice(0, 10)
+          const insumo = tratForm.id_insumo ? insumos.find(i => Number(i.idInsumo) === Number(tratForm.id_insumo)) : null
+          let obs = tratForm.observaciones?.trim() || null
+          if (insumo) {
+            obs = obs ? `[${insumo.nombre}] ${obs}` : `[${insumo.nombre}]`
           }
+          await api.post('/aplicaciones_tratamientos', {
+            id_tratamiento:   Number(tratForm.id_tratamiento),
+            id_usuario:       userId ? Number(userId) : null,
+            fecha_aplicacion: hoy,
+            observacion:      obs,
+          })
         }
       }
 
       onGuardado()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo guardar el monitoreo.')
+      console.error('Error al guardar monitoreo:', err?.response?.data || err)
+      // Si el monitoreo ya se creó pero falló un paso posterior, lo eliminamos para evitar duplicados
+      if (createdMonitoreoId) {
+        try { await api.delete(`/monitoreos/${createdMonitoreoId}`) } catch {}
+      }
+      const detail = err?.response?.data?.error
+      setError(detail || err?.response?.data?.message || 'No se pudo guardar el monitoreo.')
     } finally {
       setLoading(false)
     }
@@ -404,7 +408,9 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                             value={tratForm.id_tratamiento} onChange={handleTratChange}>
                             <option value="">Seleccionar tratamiento...</option>
                             {tratamientos.map((t) => (
-                              <option key={t.idTratamiento} value={t.idTratamiento}>{t.nombre}</option>
+                              <option key={t.idTratamiento} value={t.idTratamiento}>
+                                {t.nombre}{t.insumo?.nombre ? ` — ${t.insumo.nombre}` : ''}
+                              </option>
                             ))}
                           </select>
                           <ChevronDown size={13} className="nmon-select-icon" />
@@ -427,6 +433,22 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                         <input className="nmon-input" type="text" name="observaciones"
                           value={tratForm.observaciones} onChange={handleTratChange} placeholder="Ej: Aplicar en la mañana" />
                       </div>
+                    </div>
+                    <div className="nmon-field-row">
+                      <div className="nmon-field">
+                        <label className="nmon-label">Producto a aplicar (Insumo)</label>
+                        <div className="nmon-select-wrap">
+                          <select className="nmon-select" name="id_insumo"
+                            value={tratForm.id_insumo} onChange={handleTratChange}>
+                            <option value="">Seleccionar insumo...</option>
+                            {insumos.map((ins) => (
+                              <option key={ins.idInsumo} value={ins.idInsumo}>{ins.nombre}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={13} className="nmon-select-icon" />
+                        </div>
+                      </div>
+                      <div className="nmon-field" />
                     </div>
                   </div>
                 )}

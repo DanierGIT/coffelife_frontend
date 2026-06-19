@@ -312,10 +312,7 @@ function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
             <span className="detalle-label">Registrado</span>
             <span className="detalle-value">{fmtDatetime(recomendacion.fechaRegistro || recomendacion.fecha_registro)}</span>
           </div>
-          <div className="detalle-item">
-            <span className="detalle-label">Actualizado</span>
-            <span className="detalle-value">{fmtDatetime(recomendacion.fechaActualizacion || recomendacion.fecha_actualizacion)}</span>
-          </div>
+
         </div>
         <div className="modal-actions" style={{ marginTop: '20px' }}>
           <button className="btn-secondary" onClick={onBack}>

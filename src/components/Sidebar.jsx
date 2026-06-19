@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { BiGrid, BiHome, BiGroup, BiCheckSquare, BiChat, BiBriefcase, BiX, BiLogOut, BiUser, BiListUl } from 'react-icons/bi'
+import { BiGrid, BiHome, BiGroup, BiCheckSquare, BiChat, BiBriefcase, BiX, BiLogOut, BiUser, BiListUl, BiDroplet } from 'react-icons/bi'
 import './Sidebar.css'
 import AnimatedLogo from './AnimatedLogo'
 
@@ -117,6 +117,12 @@ const ALL_ITEMS = [
     roles: ['administrador', 'experto'],
     icon: <BiBriefcase size={20} />,
   },
+  {
+    key: 'insumos',
+    label: 'Insumos',
+    roles: ['administrador', 'experto'],
+    icon: <BiDroplet size={20} />,
+  },
   // {
   //   key: 'cultivos',
   //   label: 'Cultivos',
@@ -147,6 +153,7 @@ const CAT_ITEMS = [
   { key: 'prioridad',   label: 'Prioridades' },
   { key: 'tratamiento', label: 'Tipos de Tratamiento' },
   { key: 'tipos',       label: 'Tipos de Recomendación' },
+  { key: 'tipoInsumo',  label: 'Tipos de Insumo' },
 ]
 
 const USU_ITEMS = [

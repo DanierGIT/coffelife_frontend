@@ -27,6 +27,7 @@ import Recomendaciones from './pages/Rol_Admin/Recomendaciones/Recomendaciones'
 import Tratamientos    from './pages/Rol_Admin/Tratamientos/Tratamientos'
 import Aplicacion      from './pages/Rol_Admin/AplicacionTratamientos/Aplicacion'
 import Cultivos        from './pages/Rol_Admin/Cultivos/Cultivos'
+import Insumos         from './pages/Rol_Admin/Insumos/Insumos'
 
 // ── Rol_Experto ──
 import ExpertoLayout         from './pages/Rol_Experto/layout/ExpertoLayout'
@@ -86,6 +87,7 @@ function AdminApp() {
       case 'tratamientos':    return <Tratamientos />;
       case 'aplicacion':      return <Aplicacion />;
       case 'cultivos':        return <Cultivos />;
+      case 'insumos':         return <Insumos />;
       default:                return <Dashboard />;
     }
   }

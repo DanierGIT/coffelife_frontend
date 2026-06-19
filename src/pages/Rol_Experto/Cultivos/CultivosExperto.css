@@ -52,6 +52,16 @@
   height: 80px;
   border-radius: 18px;
   overflow: hidden;
+  position: relative;
+}
+
+.finca-detail-img-loader {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f4f0;
 }
 
 .finca-detail-img-container img {
