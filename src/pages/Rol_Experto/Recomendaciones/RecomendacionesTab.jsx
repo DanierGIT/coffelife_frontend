@@ -34,7 +34,7 @@ const getPrioridadStyle = (nombre) => {
 function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, insumos, expertoId, userId, onGuardado }) {
   const [form, setForm] = useState({
     id_monitoreo: '', id_tipo: '', id_prioridad: '',
-    descripcion: '', fecha_limite: '',
+    descripcion: '', fecha_limite: new Date().toISOString().slice(0, 10),
   })
   const [tratForm, setTratForm] = useState({
     id_tratamiento: '', id_insumo: '', dosis: '', frecuencia: '', observaciones: '',
@@ -85,7 +85,7 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
         })
       }
 
-      setForm({ id_monitoreo: '', id_tipo: '', id_prioridad: '', descripcion: '', fecha_limite: '' })
+      setForm({ id_monitoreo: '', id_tipo: '', id_prioridad: '', descripcion: '', fecha_limite: new Date().toISOString().slice(0, 10) })
       setTratForm({ id_tratamiento: '', id_insumo: '', dosis: '', frecuencia: '', observaciones: '' })
       setAgregarTrat(false)
       setSuccess('Recomendación registrada correctamente.')
@@ -147,8 +147,8 @@ function NuevaRecomendacionForm({ monitoreos, tipos, prioridades, tratamientos, 
             </div>
           </div>
           <div className="rtab-field">
-            <label className="rtab-label">Fecha límite</label>
-            <input className="rtab-input" type="date" name="fecha_limite" value={form.fecha_limite} onChange={handleChange} />
+             <label className="rtab-label">Fecha de la recomendación</label>
+             <input className="rtab-input" type="date" name="fecha_limite" value={form.fecha_limite} readOnly />
           </div>
         </div>
         <div className="rtab-field">
@@ -399,7 +399,7 @@ export default function RecomendacionesTab({ cultivo }) {
                   {r.fechaLimite && (
                     <p className="rtab-card-limite">
                       <BiTimeFive size={12} />
-                      Fecha límite: {normalizeDate(r.fechaLimite)}
+                      Fecha de la recomendación: {normalizeDate(r.fechaLimite)}
                     </p>
                   )}
                 </div>

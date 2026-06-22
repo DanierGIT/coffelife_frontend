@@ -301,7 +301,7 @@ function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
             </span>
           </div>
           <div className="detalle-item">
-            <span className="detalle-label">Fecha límite</span>
+            <span className="detalle-label">Fecha de la recomendación</span>
             <span className="detalle-value">
               {(recomendacion.fechaLimite || recomendacion.fecha_limite)
                 ? <span>{fmt(recomendacion.fechaLimite || recomendacion.fecha_limite)}</span>

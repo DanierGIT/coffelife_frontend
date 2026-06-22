@@ -101,7 +101,7 @@ function DetalleMonitoreoModal({ monitoreo, onBack }) {
                       {r.fechaLimite && (
                         <div className="mon-detalle-rec-meta">
                           <BiAlarm size={12} />
-                          <span>Fecha límite: {fmt(r.fechaLimite)}</span>
+                          <span>Fecha de la recomendación: {fmt(r.fechaLimite)}</span>
                         </div>
                       )}
                       {trats.length > 0 && (
