@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Lightbulb, Calendar, MessageSquare, CheckCircle,
   AlertCircle, Tag, Clock, ChevronDown, Plus,
-  Loader2, FlaskConical, Stethoscope,
+  FlaskConical, Stethoscope,
 } from 'lucide-react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'

@@ -4,7 +4,7 @@ import './Auth.css'
 import AnimatedLogo from '../components/AnimatedLogo'
 import Loading from '../components/Loading'
 import '../components/cargando.css'
-import { BiEnvelope, BiLockAlt, BiShow, BiHide, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt } from 'react-icons/bi'
+import { BiEnvelope, BiLockAlt, BiShow, BiHide, BiSearch, BiSearchAlt2, BiMessageDetail, BiRightArrowAlt, BiCheckCircle, BiLeaf } from 'react-icons/bi'
 
 // const GoogleIcon = () => (
 //   <svg width="20" height="20" viewBox="0 0 48 48">
@@ -49,7 +49,7 @@ const EyeIcon = () => <BiShow size={16} />
 const EyeOffIcon = () => <BiHide size={16} />
 
 export default function Login({ onGoRegister, onGoRecuperar, onGoLanding }) {
-  const { login } = useAuth()
+  const { login, logout } = useAuth()
 
   const [form,     setForm]     = useState({ email: '', password: '' })
   const [remember, setRemember] = useState(false)
@@ -79,7 +79,10 @@ export default function Login({ onGoRegister, onGoRecuperar, onGoLanding }) {
     try {
       await login(form.email, form.password)
     } catch (err) {
-      if (!err.response) {
+      if (err.message === 'cafetero_blocked') {
+        logout()
+        setError('cafetero_blocked')
+      } else if (!err.response) {
         setError('No se pudo conectar con el servidor. Verifica que el backend esté disponible.')
       } else {
         setError(err.response.data?.message || 'Correo o contraseña incorrectos.')
@@ -211,7 +214,34 @@ export default function Login({ onGoRegister, onGoRecuperar, onGoLanding }) {
 </button>
             </div>
 
-            {error && <p className="auth-error">{error}</p>}
+            {error && error !== 'cafetero_blocked' && <p className="auth-error">{error}</p>}
+
+            {error === 'cafetero_blocked' && (
+              <div className="auth-app-notice">
+                <div className="auth-app-notice-phone">
+                  <div className="auth-app-notice-phone-screen">
+                    <BiCheckCircle size={36} />
+                  </div>
+                </div>
+                <div className="auth-app-notice-text">
+                  <strong>CoffeeLife para caficultores</strong>
+                  <span>
+                    Solo está disponible en dispositivos móviles.
+                    Descarga la aplicación para iniciar sesión.
+                  </span>
+                </div>
+                <div className="auth-app-stores">
+                  <button className="auth-store-btn" type="button" disabled>
+                    <BiLeaf size={18} />
+                    Google Play
+                  </button>
+                  <button className="auth-store-btn" type="button" disabled>
+                    <BiLeaf size={18} />
+                    App Store
+                  </button>
+                </div>
+              </div>
+            )}
 
             <button type="submit" className="auth-btn-primary" disabled={loading}>
               {loading ? 'Iniciando...' : 'Iniciar sesión'}
