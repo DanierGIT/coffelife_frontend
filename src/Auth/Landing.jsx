@@ -3,6 +3,28 @@ import AnimatedLogo from '../components/AnimatedLogo'
 import Loading from '../components/Loading'
 import '../components/cargando.css'
 import './Landing.css'
+import {
+  BiLeaf, BiSearchAlt, BiMessageDetail, BiRightArrowAlt,
+  BiMobile, BiBrain, BiCoffee, BiShield, BiCloud
+} from 'react-icons/bi'
+
+const features = [
+  {
+    icon: <BiSearchAlt size={24} />,
+    title: 'Monitoreo de cultivos',
+    desc: 'Registra el estado de cada cultivo en tiempo real con fotografías y datos precisos. Accede al historial completo desde cualquier dispositivo.',
+  },
+  {
+    icon: <BiBrain size={24} />,
+    title: 'Detección inteligente',
+    desc: 'Nuestro motor de IA analiza las imágenes para identificar niveles de roya y enfermedades. Recibe alertas tempranas y salva tu cosecha.',
+  },
+  {
+    icon: <BiMessageDetail size={24} />,
+    title: 'Recomendaciones de expertos',
+    desc: 'Agrónomos profesionales asignan tratamientos personalizados para cada finca. Decisiones respaldadas por ciencia y experiencia de campo.',
+  },
+]
 
 export default function Landing({ onGoLogin, onGoRegister }) {
   const [loadingNav, setLoadingNav] = useState(false)
@@ -25,10 +47,17 @@ export default function Landing({ onGoLogin, onGoRegister }) {
   return (
     <div className="landing-page">
       {loadingNav && <Loading type="overlay" text="Cargando..." />}
+
+      {/* ─── DECORATIVE FLOATING LEAVES ─── */}
+      <div className="landing-float-leaf lfl-1"><BiLeaf size={28} /></div>
+      <div className="landing-float-leaf lfl-2"><BiLeaf size={20} /></div>
+      <div className="landing-float-leaf lfl-3"><BiLeaf size={16} /></div>
+      <div className="landing-float-leaf lfl-4"><BiLeaf size={24} /></div>
+
       {/* ═══════════ NAVBAR ═══════════ */}
       <nav className="landing-nav">
         <div className="landing-nav-inner">
-          <span className="landing-nav-brand">Coffe<span>Life</span></span>
+          <AnimatedLogo size="md" horizontal />
           <div className="landing-nav-actions">
             <button className="landing-btn-outline" onClick={() => go(onGoLogin)}>
               Iniciar sesión
@@ -44,47 +73,52 @@ export default function Landing({ onGoLogin, onGoRegister }) {
       <section className="landing-hero">
         <div className="landing-hero-bg" />
         <div className="landing-hero-overlay" />
+        <div className="landing-hero-pattern" />
         <div className="landing-hero-content">
           <div className="landing-hero-split">
             <div className="landing-hero-left">
               <AnimatedLogo size="xl" showTagline />
             </div>
             <div className="landing-hero-right">
-              <div className="landing-hero-badge">Plataforma de gestión cafetalera</div>
+              <div className="landing-hero-badge">
+                <BiCoffee size={14} />
+                <span>Plataforma de gestión cafetalera</span>
+              </div>
               <h1 className="landing-hero-title">
-                Gestiona tus cultivos de café<br />
+                Gestiona tus cultivos de café
                 <span>con inteligencia y precisión</span>
               </h1>
+              <div className="landing-title-divider">
+                <span className="ltd-line" />
+                <span className="ltd-icon"><BiLeaf size={16} /></span>
+                <span className="ltd-line" />
+              </div>
               <p className="landing-hero-sub">
                 Monitorea el estado de tus fincas, detecta la roya a tiempo y recibe
                 recomendaciones personalizadas de expertos agrónomos — todo desde un solo lugar.
               </p>
               <div className="landing-hero-actions">
                 <button className="landing-btn-primary" onClick={() => go(onGoRegister)}>
-                  Comenzar gratis
+                  <span>Comenzar gratis</span>
+                  <BiRightArrowAlt size={20} />
                 </button>
                 <button className="landing-btn-ghost" onClick={() => scrollTo('features')}>
-                  Conocer más
+                  <BiLeaf size={16} />
+                  <span>Conocer más</span>
                 </button>
               </div>
               <div className="landing-hero-features">
                 <div className="landing-hf-item">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
-                  </svg>
-                  <span>Registra desde tu celular</span>
+                  <BiMobile size={16} />
+                  <span>App móvil incluida</span>
                 </div>
                 <div className="landing-hf-item">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                  </svg>
-                  <span>Detección con inteligencia artificial</span>
+                  <BiCloud size={16} />
+                  <span>Datos en la nube</span>
                 </div>
                 <div className="landing-hf-item">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                  </svg>
-                  <span>Recomendaciones de expertos</span>
+                  <BiShield size={16} />
+                  <span>Seguridad garantizada</span>
                 </div>
               </div>
             </div>
@@ -94,58 +128,54 @@ export default function Landing({ onGoLogin, onGoRegister }) {
 
       {/* ═══════════ FEATURES ═══════════ */}
       <section className="landing-features" id="features">
-        <div className="landing-section-label">¿Qué ofrece CoffeeLife?</div>
-        <h2 className="landing-section-title">Todo lo que necesitas para tu cafetal</h2>
+        <div className="landing-section-label">
+          <BiLeaf size={12} />
+          <span>¿Qué ofrece CoffeeLife?</span>
+        </div>
+        <h2 className="landing-section-title">
+          Todo lo que necesitas<br />para tu cafetal
+        </h2>
+        <div className="landing-title-divider">
+          <span className="ltd-line" />
+          <span className="ltd-icon"><BiLeaf size={18} /></span>
+          <span className="ltd-line" />
+        </div>
         <p className="landing-section-sub">
-          Una plataforma completa diseñada para caficultores y expertos agrónomos.
+          Una plataforma integral diseñada para caficultores modernos y expertos agrónomos.
         </p>
         <div className="landing-features-grid">
-          <div className="landing-feature-card">
-            <div className="landing-feature-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
+          {features.map((f, i) => (
+            <div className="landing-feature-card" key={i}>
+              <div className="landing-feature-card-bg" />
+              <div className="landing-feature-icon">{f.icon}</div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+              <div className="landing-feature-card-line" />
             </div>
-            <h3>Monitoreo de cultivos</h3>
-            <p>Registra y consulta el estado de cada cultivo en tiempo real. Historial completo de monitoreos con fotografías.</p>
-          </div>
-          <div className="landing-feature-card">
-            <div className="landing-feature-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-            </div>
-            <h3>Detección inteligente</h3>
-            <p>Análisis asistido por IA para identificar niveles de roya y otras enfermedades. Actúa a tiempo y salva tu cosecha.</p>
-          </div>
-          <div className="landing-feature-card">
-            <div className="landing-feature-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-            </div>
-            <h3>Recomendaciones personalizadas</h3>
-            <p>Expertos agrónomos asignan tratamientos y recomendaciones específicas para cada finca según sus necesidades.</p>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* ═══════════ CTA FINAL ═══════════ */}
+      {/* ═══════════ CTA ═══════════ */}
       <section className="landing-cta">
         <div className="landing-cta-bg" />
         <div className="landing-cta-overlay" />
+        <div className="landing-cta-pattern" />
         <div className="landing-cta-content">
+          <div className="landing-cta-badge">Comienza hoy</div>
           <h2 className="landing-cta-title">¿Listo para transformar tu cafetal?</h2>
+          <div className="landing-title-divider">
+            <span className="ltd-line ltd-line--light" />
+            <span className="ltd-icon"><BiLeaf size={16} /></span>
+            <span className="ltd-line ltd-line--light" />
+          </div>
           <p className="landing-cta-sub">
             Únete a la comunidad de caficultores que ya confían en CoffeeLife para
-            gestionar sus cultivos con datos reales.
+            gestionar sus cultivos con datos reales y decisiones inteligentes.
           </p>
           <button className="landing-btn-primary landing-btn-primary--lg" onClick={() => go(onGoRegister)}>
-            Crear cuenta gratuita
+            <span>Crear cuenta gratuita</span>
+            <BiRightArrowAlt size={22} />
           </button>
           <p className="landing-cta-login">
             ¿Ya tienes cuenta?{' '}
@@ -157,10 +187,27 @@ export default function Landing({ onGoLogin, onGoRegister }) {
       {/* ═══════════ FOOTER ═══════════ */}
       <footer className="landing-footer">
         <div className="landing-footer-inner">
-          <AnimatedLogo size="sm" horizontal />
-          <p className="landing-footer-text">
-            &copy; {new Date().getFullYear()} CoffeeLife. Todos los derechos reservados.
-          </p>
+          <div className="landing-footer-brand">
+            <AnimatedLogo size="sm" horizontal />
+            <p className="landing-footer-desc">
+              Transformando la gestión cafetalera con tecnología inteligente.
+            </p>
+          </div>
+          <div className="landing-footer-links">
+            <div className="landing-footer-col">
+              <h4>Producto</h4>
+              <button className="landing-footer-link" onClick={() => scrollTo('features')}>Características</button>
+              <button className="landing-footer-link" onClick={() => go(onGoRegister)}>Registrarse</button>
+            </div>
+            <div className="landing-footer-col">
+              <h4>Soporte</h4>
+              <button className="landing-footer-link" onClick={() => go(onGoLogin)}>Iniciar sesión</button>
+              <button className="landing-footer-link">Contacto</button>
+            </div>
+          </div>
+        </div>
+        <div className="landing-footer-bottom">
+          <p>&copy; {new Date().getFullYear()} CoffeeLife. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   Info, Camera, FileText, Lightbulb, ChevronRight,
-  ChevronLeft, X, Loader2, ChevronDown,
+  ChevronLeft, X, ChevronDown,
   FlaskConical, Stethoscope,
 } from 'lucide-react'
 import api from '../../../services/api'
