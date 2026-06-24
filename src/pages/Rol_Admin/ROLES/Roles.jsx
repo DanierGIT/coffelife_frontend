@@ -8,7 +8,7 @@ import api from '../../../services/api'
 // Reutilizamos el CSS de Administrador para coherencia visual
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
-import { BiPlus, BiEdit } from 'react-icons/bi'
+import { BiPlus, BiEdit, BiGroup } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 
@@ -174,11 +174,7 @@ export default function Roles() {
       {/* ── Header de sección: Roles ── */}
       <div className="section-header-card" style={{ position: 'relative' }}>
         <div className="section-header-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <circle cx="12" cy="11" r="2" />
-            <path d="M12 13v3" />
-          </svg>
+          <BiGroup size={22} />
         </div>
         <div className="section-header-text">
           <span className="section-header-badge">Administrador</span>

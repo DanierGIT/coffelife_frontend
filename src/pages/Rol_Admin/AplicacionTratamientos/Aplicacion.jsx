@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import './aplicacion.css'
 import api from '../../../services/api'
 import '../Administrador/Administrador.css'
-import { BiPlus } from 'react-icons/bi'
+import { BiPlus, BiDroplet } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 
 const getArrayData = (data) => {
@@ -179,8 +179,13 @@ export default function Aplicacion() {
   return (
     <div className="rl-container">
       <div className="page-header">
-        <h1>Aplicación de Tratamientos</h1>
-        <p>Registro de aplicación de tratamientos</p>
+        <div className="page-header-icon">
+          <BiDroplet size={22} />
+        </div>
+        <div className="page-header-text">
+          <h1>Aplicación de Tratamientos</h1>
+          <p>Registro de aplicación de tratamientos</p>
+        </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button

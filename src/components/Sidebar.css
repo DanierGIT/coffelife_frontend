@@ -57,10 +57,6 @@
 .sidebar-profile:hover {
   background: rgba(29, 71, 32, 0.65);
 }
-.sidebar-profile.open {
-  border-radius: 12px 12px 0 0;
-}
-
 .sidebar-avatar {
   width: 38px;
   height: 38px;
@@ -104,56 +100,40 @@
   margin-top: 2px;
 }
 
-/* ─── Menú desplegable del perfil ─── */
-.sidebar-profile-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px 8px 8px;
-  background: rgba(29, 71, 32, 0.515);
-  border-radius: 0 0 12px 12px;
-  margin-bottom: 8px;
-  animation: slideDown 0.2s ease;
-}
-
-.sidebar-profile-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-  color: #efdec0;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  width: 100%;
-  text-align: left;
-  font-family: inherit;
-}
-
-.sidebar-profile-menu-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-.sidebar-profile-menu-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-weight: 700;
-}
-
-.sidebar-profile-menu-item svg {
-  flex-shrink: 0;
-}
-
 /* ─── Divider ─── */
 .sidebar-divider {
   border: none;
   border-top: 1px solid rgba(10, 10, 10, 0.303);
   margin: 12px 0;
+  flex-shrink: 0;
+}
+
+/* ─── Logout button (bottom of sidebar) ─── */
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #c0392b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.sidebar-logout-btn:hover {
+  background: rgba(192, 57, 43, 0.1);
+  color: #a93226;
+}
+
+.sidebar-logout-btn svg {
   flex-shrink: 0;
 }
 
