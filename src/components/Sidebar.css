@@ -4,8 +4,8 @@
 
 .sidebar {
   width: 240px;
-  height: 100vh;           /* altura fija a la pantalla */
-  background: #efdec0;
+  height: 100vh;
+  background: #097300;
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -15,7 +15,7 @@
   bottom: 0;
   z-index: 100;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-  overflow: hidden;        /* el sidebar no hace scroll, solo el nav */
+  overflow: hidden;
   transition: transform 0.25s ease;
 }
 
@@ -25,19 +25,39 @@
   align-items: center;
   gap: 10px;
   padding: 0 8px 20px;
-  flex-shrink: 0;          /* nunca se encoge */
+  flex-shrink: 0;
 }
 
-.sidebar-logo-icon {
-  font-size: 24px;
+.sidebar-logo-texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
 }
 
-.sidebar-logo-text {
+.sidebar-logo-name {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
   font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.sidebar-logo-name span {
+  color: #c8e6c9;
+}
+
+.sidebar-logo-badge {
+  font-size: 10px;
   font-weight: 700;
-  color: #658c21;
-  letter-spacing: 1px;
-  font-family: 'Georgia', serif;
+  color: #ffffff;
+  letter-spacing: 1.8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  margin-top: 2px;
+  align-self: flex-start;
 }
 
 /* ─── Perfil ─── */
@@ -47,7 +67,7 @@
   gap: 12px;
   padding: 12px 8px;
   border-radius: 12px;
-  background: rgba(29, 71, 32, 0.515);
+  background: rgba(255, 255, 255, 0.15);
   margin-bottom: 4px;
   flex-shrink: 0;
   cursor: pointer;
@@ -55,7 +75,7 @@
   transition: background 0.2s;
 }
 .sidebar-profile:hover {
-  background: rgba(29, 71, 32, 0.65);
+  background: rgba(255, 255, 255, 0.25);
 }
 .sidebar-profile.open {
   border-radius: 12px 12px 0 0;
@@ -91,7 +111,7 @@
   margin: 0;
   font-size: 13px;
   font-weight: 600;
-  color: #efdec0;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -100,7 +120,7 @@
 .sidebar-profile-role {
   margin: 0;
   font-size: 11px;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 2px;
 }
 
@@ -110,7 +130,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 4px 8px 8px;
-  background: rgba(29, 71, 32, 0.515);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 0 0 12px 12px;
   margin-bottom: 8px;
   animation: slideDown 0.2s ease;
@@ -124,7 +144,7 @@
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #efdec0;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -152,7 +172,7 @@
 /* ─── Divider ─── */
 .sidebar-divider {
   border: none;
-  border-top: 1px solid rgba(10, 10, 10, 0.303);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   margin: 12px 0;
   flex-shrink: 0;
 }
@@ -197,7 +217,7 @@
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #658c21;
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
@@ -210,13 +230,13 @@
 
 .sidebar-nav-item:hover:not(.disabled) {
   background: rgba(255, 255, 255, 0.15);
-  color: #000000;
+  color: #ffffff;
 }
 
 .sidebar-nav-item.active {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(46, 125, 50, 0.2));
-  color: #000000;
-  border-left: 3px solid #489d4a;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-left: 3px solid #ffffff;
 }
 
 .sidebar-nav-item.disabled {
@@ -278,7 +298,7 @@
   padding: 9px 14px;
   border-radius: 10px;
   font-size: 13px;
-  color: #4a5568;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   font-family: inherit;
@@ -286,13 +306,13 @@
 }
 
 .sidebar-submenu-item:hover {
-  background: rgba(255, 255, 255, 0.35);
-  color: #2e7d32;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
 }
 
 .sidebar-submenu-item.active {
-  background: rgba(255, 255, 255, 0.35);
-  color: #2e7d32;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -304,7 +324,7 @@
   right: 12px;
   background: none;
   border: none;
-  color: #658c21;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;

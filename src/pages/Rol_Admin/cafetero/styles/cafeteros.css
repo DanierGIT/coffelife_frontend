@@ -50,8 +50,8 @@
 .admin-form input:focus,
 .admin-form-select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -62,7 +62,7 @@
 
 /* ─── Botones ─── */
 .btn-primary {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   color: #fff;
   border: none;
   padding: 11px 22px;
@@ -109,7 +109,7 @@
 }
 
 .admin-table thead {
-  background: #efdec0;
+  background: #097300;
 }
 
 .admin-table th {
@@ -117,7 +117,7 @@
   padding: 14px 16px;
   font-size: 13px;
   font-weight: 600;
-  color: #1b5e20;
+  color: #ffffff;
   letter-spacing: 0.3px;
 }
 
@@ -291,8 +291,8 @@
 .modal-form input:focus,
 .modal-form select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 

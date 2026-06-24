@@ -33,7 +33,7 @@
 .mp-top-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #66bb6a 0%, #43a047 55%, #2e7d32 100%);
+  background: #097300;
 }
 
 .mp-top-pattern {

@@ -12,7 +12,7 @@
 .experto-navbar {
   display: flex;
   align-items: center;
-  background: #efdec0;
+  background: #097300;
   border-bottom: 1px solid #ece5da;
   padding: 0 24px;
   height: 64px;
@@ -43,20 +43,20 @@
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -1px;
-  color: #1b5e20;
+  color: #ffffff;
   white-space: nowrap;
 }
 
 .experto-logo-name span {
-  color: #43a047;
+  color: #c8e6c9;
 }
 
 .experto-logo-badge {
   font-size: 10px;
   font-weight: 700;
-  color: #2e7d32;
+  color: #ffffff;
   letter-spacing: 1.8px;
-  background: #e8f5e9;
+  background: rgba(255,255,255,0.2);
   padding: 5px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -86,25 +86,25 @@
   font-family: 'Lato', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
+  color: rgba(255,255,255,0.8);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 
 .experto-nav-btn:hover {
-  background: rgba(255,255,255,0.5);
-  color: #1b5e20;
+  background: rgba(255,255,255,0.15);
+  color: #ffffff;
 }
 
 .experto-nav-btn.active {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: rgba(255,255,255,0.2);
+  color: #ffffff;
   font-weight: 700;
 }
 
 .experto-nav-btn.active svg {
-  stroke: #2e7d32;
+  stroke: #ffffff;
 }
 
 /* ─── Usuario ─── */
@@ -127,15 +127,15 @@
 }
 
 .experto-user-info:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(255,255,255,0.15);
 }
 
 .experto-user-info.active {
-  background: #e8f5e9;
+  background: rgba(255,255,255,0.2);
 }
 
 .experto-user-info.active .experto-user-name {
-  color: #2e7d32;
+  color: #ffffff;
 }
 
 .experto-avatar {
@@ -169,19 +169,19 @@
   margin: 0;
   font-size: 13px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
   white-space: nowrap;
 }
 
 .experto-user-role {
   margin: 0;
   font-size: 11px;
-  color: #6b7280;
+  color: rgba(255,255,255,0.8);
   white-space: nowrap;
 }
 
 .experto-chevron {
-  color: #6b7280;
+  color: rgba(255,255,255,0.8);
   transition: transform 0.2s;
   flex-shrink: 0;
 }

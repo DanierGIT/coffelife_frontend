@@ -24,6 +24,7 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
   const [totalFotos, setTotalFotos] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
+  const [showMonitoreoModal, setShowMonitoreoModal] = useState(false)
 
   useEffect(() => {
     if (!cultivo?.idCultivo) return
@@ -74,6 +75,8 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
           <MonitoreosExperto
             cultivo={cultivo}
             finca={finca}
+            showNuevoModal={showMonitoreoModal}
+            onCloseNuevoModal={() => setShowMonitoreoModal(false)}
           />
         )
 
@@ -176,6 +179,27 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
             {t}
           </button>
         ))}
+        {activeTab === 'Monitoreo' && (
+          <button
+            onClick={() => setShowMonitoreoModal(true)}
+            style={{
+              marginLeft: 'auto',
+              height: 36,
+              border: 'none',
+              borderRadius: 10,
+              background: '#097300',
+              color: 'white',
+              fontWeight: 700,
+              padding: '0 20px',
+              cursor: 'pointer',
+              fontSize: 13,
+              whiteSpace: 'nowrap',
+              boxShadow: '0 4px 12px rgba(0,0,0,.15)',
+            }}
+          >
+            + Nuevo monitoreo
+          </button>
+        )}
       </nav>
 
       {tabContent()}

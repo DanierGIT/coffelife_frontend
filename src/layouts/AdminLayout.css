@@ -73,12 +73,12 @@
     height: 40px;
     border: none;
     border-radius: 8px;
-    background: #efdec0;
-    color: #658c21;
+    background: #097300;
+    color: #ffffff;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
   .sidebar-hamburger:hover {
-    background: #e0d0b0;
+    background: #065a00;
   }
 }

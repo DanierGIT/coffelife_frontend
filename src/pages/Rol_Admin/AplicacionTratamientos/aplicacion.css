@@ -88,9 +88,9 @@
 .rl-field textarea:focus,
 .rl-field select:focus {
   outline: none;
-  border-color: #4caf50;
+  border-color: #097300;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
 }
 
 /* ─────────────────────────────
@@ -103,11 +103,7 @@
 }
 
 .rl-btn {
-  background: linear-gradient(
-    135deg,
-    #43a047,
-    #2e7d32
-  );
+  background: #097300;
   color: white;
   border: none;
   border-radius: 10px;
@@ -166,22 +162,22 @@
 }
 
 .rl-table thead {
-  background: #e8f5e9;
+  background: #097300;
 }
 
 .rl-table th {
   padding: 10px 8px;
   text-align: left;
   font-size: 12px;
-  font-weight: 700;
-  color: #1b5e20;
+  font-weight: 400;
+  color: #ffffff;
 }
 
 .rl-table td {
   padding: 10px 8px;
   border-bottom: 1px solid #eeeeee;
   font-size: 13px;
-  color: #374151;
+  color: #000000;
 }
 
 .rl-table tbody tr:hover {
@@ -438,8 +434,8 @@
 .modal-form select:focus,
 .modal-form textarea:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -466,7 +462,7 @@
 .btn-cancelar:hover { background: #e5e7eb; }
 
 .btn-guardar {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   color: #fff;
   border: none;
   padding: 11px 22px;

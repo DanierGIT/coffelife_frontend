@@ -20,7 +20,7 @@
 .formulario select:focus,
 .formulario input:focus,
 .formulario textarea:focus {
-  border-color: #4caf50;
+  border-color: #097300;
   box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
   background: #fff;
 }
@@ -31,7 +31,7 @@
 }
 
 .formulario button {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   color: #fff;
   border: none;
   padding: 11px 22px;

@@ -42,14 +42,14 @@
 .form input:focus,
 .form select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9,115,0,0.12);
   background: #fff;
 }
 
 /* BOTÓN PRINCIPAL */
 .form button {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   color: #fff;
   border: none;
   padding: 11px 20px;
@@ -79,21 +79,21 @@ table {
 }
 
 thead {
-  background: #efdec0;
+  background: #097300;
 }
 
 th {
   text-align: left;
   padding: 14px 16px;
   font-size: 13px;
-  font-weight: 600;
-  color: #1b5e20;
+  font-weight: 400;
+  color: #ffffff;
 }
 
 td {
   padding: 14px 16px;
   border-bottom: 1px solid #f0f0f0;
-  color: #374151;
+  color: #000000;
 }
 
 tr:hover {
@@ -204,8 +204,8 @@ tr:hover {
 .modal-body input:focus,
 .modal-body select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9,115,0,0.12);
   background: #fff;
 }
 
@@ -219,7 +219,7 @@ tr:hover {
 
 /* BOTONES MODAL */
 .btn-save {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   color: #fff;
   border: none;
   padding: 10px 18px;

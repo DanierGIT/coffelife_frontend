@@ -19,7 +19,7 @@
 
 .tabla thead {
 
-  background: #d9c8a5;
+  background: #097300;
 
 }
 
@@ -30,11 +30,11 @@
 
   text-align: left;
 
-  color: #4d5b1f;
+  color: #ffffff;
 
   font-size: 13px;
 
-  font-weight: bold;
+  font-weight: 400;
 
 }
 
@@ -49,7 +49,7 @@
 
   font-size: 14px;
 
-  color: #444;
+  color: #000000;
 
 }
 
