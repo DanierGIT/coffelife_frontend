@@ -8,8 +8,21 @@ import api from '../../../services/api'
 // Reutilizamos el CSS de Administrador para coherencia visual
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
-import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi'
+import { BiPlus, BiEdit } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
+import ToggleSwitch from '../../../components/ToggleSwitch'
+
+const STORAGE_KEY = 'roles_toggles'
+
+const getLocalToggles = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
+  catch { return {} }
+}
+
+const normalizeActivo = (val) => {
+  if (val === null || val === undefined) return true
+  return val === true || val === 1 || val === '1'
+}
 
 // ── Modal editar ─────────────────────────────────────────────────────────────
 function EditModal({ rol, onClose, onSaved }) {
@@ -120,6 +133,26 @@ export default function Roles() {
       setError(err?.response?.data?.message || 'No se pudo crear el rol.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleActivo = async (idRol, newActivo) => {
+    const revert = () => {
+      setRoles((prev) =>
+        prev.map((r) => (r.idRol || r.id) === idRol ? { ...r, activo: !newActivo } : r)
+      )
+    }
+    setRoles((prev) =>
+      prev.map((r) => (r.idRol || r.id) === idRol ? { ...r, activo: newActivo } : r)
+    )
+    try {
+      const toggles = getLocalToggles()
+      toggles[idRol] = newActivo
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toggles))
+      await api.put(`/cat_roles/${idRol}`, { activo: newActivo ? 1 : 0 })
+    } catch (err) {
+      revert()
+      setError(err?.response?.data?.message || 'No se pudo cambiar el estado del rol.')
     }
   }
 

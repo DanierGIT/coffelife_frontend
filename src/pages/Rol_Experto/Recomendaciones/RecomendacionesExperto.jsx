@@ -151,8 +151,8 @@ function EditModal({ recomendacion, onClose, onSaved, tipos, prioridades, expert
             </label>
 
             <label>
-              Fecha límite
-              <input type="date" name="fecha_limite" value={form.fecha_limite} onChange={handleChange} />
+              Fecha de la recomendación
+              <input type="date" name="fecha_limite" value={form.fecha_limite} readOnly />
             </label>
           </div>
 
@@ -452,7 +452,7 @@ export default function RecomendacionesExperto() {
               <th>Tipo</th>
               <th>Prioridad</th>
               <th>Descripción</th>
-              <th>Fecha límite</th>
+              <th>Fecha de la recomendación</th>
               <th>Acciones</th>
             </tr>
           </thead>

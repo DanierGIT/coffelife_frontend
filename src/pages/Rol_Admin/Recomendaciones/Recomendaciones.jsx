@@ -301,7 +301,7 @@ function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
             </span>
           </div>
           <div className="detalle-item">
-            <span className="detalle-label">Fecha límite</span>
+            <span className="detalle-label">Fecha de la recomendación</span>
             <span className="detalle-value">
               {(recomendacion.fechaLimite || recomendacion.fecha_limite)
                 ? <span>{fmt(recomendacion.fechaLimite || recomendacion.fecha_limite)}</span>
@@ -312,10 +312,7 @@ function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
             <span className="detalle-label">Registrado</span>
             <span className="detalle-value">{fmtDatetime(recomendacion.fechaRegistro || recomendacion.fecha_registro)}</span>
           </div>
-          <div className="detalle-item">
-            <span className="detalle-label">Actualizado</span>
-            <span className="detalle-value">{fmtDatetime(recomendacion.fechaActualizacion || recomendacion.fecha_actualizacion)}</span>
-          </div>
+
         </div>
         <div className="modal-actions" style={{ marginTop: '20px' }}>
           <button className="btn-secondary" onClick={onBack}>
@@ -345,6 +342,7 @@ export default function Recomendaciones() {
   const [success, setSuccess] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [loadingCatalogs, setLoadingCatalogs] = useState(false)
   const catalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
@@ -574,11 +572,13 @@ export default function Recomendaciones() {
                   <td>
                     <button
                       className="btn-rec-ver"
-                      onClick={() => {
-                        loadCatalogos()
+                      onClick={async () => {
+                        setLoadingCatalogs(true)
+                        await loadCatalogos()
                         setSelectedExperto(experto || { idUsuario: id })
                         setSelectedFincaId(null)
                         setDetailRecomendacion(null)
+                        setLoadingCatalogs(false)
                       }}
                     >
                       <BiShow size={16} />
@@ -608,6 +608,8 @@ export default function Recomendaciones() {
           <span className="pagination-info">{filteredExpertos.length} registros</span>
         </div>
       )}
+
+      {loadingCatalogs && <Loading type="overlay" text="Cargando datos de recomendaciones..." />}
 
       {selectedExperto && !selectedFincaId && !detailRecomendacion && (
         <ExpertoFincasModal

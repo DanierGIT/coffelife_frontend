@@ -134,6 +134,7 @@ function ListaMonitoreosModal({ finca, monitoreos, onBack, onVerDetalle, onEdita
               <div key={id} className="mon-list-item">
                 <div className="mon-list-info">
                   <span className="mon-list-cultivo">{m.cultivo?.nombreCultivo || '—'}</span>
+                  <span className="mon-list-experto">{m.usuario ? `${m.usuario.nombre} ${m.usuario.apellido}`.trim() : '—'}</span>
                   <span className="mon-list-fecha">{fmt(m.fechaMonitoreo ?? m.fecha_monitoreo)}</span>
                 </div>
                 <div className="mon-list-acciones">
@@ -167,7 +168,7 @@ function DetalleMonitoreoModal({ monitoreo, onBack }) {
           <div className="detalle-item">
             <span className="detalle-label">Experto</span>
             <span className="detalle-value">
-              {monitoreo.experto ? `${monitoreo.experto.nombre || ''} ${monitoreo.experto.apellido || ''}`.trim() : '—'}
+              {monitoreo.usuario ? `${monitoreo.usuario.nombre || ''} ${monitoreo.usuario.apellido || ''}`.trim() : '—'}
             </span>
           </div>
           <div className="detalle-item">
@@ -215,8 +216,19 @@ export default function Monitoreos() {
   const editCatalogsLoaded = useRef(false)
   const ITEMS_PER_PAGE = 10
 
+  const fincaMonitoreos = useMemo(() => {
+    const map = {}
+    monitoreos.forEach((m) => {
+      const idFinca = m.cultivo?.idFinca
+      if (!idFinca) return
+      if (!map[idFinca]) map[idFinca] = []
+      map[idFinca].push(m)
+    })
+    return map
+  }, [monitoreos])
+
   const filteredFincas = useMemo(() => {
-    let data = fincas
+    let data = fincas.filter((f) => fincaMonitoreos[f.idFinca])
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
       data = data.filter((f) =>
@@ -224,7 +236,7 @@ export default function Monitoreos() {
       )
     }
     return data
-  }, [fincas, searchTerm])
+  }, [fincas, searchTerm, fincaMonitoreos])
 
   const totalPages = Math.max(1, Math.ceil(filteredFincas.length / ITEMS_PER_PAGE))
   const paginatedFincas = useMemo(() => {
@@ -237,17 +249,6 @@ export default function Monitoreos() {
     fincas.forEach((f) => { map[f.idFinca] = f })
     return map
   }, [fincas])
-
-  const fincaMonitoreos = useMemo(() => {
-    const map = {}
-    monitoreos.forEach((m) => {
-      const idFinca = m.cultivo?.idFinca
-      if (!idFinca) return
-      if (!map[idFinca]) map[idFinca] = []
-      map[idFinca].push(m)
-    })
-    return map
-  }, [monitoreos])
 
   const getMonitoreos = async () => {
     try {
@@ -356,7 +357,7 @@ export default function Monitoreos() {
         </div>
         <div className="tabla-header">
           <h2>Lista de Monitoreos</h2>
-          <span className="contador">{monitoreos.length} monitoreo{monitoreos.length !== 1 ? 's' : ''}</span>
+          <span className="contador">{filteredFincas.length} finca{filteredFincas.length !== 1 ? 's' : ''} monitoreada{filteredFincas.length !== 1 ? 's' : ''}</span>
         </div>
         <div className="table-scroll">
         <table className="admin-table">
@@ -368,7 +369,7 @@ export default function Monitoreos() {
           </thead>
           <tbody>
             {filteredFincas.length === 0 ? (
-              <tr><td colSpan={2} className="monitoreo-empty">{searchTerm ? 'No se encontraron fincas con ese criterio' : '🌱 No hay fincas registradas.'}</td></tr>
+              <tr><td colSpan={2} className="monitoreo-empty">{searchTerm ? 'No se encontraron fincas con ese criterio' : '🌱 No hay fincas con monitoreos registrados.'}</td></tr>
             ) : paginatedFincas.map((f) => {
               const cantidad = (fincaMonitoreos[f.idFinca] || []).length
               return (

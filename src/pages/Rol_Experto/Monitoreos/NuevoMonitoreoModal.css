@@ -212,3 +212,62 @@
   .nmon-field-row { flex-direction:column; }
   .nmon-step-label { display:none; }
 }
+
+/* ─── Recomendación personalizada ─── */
+.nmon-toggle-personalizada {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  padding-top: 2px;
+  user-select: none;
+}
+.nmon-toggle-personalizada input[type="checkbox"] {
+  accent-color: #2e7d32;
+}
+
+/* ─── Tratamientos múltiples ─── */
+.nmon-trat-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.nmon-trat-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+.nmon-trat-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+.nmon-trat-remove:hover {
+  background: #fef2f2;
+}
+.nmon-btn--add-trat {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f0fdf4;
+  color: #2e7d32;
+  border: 1px dashed #86efac;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  transition: background 0.15s;
+}
+.nmon-btn--add-trat:hover {
+  background: #dcfce7;
+}

@@ -1,4 +1,5 @@
 .detalle-page {
+  margin: 0;
   padding: 32px;
   font-family: 'Lato', sans-serif;
 }
@@ -6,8 +7,9 @@
 .detalle-header {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 28px;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 0 32px;
 }
 
 .detalle-breadcrumb {
@@ -92,9 +94,9 @@
 .detalle-tabs {
   display: flex;
   gap: 4px;
-  margin-top: 28px;
+  margin-top: 8px;
   border-bottom: 2px solid #e8f5e9;
-  padding-bottom: 0;
+  padding: 0 32px;
 }
 
 .detalle-tab {
@@ -124,14 +126,14 @@
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 0 0 12px 12px;
-  padding: 24px;
-  min-height: 200px;
+  padding: 16px;
+  min-height: 120px;
 }
 
 .detalle-empty {
   text-align: center;
   color: #9ca3af;
-  padding: 40px;
+  padding: 24px;
   font-size: 14px;
 }
 
@@ -140,7 +142,7 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 20px 24px;
+  padding: 14px 18px;
 }
 
 .detalle-resumen-header {
@@ -394,13 +396,14 @@
 }
 
 @media (max-width: 768px) {
-  .detalle-page { padding: 1rem; }
+  .detalle-page { margin: -1rem; padding: 0 0 1rem; }
+  .detalle-header { padding: 0 1rem; }
+  .detalle-tabs { padding: 0 1rem; overflow-x: auto; gap: 0; }
   .detalle-card { flex-direction: column; min-height: auto; }
   .detalle-card-img { width: 100%; height: 200px; }
   .detalle-card-info { width: 100%; padding: 16px 20px; gap: 12px; }
   .detalle-card-row { flex-wrap: wrap; gap: 12px; }
   .detalle-card-value { font-size: 13px; }
-  .detalle-tabs { overflow-x: auto; gap: 0; }
   .detalle-tab { padding: 8px 14px; font-size: 12px; white-space: nowrap; }
   .detalle-tab-content { padding: 16px; }
   .detalle-resumen-card { padding: 16px; }

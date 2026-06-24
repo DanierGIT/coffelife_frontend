@@ -7,6 +7,7 @@ import './Fincas.css'
 import '../Administrador/Administrador.css'
 import Loading from '../../../components/Loading'
 import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiTrash, BiSearch, BiFilter } from 'react-icons/bi'
+import ToggleSwitch from '../../../components/ToggleSwitch'
 
 delete L.Icon.Default.prototype._getIconUrl
 
@@ -653,6 +654,7 @@ export default function Fincas() {
       </div>
 
       {loading && <Loading type="overlay" text="Cargando datos del módulo..." />}
+      {error && <div className="error-message" style={{ padding: '1rem', margin: '1rem', background: '#fef2f2', color: '#b91c1c', borderRadius: '8px' }}>{error}</div>}
 
       <div className="admin-table-card">
         <div className="table-toolbar">

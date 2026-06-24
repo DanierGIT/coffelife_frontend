@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   Info, Camera, FileText, Lightbulb, ChevronRight,
-  ChevronLeft, X, Loader2, ChevronDown,
+  ChevronLeft, X, ChevronDown,
   FlaskConical, Stethoscope,
 } from 'lucide-react'
 import api from '../../../services/api'
@@ -197,29 +197,52 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
   const [tipos,           setTipos]         = useState([])
   const [prioridades,     setPrioridades]   = useState([])
   const [tratamientos,    setTratamientos]  = useState([])
+  const [insumos,         setInsumos]       = useState([])
   const [loadingCat,      setLoadingCat]    = useState(true)
   const [loading,         setLoading]       = useState(false)
   const [error,           setError]         = useState('')
 
   const [agregarRec,  setAgregarRec]  = useState(true)
   const [agregarTrat, setAgregarTrat] = useState(false)
+  const [esPersonalizada, setEsPersonalizada] = useState(false)
 
   const [recForm, setRecForm] = useState({
-    id_tipo: '', id_prioridad: '', descripcion: '', fecha_limite: '',
+    id_tipo: '', id_prioridad: '', descripcion: '', fecha_limite: hoy(),
   })
-  const [tratForm, setTratForm] = useState({
-    id_tratamiento: '', dosis: '', frecuencia: '', observaciones: '',
-  })
+  const [tipoPersonalizado, setTipoPersonalizado] = useState('')
+  const [tratamientosList, setTratamientosList] = useState([
+    { id_tratamiento: '', id_insumo: '', observaciones: '' },
+  ])
+
+  const handleRecChange = (e) => setRecForm((f) => ({ ...f, [e.target.name]: e.target.value }))
+
+  const handleTratChange = (idx, field, value) => {
+    setTratamientosList((prev) => {
+      const next = [...prev]
+      next[idx] = { ...next[idx], [field]: value }
+      return next
+    })
+  }
+
+  const agregarTratamiento = () => {
+    setTratamientosList((prev) => [...prev, { id_tratamiento: '', id_insumo: '', observaciones: '' }])
+  }
+
+  const eliminarTratamiento = (idx) => {
+    setTratamientosList((prev) => prev.filter((_, i) => i !== idx))
+  }
 
   useEffect(() => {
     const cargar = async () => {
       try {
-        const [tiposRes, tratRes] = await Promise.all([
+        const [tiposRes, tratRes, insumosRes] = await Promise.all([
           api.get('/cat_tipos_recomendaciones'),
           api.get('/tratamientos'),
+          api.get('/insumos'),
         ])
         setTipos(getArr(tiposRes.data))
         setTratamientos(getArr(tratRes.data))
+        setInsumos(getArr(insumosRes.data))
         try {
           const r = await api.get('/categorias/prioridades')
           setPrioridades(getArr(r.data))
@@ -236,21 +259,23 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
     cargar()
   }, [])
 
-  const handleRecChange  = (e) => setRecForm((f) => ({ ...f, [e.target.name]: e.target.value }))
-  const handleTratChange = (e) => setTratForm((f) => ({ ...f, [e.target.name]: e.target.value }))
-
   const handleGuardar = async () => {
+    if (agregarRec && esPersonalizada && !tipoPersonalizado.trim()) {
+      setError('Escribe un nombre para la recomendación personalizada.'); return
+    }
+    if (agregarRec && !esPersonalizada && !recForm.id_tipo) {
+      setError('Selecciona un tipo de recomendación.'); return
+    }
     if (agregarRec && !recForm.descripcion.trim()) {
       setError('La descripción de la recomendación es obligatoria.'); return
     }
-    if (agregarTrat && !tratForm.id_tratamiento) {
-      setError('Selecciona un tratamiento o desmarca la opción.'); return
-    }
-    if (agregarTrat && !tratForm.dosis.trim()) {
-      setError('La dosis es obligatoria para el tratamiento.'); return
+    const tratValidos = agregarTrat ? tratamientosList.filter((t) => t.id_tratamiento) : []
+    if (agregarTrat && tratValidos.length === 0) {
+      setError('Agrega al menos un tratamiento o desmarca la opción.'); return
     }
     setError('')
     setLoading(true)
+    let createdMonitoreoId = null
     try {
       // 1 — Monitoreo
       const resM = await api.post('/monitoreos', {
@@ -260,6 +285,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         observaciones:   observaciones || null,
       })
       const idMonitoreo = resM.data?.data?.idMonitoreo ?? resM.data?.idMonitoreo
+      createdMonitoreoId = idMonitoreo
 
       // 2 — Fotos
       if (fotos.length > 0 && idMonitoreo) {
@@ -271,38 +297,38 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         }
       }
 
-      // 3 — Recomendación + tratamiento
+      // 3 — Recomendación
       if (agregarRec && idMonitoreo) {
+        let desc = recForm.descripcion.trim()
+        if (esPersonalizada && tipoPersonalizado.trim()) {
+          desc = `[${tipoPersonalizado.trim()}] ${desc}`
+        }
         const resRec = await api.post('/recomendaciones', {
           id_monitoreo:      Number(idMonitoreo),
-          id_tipo:           recForm.id_tipo      ? Number(recForm.id_tipo)      : null,
-          id_experto_emisor: expertoId            ? Number(expertoId)            : null,
+          id_tipo:           esPersonalizada ? null : (recForm.id_tipo ? Number(recForm.id_tipo) : null),
+          id_experto_emisor: expertoId        ? Number(expertoId) : null,
           id_prioridad:      recForm.id_prioridad ? Number(recForm.id_prioridad) : null,
-          descripcion:       recForm.descripcion.trim(),
+          id_tratamiento:    tratValidos.length > 0 ? Number(tratValidos[0].id_tratamiento) : null,
+          descripcion:       desc,
           fecha_limite:      recForm.fecha_limite || null,
         })
         const idRecomendacion =
           resRec.data?.data?.idRecomendacion ?? resRec.data?.idRecomendacion
 
-        if (agregarTrat && idRecomendacion) {
-          // 3a — Crear aplicacion_tratamiento primero
-          const resApl = await api.post('/aplicaciones_tratamientos', {
-            id_tratamiento: Number(tratForm.id_tratamiento),
-            id_usuario:     userId ? Number(userId) : null,
-            dosis:          tratForm.dosis.trim(),
-            frecuencia:     tratForm.frecuencia    || null,
-            observaciones:  tratForm.observaciones || null,
-          })
-          const idAplicacion =
-            resApl.data?.data?.idAplicacion ?? resApl.data?.idAplicacion
-
-          // 3b — Vincular recomendacion_tratamiento
-          if (idAplicacion) {
-            await api.post('/recomendacion_tratamientos', {
-              id_recomendacion: Number(idRecomendacion),
-              id_aplicacion:    Number(idAplicacion),
-              dosis_ajustada:   tratForm.dosis.trim() || null,
-              notas:            tratForm.observaciones || null,
+        // 4 — Aplicaciones tratamiento (una por cada tratamiento)
+        if (idRecomendacion && tratValidos.length > 0) {
+          const hoy = new Date().toISOString().slice(0, 10)
+          for (const t of tratValidos) {
+            const insumo = t.id_insumo ? insumos.find((i) => Number(i.idInsumo) === Number(t.id_insumo)) : null
+            let obs = t.observaciones?.trim() || null
+            if (insumo) {
+              obs = obs ? `[${insumo.nombre}] ${obs}` : `[${insumo.nombre}]`
+            }
+            await api.post('/aplicaciones_tratamientos', {
+              id_tratamiento:   Number(t.id_tratamiento),
+              id_usuario:       userId ? Number(userId) : null,
+              fecha_aplicacion: hoy,
+              observacion:      obs,
             })
           }
         }
@@ -310,7 +336,12 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
 
       onGuardado()
     } catch (err) {
-      setError(err?.response?.data?.message || 'No se pudo guardar el monitoreo.')
+      console.error('Error al guardar monitoreo:', err?.response?.data || err)
+      if (createdMonitoreoId) {
+        try { await api.delete(`/monitoreos/${createdMonitoreoId}`) } catch {}
+      }
+      const detail = err?.response?.data?.error
+      setError(detail || err?.response?.data?.message || 'No se pudo guardar el monitoreo.')
     } finally {
       setLoading(false)
     }
@@ -344,17 +375,39 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
           ? <Loading type="content" size="sm" text="Cargando catálogos..." />
           : (
             <div className="nmon-fields nmon-fields--rec">
+              {/* ── Tipo vs personalizada ── */}
               <div className="nmon-field-row">
                 <div className="nmon-field">
-                  <label className="nmon-label">Tipo</label>
-                  <div className="nmon-select-wrap">
-                    <select className="nmon-select" name="id_tipo" value={recForm.id_tipo} onChange={handleRecChange}>
-                      <option value="">Seleccionar tipo...</option>
-                      {tipos.map((t) => <option key={t.idTipo} value={t.idTipo}>{t.nombreTipo}</option>)}
-                    </select>
-                    <ChevronDown size={13} className="nmon-select-icon" />
-                  </div>
+                  {esPersonalizada ? (
+                    <>
+                      <label className="nmon-label">Título personalizado</label>
+                      <input className="nmon-input" type="text" value={tipoPersonalizado}
+                        onChange={(e) => setTipoPersonalizado(e.target.value)}
+                        placeholder="Ej: Recomendación del experto" />
+                    </>
+                  ) : (
+                    <>
+                      <label className="nmon-label">Tipo</label>
+                      <div className="nmon-select-wrap">
+                        <select className="nmon-select" name="id_tipo" value={recForm.id_tipo} onChange={handleRecChange}>
+                          <option value="">Seleccionar tipo...</option>
+                          {tipos.map((t) => <option key={t.idTipo} value={t.idTipo}>{t.nombreTipo}</option>)}
+                        </select>
+                        <ChevronDown size={13} className="nmon-select-icon" />
+                      </div>
+                    </>
+                  )}
                 </div>
+                <div className="nmon-field">
+                  <label className="nmon-label">&nbsp;</label>
+                  <label className="nmon-toggle-personalizada">
+                    <input type="checkbox" checked={esPersonalizada}
+                      onChange={(e) => setEsPersonalizada(e.target.checked)} />
+                    <span>Recomendación personalizada</span>
+                  </label>
+                </div>
+              </div>
+              <div className="nmon-field-row">
                 <div className="nmon-field">
                   <label className="nmon-label">Prioridad</label>
                   <div className="nmon-select-wrap">
@@ -365,11 +418,10 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                     <ChevronDown size={13} className="nmon-select-icon" />
                   </div>
                 </div>
-              </div>
-              <div className="nmon-field">
-                <label className="nmon-label">Fecha límite</label>
-                <input className="nmon-input" type="date" name="fecha_limite"
-                  value={recForm.fecha_limite} onChange={handleRecChange} />
+                <div className="nmon-field">
+                  <label className="nmon-label">Fecha de la recomendación</label>
+                  <input className="nmon-input" type="date" name="fecha_limite" value={recForm.fecha_limite || hoy()} readOnly />
+                </div>
               </div>
               <div className="nmon-field">
                 <label className="nmon-label">Descripción <span className="nmon-req">*</span></label>
@@ -388,47 +440,64 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                       <FlaskConical size={13} strokeWidth={2} />
                     </div>
                     <div>
-                      <span className="nmon-toggle-title">Asociar tratamiento</span>
-                      <span className="nmon-toggle-desc">Especifica el producto y dosis</span>
+                      <span className="nmon-toggle-title">Asociar tratamiento(s)</span>
+                      <span className="nmon-toggle-desc">Especifica los productos a aplicar</span>
                     </div>
                   </div>
                 </label>
 
-                {agregarTrat && (
-                  <div className="nmon-trat-fields">
+                {agregarTrat && tratamientosList.map((trat, idx) => (
+                  <div key={idx} className="nmon-trat-fields">
+                    <div className="nmon-trat-header-row">
+                      <span className="nmon-trat-num">Tratamiento #{idx + 1}</span>
+                      {idx > 0 && (
+                        <button type="button" className="nmon-trat-remove" onClick={() => eliminarTratamiento(idx)}>
+                          <BiX size={16} />
+                        </button>
+                      )}
+                    </div>
                     <div className="nmon-field-row">
                       <div className="nmon-field">
                         <label className="nmon-label">Tratamiento <span className="nmon-req">*</span></label>
                         <div className="nmon-select-wrap">
-                          <select className="nmon-select" name="id_tratamiento"
-                            value={tratForm.id_tratamiento} onChange={handleTratChange}>
+                          <select className="nmon-select" value={trat.id_tratamiento}
+                            onChange={(e) => handleTratChange(idx, 'id_tratamiento', e.target.value)}>
                             <option value="">Seleccionar tratamiento...</option>
                             {tratamientos.map((t) => (
-                              <option key={t.idTratamiento} value={t.idTratamiento}>{t.nombre}</option>
+                              <option key={t.idTratamiento} value={t.idTratamiento}>
+                                {t.nombre}{t.insumo?.nombre ? ` — ${t.insumo.nombre}` : ''}
+                              </option>
                             ))}
                           </select>
                           <ChevronDown size={13} className="nmon-select-icon" />
                         </div>
                       </div>
                       <div className="nmon-field">
-                        <label className="nmon-label">Dosis <span className="nmon-req">*</span></label>
-                        <input className="nmon-input" type="text" name="dosis"
-                          value={tratForm.dosis} onChange={handleTratChange} placeholder="Ej: 0.8 L/ha" />
+                        <label className="nmon-label">Producto a aplicar (Insumo)</label>
+                        <div className="nmon-select-wrap">
+                          <select className="nmon-select" value={trat.id_insumo}
+                            onChange={(e) => handleTratChange(idx, 'id_insumo', e.target.value)}>
+                            <option value="">Seleccionar insumo...</option>
+                            {insumos.map((ins) => (
+                              <option key={ins.idInsumo} value={ins.idInsumo}>{ins.nombre}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={13} className="nmon-select-icon" />
+                        </div>
                       </div>
                     </div>
-                    <div className="nmon-field-row">
-                      <div className="nmon-field">
-                        <label className="nmon-label">Frecuencia</label>
-                        <input className="nmon-input" type="text" name="frecuencia"
-                          value={tratForm.frecuencia} onChange={handleTratChange} placeholder="Ej: Cada 15 días" />
-                      </div>
-                      <div className="nmon-field">
-                        <label className="nmon-label">Observaciones</label>
-                        <input className="nmon-input" type="text" name="observaciones"
-                          value={tratForm.observaciones} onChange={handleTratChange} placeholder="Ej: Aplicar en la mañana" />
-                      </div>
+                    <div className="nmon-field">
+                      <label className="nmon-label">Observaciones</label>
+                      <input className="nmon-input" type="text" value={trat.observaciones}
+                        onChange={(e) => handleTratChange(idx, 'observaciones', e.target.value)}
+                        placeholder="Ej: Aplicar en la mañana" />
                     </div>
                   </div>
+                ))}
+                {agregarTrat && (
+                  <button type="button" className="nmon-btn nmon-btn--add-trat" onClick={agregarTratamiento}>
+                    + Agregar otro tratamiento
+                  </button>
                 )}
               </div>
             </div>

@@ -21,9 +21,8 @@ const getTratamientoLabel = (tratamiento) => {
 
 export default function Aplicacion() {
   const [idTratamiento, setIdTratamiento] = useState('')
-  const [dosis, setDosis] = useState('')
-  const [frecuencia, setFrecuencia] = useState('')
-  const [observaciones, setObservaciones] = useState('')
+  const [fechaAplicacion, setFechaAplicacion] = useState('')
+  const [observacion, setObservacion] = useState('')
   const [idUsuario, setIdUsuario] = useState('')
 
   const [aplicaciones, setAplicaciones] = useState([])
@@ -40,9 +39,8 @@ export default function Aplicacion() {
 
   const [formModal, setFormModal] = useState({
     idTratamiento: '',
-    dosis: '',
-    frecuencia: '',
-    observaciones: '',
+    fechaAplicacion: '',
+    observacion: '',
     idUsuario: '',
   })
 
@@ -80,15 +78,14 @@ export default function Aplicacion() {
 
   const limpiarFormulario = () => {
     setIdTratamiento('')
-    setDosis('')
-    setFrecuencia('')
-    setObservaciones('')
+    setFechaAplicacion('')
+    setObservacion('')
     setIdUsuario('')
   }
 
   const guardar = async () => {
-    if (!idTratamiento || !idUsuario || !dosis.trim()) {
-      setError('Tratamiento, usuario y dosis son obligatorios.')
+    if (!idTratamiento || !idUsuario) {
+      setError('Tratamiento y usuario son obligatorios.')
       return
     }
 
@@ -98,11 +95,10 @@ export default function Aplicacion() {
 
     try {
       await api.post('/aplicaciones_tratamientos', {
-        id_tratamiento: Number(idTratamiento),
-        id_usuario: Number(idUsuario),
-        dosis: dosis.trim(),
-        frecuencia: frecuencia.trim() || null,
-        observaciones: observaciones.trim() || null,
+        id_tratamiento:   Number(idTratamiento),
+        id_usuario:       Number(idUsuario),
+        fecha_aplicacion: fechaAplicacion || new Date().toISOString().slice(0, 10),
+        observacion:      observacion.trim() || null,
       })
 
       setExito('Aplicacion registrada correctamente.')
@@ -122,9 +118,8 @@ export default function Aplicacion() {
 
     setFormModal({
       idTratamiento: aplicacion.idTratamiento || '',
-      dosis: aplicacion.dosis || '',
-      frecuencia: aplicacion.frecuencia || '',
-      observaciones: aplicacion.observaciones || '',
+      fechaAplicacion: aplicacion.fechaAplicacion || '',
+      observacion: aplicacion.observacion || '',
       idUsuario: aplicacion.idUsuario || '',
     })
 
@@ -136,16 +131,15 @@ export default function Aplicacion() {
     setIdEditar(null)
     setFormModal({
       idTratamiento: '',
-      dosis: '',
-      frecuencia: '',
-      observaciones: '',
+      fechaAplicacion: '',
+      observacion: '',
       idUsuario: '',
     })
   }
 
   const actualizar = async () => {
-    if (!formModal.idTratamiento || !formModal.idUsuario || !formModal.dosis.trim()) {
-      setError('Tratamiento, usuario y dosis son obligatorios.')
+    if (!formModal.idTratamiento || !formModal.idUsuario) {
+      setError('Tratamiento y usuario son obligatorios.')
       return
     }
 
@@ -154,11 +148,10 @@ export default function Aplicacion() {
 
     try {
       await api.put(`/aplicaciones_tratamientos/${idEditar}`, {
-        id_tratamiento: Number(formModal.idTratamiento),
-        id_usuario: Number(formModal.idUsuario),
-        dosis: formModal.dosis.trim(),
-        frecuencia: formModal.frecuencia.trim() || null,
-        observaciones: formModal.observaciones.trim() || null,
+        id_tratamiento:   Number(formModal.idTratamiento),
+        id_usuario:       Number(formModal.idUsuario),
+        fecha_aplicacion: formModal.fechaAplicacion || new Date().toISOString().slice(0, 10),
+        observacion:      formModal.observacion.trim() || null,
       })
 
       cerrarModal()
@@ -222,11 +215,9 @@ export default function Aplicacion() {
               <tr>
                 <th>ID</th>
                 <th>Tratamiento</th>
-                <th>Dosis</th>
-                <th>Frecuencia</th>
-                <th>Observaciones</th>
+                <th>Fecha Aplicación</th>
+                <th>Observación</th>
                 <th>Fecha Registro</th>
-                <th>Fecha Actualizacion</th>
                 <th>Usuario</th>
                 <th>Acciones</th>
               </tr>
@@ -235,18 +226,16 @@ export default function Aplicacion() {
             <tbody>
               {aplicaciones.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="rl-empty">No hay aplicaciones registradas</td>
+                  <td colSpan="7" className="rl-empty">No hay aplicaciones registradas</td>
                 </tr>
               ) : (
                 aplicaciones.map((aplicacion, idx) => (
                   <tr key={aplicacion.idAplicacion}>
                     <td>{idx + 1}</td>
                     <td>{aplicacion.tratamiento ? getTratamientoLabel(aplicacion.tratamiento) : `#${aplicacion.idTratamiento}`}</td>
-                    <td>{aplicacion.dosis}</td>
-                    <td>{aplicacion.frecuencia || '-'}</td>
-                    <td>{aplicacion.observaciones || '-'}</td>
+                    <td>{aplicacion.fechaAplicacion ? new Date(aplicacion.fechaAplicacion).toLocaleDateString() : '-'}</td>
+                    <td>{aplicacion.observacion || '-'}</td>
                     <td>{aplicacion.fechaRegistro ? new Date(aplicacion.fechaRegistro).toLocaleDateString() : '-'}</td>
-                    <td>{aplicacion.fechaActualizacion ? new Date(aplicacion.fechaActualizacion).toLocaleDateString() : '-'}</td>
                     <td>{aplicacion.usuario?.nombre ?? `#${aplicacion.idUsuario}`}</td>
                     <td className="acciones">
                       <button className="btn-editar" onClick={() => abrirEditar(aplicacion)}>
@@ -306,31 +295,20 @@ export default function Aplicacion() {
               </label>
 
               <label>
-                Dosis
+                Fecha aplicación
                 <input
-                  type="text"
-                  placeholder="Ej: 20ml"
-                  value={formModal.dosis}
-                  onChange={(e) => setFormModal({ ...formModal, dosis: e.target.value })}
+                  type="date"
+                  value={formModal.fechaAplicacion}
+                  onChange={(e) => setFormModal({ ...formModal, fechaAplicacion: e.target.value })}
                 />
               </label>
 
               <label>
-                Frecuencia
-                <input
-                  type="text"
-                  placeholder="Ej: Cada 7 dias"
-                  value={formModal.frecuencia}
-                  onChange={(e) => setFormModal({ ...formModal, frecuencia: e.target.value })}
-                />
-              </label>
-
-              <label>
-                Observaciones
+                Observación
                 <textarea
-                  placeholder="Observaciones opcionales"
-                  value={formModal.observaciones}
-                  onChange={(e) => setFormModal({ ...formModal, observaciones: e.target.value })}
+                  placeholder="Observación opcional"
+                  value={formModal.observacion}
+                  onChange={(e) => setFormModal({ ...formModal, observacion: e.target.value })}
                 />
               </label>
             </div>
@@ -373,14 +351,11 @@ export default function Aplicacion() {
                   ))}
                 </select>
               </label>
-              <label>Dosis
-                <input type="text" placeholder="Ej: 20ml" value={dosis} onChange={(e) => setDosis(e.target.value)} />
+              <label>Fecha aplicación
+                <input type="date" value={fechaAplicacion} onChange={(e) => setFechaAplicacion(e.target.value)} />
               </label>
-              <label>Frecuencia
-                <input type="text" placeholder="Ej: Cada 7 dias" value={frecuencia} onChange={(e) => setFrecuencia(e.target.value)} />
-              </label>
-              <label>Observaciones
-                <textarea placeholder="Observaciones opcionales" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} />
+              <label>Observación
+                <textarea placeholder="Observación opcional" value={observacion} onChange={(e) => setObservacion(e.target.value)} />
               </label>
             </div>
             {error && <p className="rl-error" style={{ marginTop: '10px' }}>{error}</p>}

@@ -8,15 +8,26 @@ import MonitoreosExperto from '../Monitoreos/MonitoreosExperto'
 
 const TABS = ['Resumen', 'Monitoreo']
 
+const fmtFecha = (f, short) => {
+  if (!f) return '—'
+  const d = new Date(f + (f.includes('T') ? '' : 'T12:00:00'))
+  if (isNaN(d)) return '—'
+  return d.toLocaleDateString('es-CO', short
+    ? { day: 'numeric', month: 'short' }
+    : { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
   const [activeTab, setActiveTab] = useState('Resumen')
   const [ultimo, setUltimo] = useState(null)
   const [totalMons, setTotalMons] = useState(0)
   const [totalFotos, setTotalFotos] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
 
   useEffect(() => {
     if (!cultivo?.idCultivo) return
+    setImgLoaded(false)
     setLoading(true)
     api.get('/monitoreos', { params: { id_cultivo: cultivo.idCultivo } })
       .then((res) => {
@@ -45,7 +56,7 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
-                  <span>Último monitoreo — {ultimo.fechaMonitoreo ? new Date(ultimo.fechaMonitoreo + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span>
+                  <span>Último monitoreo — {fmtFecha(ultimo.fechaMonitoreo)}</span>
                 </div>
                 <p className="detalle-resumen-obs">{ultimo.observaciones || 'Sin observaciones registradas.'}</p>
                 <div className="detalle-resumen-footer">
@@ -74,18 +85,19 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
   return (
     <div className="detalle-page">
 
-      <div className="detalle-header">
-        <span className="detalle-breadcrumb">
-          {finca?.nombre || 'Finca'} / {cultivo?.nombreCultivo || 'Cultivo'}
-        </span>
-      </div>
-
       <div className="finca-detail-header-card">
         <div className="finca-detail-left">
           <div className="finca-detail-img-container">
+            {!imgLoaded && (
+              <div className="finca-detail-img-loader">
+                <Loading type="inline" />
+              </div>
+            )}
             <img
-              src="https://blogtrip.org/wp-content/uploads/2016/04/paisaje-cafetero-parque-nacional-cafe-eje-cafetero.jpg"
+              src={cultivo?.fotoUrl || "https://blogtrip.org/wp-content/uploads/2016/04/paisaje-cafetero-parque-nacional-cafe-eje-cafetero.jpg"}
               alt="Cultivo"
+              onLoad={() => setImgLoaded(true)}
+              style={{ display: imgLoaded ? 'block' : 'none' }}
             />
           </div>
           <div className="finca-detail-info">
@@ -146,7 +158,7 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
                 </svg>
               </div>
               <div className="kpi-data">
-                <span className="kpi-value">{ultimo ? new Date(ultimo.fechaMonitoreo + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : '—'}</span>
+                <span className="kpi-value">{ultimo ? fmtFecha(ultimo.fechaMonitoreo, true) : '—'}</span>
                 <span className="kpi-label">Último<br/>monitoreo</span>
               </div>
             </div>

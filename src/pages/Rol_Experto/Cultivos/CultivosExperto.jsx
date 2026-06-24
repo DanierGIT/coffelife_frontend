@@ -442,7 +442,10 @@ export default function CultivosExperto({ finca, onNavigate }) {
                     </div>
                   </div>
 
-                  <button className="btn-card-action-trigger" onClick={() => onNavigate('detalle_cultivo', c)}>
+                  <button className="btn-card-action-trigger" onClick={() => onNavigate('detalle_cultivo', {
+                    ...c,
+                    fotoUrl: fotosPorCultivo[c.idCultivo] || c.fotoUrl
+                  })}>
                     Ver detalles del cultivo
                     <BiChevronRight size={16} />
                   </button>

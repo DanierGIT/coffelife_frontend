@@ -45,6 +45,12 @@ export function AuthProvider({ children }) {
       throw new Error('Respuesta de login inválida.')
     }
 
+    const rawRole = userData?.rol?.nombreRol ?? userData?.rol?.nombre_rol ?? userData?.rol ?? ''
+    const roleNorm = rawRole.toString().toLowerCase().trim()
+    if (roleNorm === 'cafetero' || roleNorm === 'caficultor' || roleNorm === 'productor') {
+      throw new Error('cafetero_blocked')
+    }
+
     localStorage.setItem('cl_token', token)
     localStorage.setItem('cl_user', JSON.stringify(userData))
     setUser(userData)

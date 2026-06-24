@@ -312,7 +312,7 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
       })()}
 
       {/* ── CONTENIDO ── */}
-      <main className="experto-main">
+      <main className={`experto-main${activePage === 'detalle_cultivo' ? ' experto-main--full' : ''}`}>
         {children}
       </main>
 

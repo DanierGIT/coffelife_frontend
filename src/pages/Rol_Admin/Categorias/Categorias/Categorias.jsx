@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
-import { BiLeaf, BiSearch, BiError, BiListUl, BiBriefcase, BiChat, BiChevronDown, BiMenu } from 'react-icons/bi'
+import { BiLeaf, BiSearch, BiError, BiListUl, BiBriefcase, BiChat, BiChevronDown, BiMenu, BiDroplet } from 'react-icons/bi'
 import CatEstadosCultivo     from './CatEstadosCultivo'
 import CatEstadosAnalisis    from './CatEstadosAnalisis'
 import CatNivelesRoya        from './CatNivelesRoya'
 import CatPrioridades        from './CatPrioridades'
 import CatTiposTratamiento   from './CatTiposTratamiento'
 import CatTiposRecomendacion from './CatTiposRecomendacion'
+import CatTiposInsumo from './CatTiposInsumo'
 import './Categorias.css'
 import '../../Administrador/Administrador.css'
 
@@ -16,6 +17,7 @@ const TABS = [
   { key: 'prioridad',   label: 'Prioridades',            icon: <BiListUl size={16} />,   component: <CatPrioridades /> },
   { key: 'tratamiento', label: 'Tipos de Tratamiento',   icon: <BiBriefcase size={16} />,component: <CatTiposTratamiento /> },
   { key: 'tipos',       label: 'Tipos de Recomendación', icon: <BiChat size={16} />,     component: <CatTiposRecomendacion /> },
+  { key: 'tipoInsumo',  label: 'Tipos de Insumo',       icon: <BiDroplet size={16} />,  component: <CatTiposInsumo /> },
 ]
 
 export default function Categorias({ subPage }) {
