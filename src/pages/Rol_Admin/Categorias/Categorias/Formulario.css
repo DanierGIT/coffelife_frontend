@@ -37,10 +37,10 @@
   transition: border-color 0.2s;
 }
 
-.crud-form input:focus { border-color: #2e7d32; }
+.crud-form input:focus { border-color: #097300; }
 
 .crud-form button {
-  background: #2e7d32;
+  background: #097300;
   color: white;
   border: none;
   border-radius: 12px;
@@ -200,8 +200,8 @@
 }
 
 .cat-modal-input:focus {
-  border-color: #2e7d32;
-  box-shadow: 0 0 0 3px rgba(46,125,50,0.1);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9,115,0,0.1);
 }
 
 .cat-modal-error {
@@ -238,7 +238,7 @@
   padding: 10px 24px;
   border-radius: 10px;
   border: none;
-  background: #2e7d32;
+  background: #097300;
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -246,5 +246,5 @@
   transition: 0.15s;
 }
 
-.cat-btn-save:hover:not(:disabled) { background: #1b5e20; }
+.cat-btn-save:hover:not(:disabled) { background: #065a00; }
 .cat-btn-save:disabled { opacity: 0.55; cursor: not-allowed; }

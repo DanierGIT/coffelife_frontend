@@ -26,6 +26,146 @@ const getArr = (data) => {
   return []
 }
 
+// ─── Helpers para historial de monitoreos ──────────────────────────
+export function esMonitoreoHistorico(monitoreo) {
+  // Solo marca como historico si empieza con el formato exacto que genera el sistema
+  return /^\[HISTORIAL — Monitoreo #\d+ — Guardado el /.test(monitoreo?.observaciones || '')
+}
+
+export function obtenerIdPadreDesdeHistorico(monitoreo) {
+  const match = (monitoreo?.observaciones || '').match(/Monitoreo #(\d+)/)
+  return match ? Number(match[1]) : null
+}
+
+function construirObservacionesHistorico(monitoreo, recs = [], usuario = null, catalogos = {}) {
+  const { nivelesRoya = [], tiposRec = [], prioridades = [] } = catalogos
+  const lineas = []
+  const idPadre = monitoreo?.idMonitoreo ?? monitoreo?.id_monitoreo
+  const fechaOriginal = monitoreo?.fechaMonitoreo ?? monitoreo?.fecha_monitoreo ?? '—'
+  const fechaHora = new Date().toLocaleString('es-CO')
+  const autor = usuario?.nombre
+    ? `${usuario.nombre} ${usuario.apellido || ''}`.trim()
+    : 'Sistema'
+
+  // Extraer nivel de roya y texto real de las observaciones actuales
+  // Buscamos el ULTIMO [ROYA:NIVEL] (el estado mas reciente)
+  const obsActual = monitoreo?.observaciones || ''
+  let royaIdx = -1
+  let royaPos = -1
+  let searchFrom = 0
+  while ((royaPos = obsActual.indexOf('[ROYA:', searchFrom)) !== -1) {
+    royaIdx = royaPos
+    searchFrom = royaPos + 1
+  }
+  let nombreNivelRoya = 'No registrado'
+  let obsLimpia = obsActual
+  if (royaIdx !== -1) {
+    const endIdx = obsActual.indexOf(']', royaIdx + 6)
+    nombreNivelRoya = endIdx > royaIdx ? obsActual.slice(royaIdx + 6, endIdx) : 'No registrado'
+    // Tomar solo el texto despues del ultimo [ROYA:...]
+    obsLimpia = obsActual.slice(endIdx + 1)
+    // Quitar lineas --- YYYY-MM-DD ---
+    obsLimpia = obsLimpia.split('\n').filter(l => !/^---\s*\d{4}-\d{2}-\d{2}\s*---$/.test(l.trim())).join('\n')
+    // Si hay bloques viejos de HISTORIAL DE CAMBIOS, cortar antes de ellos
+    const idxViejoHist = obsLimpia.indexOf('HISTORIAL DE CAMBIOS')
+    if (idxViejoHist !== -1) {
+      obsLimpia = obsLimpia.slice(0, idxViejoHist)
+    }
+    obsLimpia = obsLimpia.trim()
+  }
+  // Si quedo vacio, intentar extraer de la primera linea que no sea metadata
+  if (!obsLimpia) {
+    obsLimpia = obsActual
+      .split('\n')
+      .filter(l => {
+        const t = l.trim()
+        return t && !t.startsWith('═') && !t.startsWith('[') && !t.startsWith('Fecha ') &&
+          !t.startsWith('Nivel ') && !t.startsWith('Observaciones ') &&
+          !t.startsWith('Fotos ') && !t.startsWith('Recomendaci') &&
+          !t.startsWith('Tipo:') && !t.startsWith('Prioridad:') &&
+          !t.startsWith('Descripci') && !t.startsWith('Fecha l') &&
+          !t.startsWith('HISTORIAL') && !/^\s+\d+\./.test(t) &&
+          !/^---/.test(t)
+      })
+      .join('\n')
+      .trim() || '—'
+  }
+
+  lineas.push(`[HISTORIAL — Monitoreo #${idPadre} — Guardado el ${fechaHora} por ${autor}]`)
+  lineas.push('')
+  lineas.push(`Fecha del monitoreo original: ${fechaOriginal}`)
+  lineas.push(`Nivel de roya: ${nombreNivelRoya}`)
+  lineas.push('')
+  lineas.push('Observaciones originales:')
+  lineas.push(obsLimpia || '—')
+  lineas.push('')
+
+  const fotos = Array.isArray(monitoreo?.imagenes) ? monitoreo.imagenes : []
+  if (fotos.length > 0) {
+    lineas.push('Fotos registradas:')
+    fotos.forEach((f, i) => {
+      const url = f?.rutaImagen || f?.url || f?.fotoUrl || (typeof f === 'string' ? f : '')
+      if (url) lineas.push(`  ${i + 1}. ${url}`)
+    })
+    lineas.push('')
+  }
+
+  if (recs.length > 0) {
+    recs.forEach((r, idx) => {
+      const tipo = tiposRec.find((t) => Number(t?.idTipo ?? t?.id_tipo) === Number(r?.idTipo ?? r?.id_tipo))
+      const prioridad = prioridades.find((p) => Number(p?.idPrioridad ?? p?.id_prioridad) === Number(r?.idPrioridad ?? r?.id_prioridad))
+
+      lineas.push(`Recomendación ${idx + 1}:`)
+      lineas.push(`  Tipo: ${tipo?.nombreTipo || tipo?.nombre || r?.tipo?.nombreTipo || r?.tipo?.nombre || '—'}`)
+      lineas.push(`  Prioridad: ${prioridad?.nombre || r?.prioridad?.nombre || '—'}`)
+      lineas.push(`  Descripción: ${r?.descripcion || '—'}`)
+      lineas.push(`  Fecha límite: ${r?.fechaLimite || r?.fecha_limite || '—'}`)
+
+      const trats = Array.isArray(r?.tratamientos) ? r.tratamientos : []
+      if (trats.length > 0) {
+        lineas.push('  Tratamientos:')
+        trats.forEach((t) => {
+          const apl = t?.aplicacion || t
+          const nombre = apl?.tratamiento?.nombre || apl?.tratamiento?.nombreTratamiento || apl?.nombre || '—'
+          const insumo = apl?.insumo?.nombre || t?.insumo?.nombre || '—'
+          const dosis = apl?.dosis || '—'
+          const frecuencia = apl?.frecuencia || '—'
+          const duracion = apl?.duracion || '—'
+          lineas.push(`    - ${nombre}${insumo !== '—' ? ` (${insumo})` : ''} | Dosis: ${dosis} | Frecuencia: ${frecuencia} | Duración: ${duracion}`)
+        })
+      }
+      lineas.push('')
+    })
+  }
+
+  return lineas.join('\n')
+}
+
+async function construirTextoHistorico(monitoreo, usuario = null) {
+  const idPadre = monitoreo?.idMonitoreo ?? monitoreo?.id_monitoreo
+  if (!idPadre) return ''
+
+  let recs = []
+  try {
+    const resRecs = await api.get('/recomendaciones', { params: { id_monitoreo: idPadre } })
+    recs = Array.isArray(resRecs.data) ? resRecs.data : (resRecs.data?.data ?? [])
+  } catch {
+    recs = []
+  }
+
+  const [nivelesRoya, tiposRec, prioridades] = await Promise.all([
+    api.get('/cat_niveles_roya').then((r) => getArr(r.data)).catch(() => []),
+    api.get('/cat_tipos_recomendaciones').then((r) => getArr(r.data)).catch(() => []),
+    api.get('/cat_prioridades').then((r) => getArr(r.data)).catch(() => []),
+  ])
+
+  return construirObservacionesHistorico(monitoreo, recs, usuario, {
+    nivelesRoya,
+    tiposRec,
+    prioridades,
+  })
+}
+
 // ─── Step indicator ──────────────────────────
 function StepIndicator({ pasoActual }) {
   return (
@@ -56,7 +196,7 @@ function StepIndicator({ pasoActual }) {
 }
 
 // ─── Paso 1 ──────────────────────────────────
-function Paso1({ cultivo, finca, fecha, setFecha, onNext }) {
+function Paso1({ cultivo, finca, fecha, setFecha, onNext, tieneRoya, setTieneRoya, idNivelRoya, setIdNivelRoya, nivelesRoya }) {
   const [error, setError] = useState('')
   const continuar = () => {
     if (!fecha) { setError('Selecciona la fecha del monitoreo.'); return }
@@ -89,6 +229,41 @@ function Paso1({ cultivo, finca, fecha, setFecha, onNext }) {
           <input className="nmon-input" type="date" value={fecha}
             onChange={(e) => setFecha(e.target.value)} required />
         </div>
+
+        {/* ── Roya ── */}
+        <div className="nmon-roya-section">
+          <label className="nmon-label">¿El cultivo presenta roya? <span className="nmon-req">*</span></label>
+          <div className="nmon-roya-radios">
+            <label className={`nmon-roya-radio ${tieneRoya === true ? 'nmon-roya-radio--active' : ''}`}>
+              <input type="radio" name="tieneRoya" checked={tieneRoya === true}
+                onChange={() => setTieneRoya(true)} />
+              <span>Sí</span>
+            </label>
+            <label className={`nmon-roya-radio ${tieneRoya === false ? 'nmon-roya-radio--active' : ''}`}>
+              <input type="radio" name="tieneRoya" checked={tieneRoya === false}
+                onChange={() => { setTieneRoya(false); setIdNivelRoya('') }} />
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+
+        {tieneRoya === true && (
+          <div className="nmon-field">
+            <label className="nmon-label">Nivel de roya <span className="nmon-req">*</span></label>
+            <div className="nmon-select-wrap">
+              <select className="nmon-select" value={idNivelRoya}
+                onChange={(e) => setIdNivelRoya(e.target.value)}>
+                <option value="">Seleccionar nivel...</option>
+                {nivelesRoya.map((n, i) => (
+                  <option key={n.idNivelRoya || n.id_nivel_roya || i} value={n.idNivelRoya || n.id_nivel_roya}>
+                    {n.nombreNivel || n.nombre || n.nombre_nivel || 'Nivel'}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={13} className="nmon-select-icon" />
+            </div>
+          </div>
+        )}
       </div>
       {error && <div className="nmon-alert nmon-alert--error">{error}</div>}
       <div className="nmon-actions nmon-actions--right">
@@ -162,15 +337,40 @@ function Paso2({ fotos, setFotos, onNext, onBack }) {
 }
 
 // ─── Paso 3 ──────────────────────────────────
-function Paso3({ observaciones, setObservaciones, onNext, onBack }) {
+function Paso3({ observaciones, setObservaciones, onNext, onBack, isEditing, nuevasObservaciones, setNuevasObservaciones }) {
+  if (isEditing) {
+    return (
+      <div className="nmon-paso-body">
+        <div className="nmon-paso-icon"><BiPencil size={32} /></div>
+        <h3 className="nmon-paso-title">Observaciones del cultivo</h3>
+        <p className="nmon-paso-desc">Las observaciones anteriores se conservan. Agrega nuevas si es necesario.</p>
+        <div className="nmon-fields">
+          <div className="nmon-field">
+            <label className="nmon-label">Observaciones anteriores</label>
+            <div className="nmon-input nmon-input--readonly" style={{ padding: '9px 12px', whiteSpace: 'pre-wrap', lineHeight: 1.5, fontSize: 13 }}>
+              {observaciones || '—'}
+            </div>
+          </div>
+          <div className="nmon-field">
+            <label className="nmon-label">Nuevas observaciones</label>
+            <textarea className="nmon-textarea" value={nuevasObservaciones}
+              onChange={(e) => setNuevasObservaciones(e.target.value)}
+              placeholder="Agrega observaciones adicionales..." rows={4} maxLength={1000} />
+            <p className="nmon-char-count">{nuevasObservaciones.length} / 1000</p>
+          </div>
+        </div>
+        <div className="nmon-actions">
+          <button className="nmon-btn nmon-btn--secondary" onClick={onBack}><ChevronLeft size={15} /> Anterior</button>
+          <button className="nmon-btn nmon-btn--primary" onClick={onNext}>Siguiente <ChevronRight size={15} /></button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="nmon-paso-body">
-      <div className="nmon-paso-icon">
-  <BiPencil size={32} />
-</div>
+      <div className="nmon-paso-icon"><BiPencil size={32} /></div>
       <h3 className="nmon-paso-title">Observaciones del cultivo</h3>
       <p className="nmon-paso-desc">Describe el estado actual, plagas, enfermedades o cualquier aspecto relevante. Opcional.</p>
-
       <div className="nmon-fields">
         <div className="nmon-field">
           <label className="nmon-label">Observaciones</label>
@@ -181,9 +381,7 @@ function Paso3({ observaciones, setObservaciones, onNext, onBack }) {
         </div>
       </div>
       <div className="nmon-actions">
-        <button className="nmon-btn nmon-btn--secondary" onClick={onBack}>
-          <ChevronLeft size={15} /> Anterior
-        </button>
+        <button className="nmon-btn nmon-btn--secondary" onClick={onBack}><ChevronLeft size={15} /> Anterior</button>
         <button className="nmon-btn nmon-btn--primary" onClick={onNext}>
           {observaciones.trim() === '' ? 'Omitir' : 'Siguiente'} <ChevronRight size={15} />
         </button>
@@ -193,7 +391,7 @@ function Paso3({ observaciones, setObservaciones, onNext, onBack }) {
 }
 
 // ─── Paso 4 ──────────────────────────────────
-function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId, onGuardado, onBack }) {
+function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservaciones, expertoId, userId, onGuardado, onBack, tieneRoya, idNivelRoya, isEditing, editMonitoreoId, editMonitoreo, nivelesRoya }) {
   const [tipos,           setTipos]         = useState([])
   const [prioridades,     setPrioridades]   = useState([])
   const [tratamientos,    setTratamientos]  = useState([])
@@ -203,7 +401,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
   const [error,           setError]         = useState('')
 
   const [agregarRec,  setAgregarRec]  = useState(true)
-  const [agregarTrat, setAgregarTrat] = useState(false)
+  const [agregarTrat, setAgregarTrat] = useState(!!tieneRoya)
   const [esPersonalizada, setEsPersonalizada] = useState(false)
 
   const [recForm, setRecForm] = useState({
@@ -211,7 +409,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
   })
   const [tipoPersonalizado, setTipoPersonalizado] = useState('')
   const [tratamientosList, setTratamientosList] = useState([
-    { id_tratamiento: '', id_insumo: '', observaciones: '' },
+    { id_tratamiento: '', id_insumo: '', observaciones: '', dosis: '', frecuencia: '', duracion: '' },
   ])
 
   const handleRecChange = (e) => setRecForm((f) => ({ ...f, [e.target.name]: e.target.value }))
@@ -225,7 +423,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
   }
 
   const agregarTratamiento = () => {
-    setTratamientosList((prev) => [...prev, { id_tratamiento: '', id_insumo: '', observaciones: '' }])
+    setTratamientosList((prev) => [...prev, { id_tratamiento: '', id_insumo: '', observaciones: '', dosis: '', frecuencia: '', duracion: '' }])
   }
 
   const eliminarTratamiento = (idx) => {
@@ -270,6 +468,9 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
       setError('La descripción de la recomendación es obligatoria.'); return
     }
     const tratValidos = agregarTrat ? tratamientosList.filter((t) => t.id_tratamiento) : []
+    if (tieneRoya && tratValidos.length === 0) {
+      setError('El cultivo presenta roya — es obligatorio agregar al menos un tratamiento.'); return
+    }
     if (agregarTrat && tratValidos.length === 0) {
       setError('Agrega al menos un tratamiento o desmarca la opción.'); return
     }
@@ -277,17 +478,71 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
     setLoading(true)
     let createdMonitoreoId = null
     try {
-      // 1 — Monitoreo
-      const resM = await api.post('/monitoreos', {
+      // Extraer solo el texto real de observaciones, sin historial previo
+      let textoRealObs = observaciones || ''
+      const ultimoHist = textoRealObs.lastIndexOf('[HISTORIAL — Monitoreo #')
+      if (ultimoHist !== -1) {
+        const desdeHist = textoRealObs.slice(ultimoHist)
+        const idxRoya = desdeHist.indexOf('\n[ROYA:')
+        if (idxRoya !== -1) {
+          textoRealObs = desdeHist.slice(idxRoya + 1).trim()
+        }
+      }
+      // Limpiar lineas de metadata sueltas (═, Fecha, Nivel, Fotos, Recomendacion, etc.)
+      textoRealObs = textoRealObs
+        .split('\n')
+        .filter(l => {
+          const t = l.trim()
+          return !/^═+$/.test(t) && !t.startsWith('HISTORIAL DE CAMBIOS') &&
+            !t.startsWith('[HISTORIAL') && !t.startsWith('Fecha ') &&
+            !t.startsWith('Nivel ') && !t.startsWith('Observaciones ') &&
+            !t.startsWith('Fotos ') && !t.startsWith('Recomendaci') &&
+            !t.startsWith('Tipo:') && !t.startsWith('Prioridad:') &&
+            !t.startsWith('Descripci') && !t.startsWith('Fecha l') &&
+            !t.startsWith('Tratamiento') && !/^\s+\d+\./.test(t) &&
+            !t.startsWith('  -') && !/^---/.test(t)
+        })
+        .join('\n')
+        .trim()
+
+      const obsRaw = isEditing && nuevasObservaciones?.trim()
+        ? `${textoRealObs}\n\n--- ${new Date().toISOString().slice(0, 10)} ---\n${nuevasObservaciones.trim()}`
+        : (textoRealObs || null)
+
+      // Incrustar nivel de roya en las observaciones con prefijo [ROYA:NIVEL]
+      let royaPrefijo = ''
+      if (tieneRoya && idNivelRoya) {
+        const nivel = nivelesRoya.find((n) => Number(n.idNivelRoya ?? n.id_nivel_roya) === Number(idNivelRoya))
+        const nombreNivel = nivel?.nombre || nivel?.nombreNivel || idNivelRoya
+        royaPrefijo = `[ROYA:${nombreNivel}]\n\n`
+      }
+      // Limpiar prefijos anteriores de roya
+      let obsLimpia = (obsRaw || '').replace(/\[ROYA:.+?\]\n*/g, '')
+      const obsFinal = royaPrefijo ? `${royaPrefijo}${obsLimpia}` : (obsLimpia || null)
+      const payload = {
         id_cultivo:      Number(cultivo.idCultivo),
         id_experto:      expertoId ? Number(expertoId) : null,
         fecha_monitoreo: fecha,
-        observaciones:   observaciones || null,
-      })
-      const idMonitoreo = resM.data?.data?.idMonitoreo ?? resM.data?.idMonitoreo
-      createdMonitoreoId = idMonitoreo
+        observaciones:   obsFinal,
+        id_nivel_roya:   tieneRoya && idNivelRoya ? Number(idNivelRoya) : null,
+      }
 
-      // 2 — Fotos
+      let idMonitoreo
+      if (isEditing) {
+        // Obtener el texto del historial para incrustarlo en observaciones
+        const textoHistorico = await construirTextoHistorico(editMonitoreo, { idUsuario: expertoId })
+        const obsConHistorial = textoHistorico
+          ? `\n\n${'═'.repeat(40)}\nHISTORIAL DE CAMBIOS\n${'═'.repeat(40)}\n\n${textoHistorico}` + (obsFinal || '')
+          : (obsFinal || '')
+        await api.put(`/monitoreos/${editMonitoreoId}`, { ...payload, observaciones: obsConHistorial || null })
+        idMonitoreo = editMonitoreoId
+      } else {
+        const resM = await api.post('/monitoreos', payload)
+        idMonitoreo = resM.data?.data?.idMonitoreo ?? resM.data?.idMonitoreo
+        createdMonitoreoId = idMonitoreo
+      }
+
+      // 2 — Fotos (solo en creación o nuevas)
       if (fotos.length > 0 && idMonitoreo) {
         for (const foto of fotos) {
           const fd = new FormData()
@@ -303,7 +558,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         if (esPersonalizada && tipoPersonalizado.trim()) {
           desc = `[${tipoPersonalizado.trim()}] ${desc}`
         }
-        const resRec = await api.post('/recomendaciones', {
+        const recPayload = {
           id_monitoreo:      Number(idMonitoreo),
           id_tipo:           esPersonalizada ? null : (recForm.id_tipo ? Number(recForm.id_tipo) : null),
           id_experto_emisor: expertoId        ? Number(expertoId) : null,
@@ -311,24 +566,50 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
           id_tratamiento:    tratValidos.length > 0 ? Number(tratValidos[0].id_tratamiento) : null,
           descripcion:       desc,
           fecha_limite:      recForm.fecha_limite || null,
-        })
-        const idRecomendacion =
-          resRec.data?.data?.idRecomendacion ?? resRec.data?.idRecomendacion
+        }
+
+        let idRecomendacion
+        if (isEditing) {
+          let recExistenteId = null
+          try {
+            const resRecs = await api.get('/recomendaciones', { params: { id_monitoreo: idMonitoreo } })
+            const recs = Array.isArray(resRecs.data) ? resRecs.data : (resRecs.data?.data ?? [])
+            if (recs.length > 0) {
+              recExistenteId = recs[0].idRecomendacion ?? recs[0].id_recomendacion
+            }
+          } catch {}
+          if (recExistenteId) {
+            await api.put(`/recomendaciones/${recExistenteId}`, recPayload)
+            idRecomendacion = recExistenteId
+          } else {
+            const resRec = await api.post('/recomendaciones', recPayload)
+            idRecomendacion = resRec.data?.data?.idRecomendacion ?? resRec.data?.idRecomendacion
+          }
+        } else {
+          const resRec = await api.post('/recomendaciones', recPayload)
+          idRecomendacion = resRec.data?.data?.idRecomendacion ?? resRec.data?.idRecomendacion
+        }
 
         // 4 — Aplicaciones tratamiento (una por cada tratamiento)
         if (idRecomendacion && tratValidos.length > 0) {
-          const hoy = new Date().toISOString().slice(0, 10)
+          const fechaApl = fecha || new Date().toISOString().slice(0, 10)
           for (const t of tratValidos) {
             const insumo = t.id_insumo ? insumos.find((i) => Number(i.idInsumo) === Number(t.id_insumo)) : null
-            let obs = t.observaciones?.trim() || null
-            if (insumo) {
-              obs = obs ? `[${insumo.nombre}] ${obs}` : `[${insumo.nombre}]`
-            }
+            const dVal = t.dosis?.trim() || ''
+            const fVal = t.frecuencia?.trim() || ''
+            const xVal = t.duracion?.trim() || ''
+            const obsTexto = t.observaciones?.trim() || ''
+            // Formato pipe-delimited: [Insumo|Dosis|Frecuencia|Duracion] texto
+            const header = `[${insumo?.nombre || ''}|${dVal}|${fVal}|${xVal}]`
+            const obs = obsTexto ? `${header} ${obsTexto}` : header
             await api.post('/aplicaciones_tratamientos', {
               id_tratamiento:   Number(t.id_tratamiento),
               id_usuario:       userId ? Number(userId) : null,
-              fecha_aplicacion: hoy,
+              fecha_aplicacion: fechaApl,
               observacion:      obs,
+              dosis:            t.dosis?.trim() || null,
+              frecuencia:       t.frecuencia?.trim() || null,
+              duracion:         t.duracion?.trim() || null,
             })
           }
         }
@@ -431,9 +712,18 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
               </div>
 
               {/* ── Toggle tratamiento (anidado) ── */}
+              {tieneRoya && (
+                <div className="nmon-roya-banner">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <span>Este cultivo presenta roya — el tratamiento es obligatorio.</span>
+                </div>
+              )}
               <div className="nmon-section-toggle nmon-section-toggle--inner">
                 <label className="nmon-toggle-label">
                   <input type="checkbox" className="nmon-checkbox" checked={agregarTrat}
+                    disabled={tieneRoya}
                     onChange={(e) => setAgregarTrat(e.target.checked)} />
                   <div className="nmon-toggle-header">
                     <div className="nmon-toggle-icon nmon-toggle-icon--sm">
@@ -446,7 +736,11 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                   </div>
                 </label>
 
-                {agregarTrat && tratamientosList.map((trat, idx) => (
+                {agregarTrat && tratamientosList.map((trat, idx) => {
+                  const idsUsados = tratamientosList
+                    .map((t, i) => i !== idx ? t.id_tratamiento : null)
+                    .filter(Boolean)
+                  return (
                   <div key={idx} className="nmon-trat-fields">
                     <div className="nmon-trat-header-row">
                       <span className="nmon-trat-num">Tratamiento #{idx + 1}</span>
@@ -464,7 +758,8 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                             onChange={(e) => handleTratChange(idx, 'id_tratamiento', e.target.value)}>
                             <option value="">Seleccionar tratamiento...</option>
                             {tratamientos.map((t) => (
-                              <option key={t.idTratamiento} value={t.idTratamiento}>
+                              <option key={t.idTratamiento} value={t.idTratamiento}
+                                disabled={idsUsados.includes(String(t.idTratamiento))}>
                                 {t.nombre}{t.insumo?.nombre ? ` — ${t.insumo.nombre}` : ''}
                               </option>
                             ))}
@@ -492,8 +787,29 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
                         onChange={(e) => handleTratChange(idx, 'observaciones', e.target.value)}
                         placeholder="Ej: Aplicar en la mañana" />
                     </div>
+                    <div className="nmon-field-row">
+                      <div className="nmon-field">
+                        <label className="nmon-label">Dosis</label>
+                        <input className="nmon-input" type="text" value={trat.dosis}
+                          onChange={(e) => handleTratChange(idx, 'dosis', e.target.value)}
+                          placeholder="Ej: 5 ml / L" />
+                      </div>
+                      <div className="nmon-field">
+                        <label className="nmon-label">Cada cuánto</label>
+                        <input className="nmon-input" type="text" value={trat.frecuencia}
+                          onChange={(e) => handleTratChange(idx, 'frecuencia', e.target.value)}
+                          placeholder="Ej: Cada 15 días" />
+                      </div>
+                      <div className="nmon-field">
+                        <label className="nmon-label">Por cuánto tiempo</label>
+                        <input className="nmon-input" type="text" value={trat.duracion}
+                          onChange={(e) => handleTratChange(idx, 'duracion', e.target.value)}
+                          placeholder="Ej: 3 meses" />
+                      </div>
+                    </div>
                   </div>
-                ))}
+                  )
+                })}
                 {agregarTrat && (
                   <button type="button" className="nmon-btn nmon-btn--add-trat" onClick={agregarTratamiento}>
                     + Agregar otro tratamiento
@@ -518,6 +834,8 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
               day: 'numeric', month: 'long', year: 'numeric',
             }) : '—'}
           </span>
+          <span className="nmon-resumen-key">Roya</span>
+          <span className="nmon-resumen-val">{tieneRoya ? 'Sí' : 'No'}</span>
           <span className="nmon-resumen-key">Fotos</span>
           <span className="nmon-resumen-val">{fotos.length} foto{fotos.length !== 1 ? 's' : ''}</span>
         </div>
@@ -532,7 +850,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
         <button className="nmon-btn nmon-btn--guardar" onClick={handleGuardar} disabled={loading}>
           {loading
             ? <Loading type="inline" text="Guardando..." />
-            : <><BiCheck size={15} /> Guardar monitoreo</>
+            : <><BiCheck size={15} /> {isEditing ? 'Actualizar monitoreo' : 'Guardar monitoreo'}</>
           }
         </button>
       </div>
@@ -543,11 +861,34 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, expertoId, userId,
 // ─────────────────────────────────────────────
 // MODAL PRINCIPAL
 // ─────────────────────────────────────────────
-export default function NuevoMonitoreoModal({ cultivo, finca, expertoId, userId, onGuardado, onClose }) {
+export default function NuevoMonitoreoModal({ cultivo, finca, expertoId, userId, onGuardado, onClose, editMonitoreo }) {
+  const isEditing = !!editMonitoreo
   const [paso,          setPaso]          = useState(1)
-  const [fecha,         setFecha]         = useState(hoy())
+  const [fecha,         setFecha]         = useState(() => {
+    if (editMonitoreo) {
+      const f = editMonitoreo.fechaMonitoreo ?? editMonitoreo.fecha_monitoreo ?? ''
+      return f.slice(0, 10)
+    }
+    return hoy()
+  })
   const [fotos,         setFotos]         = useState([])
-  const [observaciones, setObservaciones] = useState('')
+  const [observaciones, setObservaciones] = useState(() => editMonitoreo?.observaciones || '')
+  const [nuevasObservaciones, setNuevasObservaciones] = useState('')
+  const [tieneRoya,     setTieneRoya]     = useState(() => {
+    if (editMonitoreo) return !!editMonitoreo.id_nivel_roya
+    return null
+  })
+  const [idNivelRoya,   setIdNivelRoya]   = useState(() => {
+    if (editMonitoreo) return editMonitoreo.id_nivel_roya ?? ''
+    return ''
+  })
+  const [nivelesRoya,   setNivelesRoya]   = useState([])
+
+  useEffect(() => {
+    api.get('/cat_niveles_roya')
+      .then((res) => setNivelesRoya(getArr(res.data)))
+      .catch(() => setNivelesRoya([]))
+  }, [])
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -567,7 +908,7 @@ export default function NuevoMonitoreoModal({ cultivo, finca, expertoId, userId,
   <BiLeaf size={30} />
 </span>
             <div>
-              <h2 className="nmon-header-title">Nuevo monitoreo</h2>
+              <h2 className="nmon-header-title">{isEditing ? 'Editar monitoreo' : 'Nuevo monitoreo'}</h2>
               <p className="nmon-header-sub">
                 {finca?.nombre || finca?.nombreFinca || 'Finca'} · {cultivo?.nombreCultivo || 'Cultivo'}
               </p>
@@ -581,15 +922,24 @@ export default function NuevoMonitoreoModal({ cultivo, finca, expertoId, userId,
         <StepIndicator pasoActual={paso} />
 
         <div className="nmon-content">
-          {paso === 1 && <Paso1 cultivo={cultivo} finca={finca} fecha={fecha} setFecha={setFecha} onNext={next} />}
+          {paso === 1 && <Paso1 cultivo={cultivo} finca={finca} fecha={fecha} setFecha={setFecha} onNext={next}
+            tieneRoya={tieneRoya} setTieneRoya={setTieneRoya}
+            idNivelRoya={idNivelRoya} setIdNivelRoya={setIdNivelRoya}
+            nivelesRoya={nivelesRoya} />}
           {paso === 2 && <Paso2 fotos={fotos} setFotos={setFotos} onNext={next} onBack={back} />}
-          {paso === 3 && <Paso3 observaciones={observaciones} setObservaciones={setObservaciones} onNext={next} onBack={back} />}
+          {paso === 3 && <Paso3 observaciones={observaciones} setObservaciones={setObservaciones} onNext={next} onBack={back} isEditing={!!editMonitoreo} nuevasObservaciones={nuevasObservaciones} setNuevasObservaciones={setNuevasObservaciones} />}
           {paso === 4 && (
             <Paso4
               cultivo={cultivo} finca={finca} fecha={fecha}
               fotos={fotos} observaciones={observaciones}
+              nuevasObservaciones={nuevasObservaciones}
               expertoId={expertoId} userId={userId}
               onGuardado={onGuardado} onBack={back}
+              tieneRoya={tieneRoya} idNivelRoya={idNivelRoya}
+              isEditing={isEditing}
+              editMonitoreoId={editMonitoreo ? (editMonitoreo.idMonitoreo ?? editMonitoreo.id_monitoreo) : null}
+              editMonitoreo={editMonitoreo}
+              nivelesRoya={nivelesRoya}
             />
           )}
         </div>

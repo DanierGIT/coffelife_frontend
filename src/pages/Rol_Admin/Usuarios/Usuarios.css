@@ -26,8 +26,8 @@
 .usuario-form-row input:focus,
 .usuario-form-row select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -218,7 +218,7 @@
 }
 
 .toggle-switch.active {
-  background: #2e7d32;
+  background: #097300;
 }
 
 .toggle-switch.inactive {

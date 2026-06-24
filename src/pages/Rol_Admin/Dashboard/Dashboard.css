@@ -35,7 +35,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -317,18 +317,18 @@
 .db-table thead th {
   text-align: left;
   padding: 12px 16px;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #9ca3af;
+  color: #000000;
   background: #f9fafb;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .db-table tbody td {
   padding: 12px 16px;
-  color: #374151;
+  color: #000000;
   border-bottom: 1px solid #f3f4f6;
 }
 
@@ -341,8 +341,8 @@
 }
 
 .db-td-finca {
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 400;
+  color: #000000;
 }
 
 .db-td-fecha {

@@ -154,15 +154,15 @@ body {
 }
 
 .rl-table thead tr {
-  background: #f0e9de;
+  background: #097300;
 }
 
 .rl-table th {
   text-align: left;
   padding: 10px 14px;
-  color: #4a3f2e;
+  color: #ffffff;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border-bottom: 1px solid #d6cbbf;
@@ -170,7 +170,7 @@ body {
 
 .rl-table td {
   padding: 11px 14px;
-  color: #2e2e2e;
+  color: #000000;
   border-bottom: 0.5px solid #ece5da;
   background: #fff;
 }
