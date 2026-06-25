@@ -44,8 +44,8 @@
 .monitoreo-label select:focus,
 .monitoreo-label textarea:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 

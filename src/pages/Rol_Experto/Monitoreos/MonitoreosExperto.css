@@ -264,18 +264,14 @@
   height: 54px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(
-    135deg,
-    #3e8e41,
-    #2f7d32
-  );
+  background: #097300;
   color: white;
   font-weight: 800;
   padding: 0 28px;
   cursor: pointer;
   transition: .25s;
   box-shadow:
-    0 12px 24px rgba(47,125,50,.18);
+    0 12px 24px rgba(9,115,0,.18);
 }
 
 .btn-save:hover {
@@ -491,8 +487,8 @@
   background: white;
   border-radius: 20px;
   width: 100%;
-  max-width: 480px;
-  max-height: 80vh;
+  max-width: 640px;
+  max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,.15);
 }
@@ -582,6 +578,21 @@
 
 .mon-detalle-actions {
   padding: 0 24px 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mon-detalle-btn--primary {
+  background: #2f7d32;
+  color: white;
+  border-color: #2f7d32;
+}
+
+.mon-detalle-btn--primary:hover {
+  background: #256528;
+  border-color: #256528;
+  color: white;
 }
 
 .mon-detalle-btn {
@@ -606,19 +617,30 @@
 /* LISTA */
 
 .monitoreo-list-page {
-  padding: 30px;
+  padding: 12px 30px 30px;
 }
 
 .list-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 26px;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.list-topbar > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.list-topbar .btn-save {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .list-topbar h2 {
   margin: 0;
-  font-size: 34px;
+  font-size: 20px;
 }
 
 .list-topbar p {
@@ -788,10 +810,14 @@
   }
 
   .monitoreo-topbar,
-  .list-topbar,
   .bottom-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .list-topbar {
+    flex-direction: row;
+    align-items: center;
   }
 
   .mon-card {
@@ -846,96 +872,223 @@
   border-top: 1px solid #e5e7eb;
 }
 
+.mon-detalle-section > .mon-detalle-label {
+  font-size: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
 .mon-detalle-empty {
   font-size: 13px;
   color: #9ca3af;
   margin: 8px 0 0;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px dashed #e5e7eb;
+  text-align: center;
 }
 
 .mon-detalle-recs-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-top: 10px;
 }
 
 .mon-detalle-rec-card {
-  background: #f9fafb;
-  border-radius: 10px;
-  padding: 12px 14px;
-  border: 1px solid #e5e7eb;
+  background: #f0fdf4;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #2f7d32;
 }
 
 .mon-detalle-rec-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #166534;
 }
 
 .mon-detalle-rec-prio {
   margin-left: auto;
   font-size: 11px;
-  font-weight: 500;
-  background: #e0f2fe;
-  color: #0369a1;
-  padding: 2px 8px;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 3px 10px;
   border-radius: 99px;
 }
 
 .mon-detalle-rec-desc {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 6px 0 4px;
-  line-height: 1.4;
+  font-size: 14px;
+  color: #374151;
+  margin: 10px 0 6px;
+  line-height: 1.6;
+  padding: 8px 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .mon-detalle-rec-meta {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
-  color: #9ca3af;
+  color: #6b7280;
+  margin-top: 4px;
 }
 
 .mon-detalle-trats {
-  margin-top: 8px;
-  padding-top: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px dashed #d1d5db;
 }
 
 .mon-detalle-trat-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .mon-detalle-trat-item {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 10px;
-  font-size: 12px;
-  padding: 4px 0;
+  gap: 6px 12px;
+  font-size: 13px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .mon-detalle-trat-nombre {
-  font-weight: 600;
+  font-weight: 700;
   color: #2f7d32;
+  font-size: 14px;
 }
 
 .mon-detalle-trat-fecha {
   color: #9ca3af;
+  font-size: 12px;
 }
 
 .mon-detalle-trat-obs {
   color: #6b7280;
   width: 100%;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.mon-detalle-trat-detalle {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+
+.mon-detalle-rec-version {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  background: #e8f5e9;
+  color: #2f7d32;
+  padding: 2px 8px;
+  border-radius: 99px;
 }
 
 .btn-outline svg {
   flex-shrink: 0;
+}
+
+/* ─── Historial de monitoreos ─── */
+.mon-hist-card {
+  background: #fff;
+  border: 1px solid #e7ebe4;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.mon-hist-card--selected {
+  border-color: #2f7d32;
+  box-shadow: 0 0 0 2px rgba(47,125,50,0.12);
+}
+
+.mon-hist-card--expanded {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.mon-hist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.mon-hist-header:hover {
+  background: #f9fafb;
+}
+
+.mon-hist-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2f7d32;
+}
+
+.mon-hist-header-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.mon-hist-current-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #2f7d32;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+
+.mon-hist-preview {
+  margin: 0;
+  padding: 0 14px 10px;
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.mon-hist-body {
+  padding: 0 14px 14px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.mon-hist-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
 }

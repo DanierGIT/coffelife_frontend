@@ -29,8 +29,8 @@
 
 .finca-form-row input:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9,115,0,0.12);
   background: #fff;
 }
 
@@ -107,8 +107,8 @@
 
 .modal-form select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 .expert-status {
@@ -450,8 +450,8 @@
 
 .experto-select:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -551,18 +551,18 @@
   text-align: left;
   padding: 8px 10px;
   font-size: 11px;
-  font-weight: 600;
-  color: #9ca3af;
+  font-weight: 400;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  background: #097300;
 }
 
 .cultivos-tabla td {
   padding: 8px 10px;
   border-bottom: 1px solid #f0f0f0;
-  color: #374151;
+  color: #000000;
   vertical-align: middle;
 }
 

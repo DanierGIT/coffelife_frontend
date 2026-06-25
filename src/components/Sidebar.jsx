@@ -208,7 +208,11 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
         <BiX size={22} />
       </button>
         <div className="sidebar-logo">
-          <AnimatedLogo size="md" horizontal />
+          <AnimatedLogo size="md" showText={false} />
+          <div className="sidebar-logo-texts">
+            <span className="sidebar-logo-name">Coffe<span>Life</span></span>
+            <span className="sidebar-logo-badge">{role === 'administrador' ? 'ADMIN' : role.toUpperCase()}</span>
+          </div>
         </div>
 
       <div className="sidebar-profile" onClick={() => onNavigate('perfil')} title="Mi perfil">

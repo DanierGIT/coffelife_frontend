@@ -94,8 +94,8 @@
 
 .admin-form input:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -106,7 +106,7 @@
 
 /* ─── Botones ─── */
 .btn-primary {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  background: #097300;
   color: #fff;
   border: none;
   padding: 11px 22px;
@@ -157,15 +157,15 @@
 }
 
 .admin-table thead {
-  background: #efdec0;
+  background: #097300;
 }
 
 .admin-table th {
   text-align: left;
   padding: 14px 16px;
   font-size: 13px;
-  font-weight: 600;
-  color: #1b5e20;
+  font-weight: 400;
+  color: #ffffff;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
@@ -174,7 +174,7 @@
   padding: 14px 16px;
   border-bottom: 1px solid #f0f0f0;
   font-size: 14px;
-  color: #374151;
+  color: #000000;
   word-break: break-word;
 }
 
@@ -320,8 +320,8 @@
 
 .modal-form input:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -372,8 +372,8 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .search-bar:focus-within {
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 .search-bar svg {
@@ -420,12 +420,12 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .btn-filter:hover {
-  border-color: #4caf50;
+  border-color: #097300;
   background: #fff;
 }
 .btn-filter:focus {
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
 }
 .filter-badge {
   display: inline-flex;
@@ -434,7 +434,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #4caf50;
+  background: #097300;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -468,8 +468,8 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .filter-dropdown select:focus {
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  border-color: #097300;
+  box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
 
@@ -503,9 +503,9 @@
   cursor: default;
 }
 .pagination button.active {
-  background: #2e7d32;
+  background: #097300;
   color: #fff;
-  border-color: #2e7d32;
+  border-color: #097300;
 }
 .pagination-info {
   font-size: 13px;

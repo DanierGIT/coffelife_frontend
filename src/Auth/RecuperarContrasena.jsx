@@ -8,7 +8,7 @@ import PasswordStrength from "../components/PasswordStrength";
 import AnimatedLogo from "../components/AnimatedLogo";
 import "./RecuperarContrasena.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend-coffe-lifee-production.up.railway.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend-coffe-lifee-production-191b.up.railway.app";
 
 async function apiFetch(ruta, body, options = {}) {
   const controller = new AbortController();
