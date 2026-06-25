@@ -6,6 +6,16 @@ import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 
+const extraerNivelRoya = (obs = '') => {
+  let idx = -1, pos = -1, searchFrom = 0
+  while ((pos = obs.indexOf('[ROYA:', searchFrom)) !== -1) {
+    idx = pos
+    searchFrom = pos + 1
+  }
+  if (idx === -1) return null
+  const endIdx = obs.indexOf(']', idx + 6)
+  return endIdx > idx ? obs.slice(idx + 6, endIdx) : null
+}
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
   if (!val) return '—'
@@ -170,6 +180,10 @@ function DetalleMonitoreoModal({ monitoreo, onBack }) {
             <span className="detalle-value">
               {monitoreo.usuario ? `${monitoreo.usuario.nombre || ''} ${monitoreo.usuario.apellido || ''}`.trim() : '—'}
             </span>
+          </div>
+          <div className="detalle-item">
+            <span className="detalle-label">Nivel de roya</span>
+            <span className="detalle-value">{extraerNivelRoya(monitoreo.observaciones) || '—'}</span>
           </div>
           <div className="detalle-item">
             <span className="detalle-label">Fecha de monitoreo</span>
