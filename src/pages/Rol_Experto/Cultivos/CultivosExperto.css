@@ -276,6 +276,19 @@
   object-fit: cover;
 }
 
+.card-no-foto {
+  width: 100%;
+  height: 100%;
+  background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
 /* Botón flotante opciones (...) */
 .btn-floating-options {
   position: absolute;
@@ -564,4 +577,49 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+}
+
+.finca-bloqueada {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 24px;
+}
+
+.finca-bloqueada-content {
+  text-align: center;
+  max-width: 420px;
+}
+
+.finca-bloqueada-content h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 16px 0 8px;
+}
+
+.finca-bloqueada-content p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.finca-bloqueada-content .btn-card-action-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #097300;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.finca-bloqueada-content .btn-card-action-trigger:hover {
+  background: #065a00;
 }

@@ -6,17 +6,18 @@ import NuevoMonitoreoModal, { esMonitoreoHistorico } from './NuevoMonitoreoModal
 import './MonitoreosExperto.css'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
+import { useNotificaciones } from '../../../hooks/useNotificaciones'
 
 const fmt = (d) => {
   if (!d) return '—'
   const dt = new Date(d + (d.includes('T') ? '' : 'T12:00:00'))
-  return isNaN(dt) ? '—' : dt.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
+  return isNaN(dt) ? '—' : dt.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Bogota' })
 }
 
 const fmtDatetime = (d) => {
   if (!d) return '—'
   const dt = new Date(d)
-  return isNaN(dt) ? '—' : dt.toLocaleString('es-CO', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return isNaN(dt) ? '—' : dt.toLocaleString('es-CO', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Bogota' })
 }
 
 function ultimaObservacion(obs = '') {
@@ -237,26 +238,57 @@ function resolverAplicaciones(recomendacion, tratamientosCat = [], insumosCat = 
   }
 
   // Caso 3: los datos estan en aplicaciones_tratamientos (tabla separada).
-  // Unimos por id_recomendacion o, si no esta, por id_tratamiento.
-  // Este caso va PRIMERO que el Caso 4 para priorizar los datos reales de la tabla.
+  // Unimos por id_recomendacion (el campo que tiene cada aplicacion).
   if (aplicaciones.length === 0 && aplicacionesMonitoreo.length > 0) {
-    // Tomar las aplicaciones mas recientes por fechaRegistro (con hora).
-    // Las aplicaciones de la misma edicion se crean con segundos de diferencia.
-    // Agrupamos por hora (sin minutos) para separar ediciones distintas.
-    const horasConApls = aplicacionesMonitoreo
-      .map((apl) => (apl?.fechaRegistro || '').slice(0, 13)) // YYYY-MM-DDTHH
-      .filter(Boolean)
-      .sort((a, b) => b.localeCompare(a))
-    const horaMasReciente = horasConApls[0]
+    const recId = recomendacion?.idRecomendacion ?? recomendacion?.id_recomendacion
+    let aplsFiltradas
 
-    const aplsRecientes = horaMasReciente
-      ? aplicacionesMonitoreo.filter((apl) => (apl?.fechaRegistro || '').slice(0, 13) === horaMasReciente)
-      : aplicacionesMonitoreo
+    if (recId) {
+      aplsFiltradas = aplicacionesMonitoreo.filter(
+        (a) => Number(a.idRecomendacion ?? a.id_recomendacion) === Number(recId)
+      )
+    }
+
+    // Fallback: si no hay recId o no hay aplicaciones con ese id, filtrar por nombre del tratamiento
+    if (!aplsFiltradas || aplsFiltradas.length === 0) {
+      const recoTratNombre = recomendacion?.tratamiento
+      if (recoTratNombre) {
+        const tratEncontrado = tratamientosCat.find(
+          (tr) => (tr?.nombre || '').toLowerCase().trim() === recoTratNombre.toLowerCase().trim()
+        )
+        if (tratEncontrado) {
+          const idTrat = Number(tratEncontrado.idTratamiento ?? tratEncontrado.id_tratamiento)
+          aplsFiltradas = aplicacionesMonitoreo.filter((a) => Number(a.idTratamiento ?? a.id_tratamiento) === idTrat)
+        }
+      }
+    }
+
+    // Si aun no hay resultados, mostrar datos del catalogo de tratamientos
+    if (!aplsFiltradas || aplsFiltradas.length === 0) {
+      const recoTratNombre = recomendacion?.tratamiento
+      if (recoTratNombre) {
+        const tratEncontrado = tratamientosCat.find(
+          (tr) => (tr?.nombre || '').toLowerCase().trim() === recoTratNombre.toLowerCase().trim()
+        )
+        if (tratEncontrado) {
+          aplicaciones.push({
+            nombreTratamiento: tratEncontrado.nombre,
+            nombreInsumo: 'No especificado',
+            dosis: '',
+            frecuencia: '',
+            duracion: '',
+            observacion: '',
+            fechaAplicacion: null,
+          })
+        }
+      }
+      return aplicaciones
+    }
 
     // Ordenar por idAplicacion DESC y deduplicar por id_tratamiento
     const aplsUnicas = []
     const vistos = new Set()
-    aplsRecientes
+    aplsFiltradas
       .sort((a, b) => (b?.idAplicacion || 0) - (a?.idAplicacion || 0))
       .forEach((apl) => {
         const tid = apl?.idTratamiento || apl?.id_tratamiento
@@ -336,7 +368,7 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
 
   useEffect(() => {
     Promise.all([
-      api.get('/tratamientos').then((r) => setTratamientosCat(getArr(r.data))).catch(() => []),
+      api.get('/tratamientos', { params: { limit: 1000 } }).then((r) => setTratamientosCat(getArr(r.data))).catch(() => []),
       api.get('/insumos').then((r) => setInsumosCat(getArr(r.data))).catch(() => []),
     ])
   }, [])
@@ -347,14 +379,14 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
     setLoadingRecs(true)
 
     Promise.all([
-      api.get('/recomendaciones').then((res) => {
+      api.get('/recomendaciones', { params: { limit: 1000 } }).then((res) => {
         const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
         return data.filter((r) => {
           const rid = r.idMonitoreo ?? r.id_monitoreo ?? r.idMonitoreoFk ?? r.id_monitoreo_fk
           return Number(rid) === Number(id)
         })
       }).catch(() => []),
-      api.get('/aplicaciones_tratamientos', { params: { perPage: 1000 } }).then((res) => {
+      api.get('/aplicaciones_tratamientos', { params: { limit: 1000 } }).then((res) => {
         const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
         return data
       }).catch(() => []),
@@ -383,6 +415,7 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
           <div className="mon-detalle-row">
             <span className="mon-detalle-label">Fecha</span>
             <span className="mon-detalle-value">{fmt(monitoreo.fechaMonitoreo ?? monitoreo.fecha_monitoreo)}</span>
+            {(monitoreo.observaciones || '').includes('HISTORIAL DE CAMBIOS') && <span className="editado-badge">Editado</span>}
           </div>
           <div className="mon-detalle-row">
             <span className="mon-detalle-label">Experto</span>
@@ -485,7 +518,10 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
                       {aplicacionesResueltas.length > 0 ? (
                         <div className="mon-detalle-trats">
                           <span className="mon-detalle-trat-label">Tratamiento indicado:</span>
-                          {aplicacionesResueltas.map((apl, i) => (
+                                {aplicacionesResueltas.map((apl, i) => {
+                                  const tieneDatos = apl.nombreInsumo && apl.nombreInsumo !== 'No especificado'
+                                  const tieneCampos = tieneDatos || apl.dosis || apl.frecuencia || apl.duracion || apl.fechaAplicacion
+                                  return (
                             <div
                               key={i}
                               className="mon-detalle-trat-item"
@@ -502,10 +538,12 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
                               <div style={{ gridColumnStart: 1, gridColumnEnd: -1 }}>
                                 <span style={{ fontWeight: 700, color: '#1b5e20', fontSize: 13 }}>{apl.nombreTratamiento}</span>
                               </div>
-                              <div>
-                                <span style={{ color: '#6b7280', fontSize: 12 }}>Insumo:</span>
-                                <div style={{ fontSize: 13, color: '#111827' }}>{apl.nombreInsumo}</div>
-                              </div>
+                              {tieneDatos && (
+                                <div>
+                                  <span style={{ color: '#6b7280', fontSize: 12 }}>Insumo:</span>
+                                  <div style={{ fontSize: 13, color: '#111827' }}>{apl.nombreInsumo}</div>
+                                </div>
+                              )}
                               {apl.dosis && (
                                 <div>
                                   <span style={{ color: '#6b7280', fontSize: 12 }}>Dosis:</span>
@@ -530,14 +568,20 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
                                   <div style={{ fontSize: 13, color: '#111827' }}>{fmt(apl.fechaAplicacion)}</div>
                                 </div>
                               )}
-                              {apl.observacion && (
+                              {apl.observacion && !tieneCampos && (
+                                <div style={{ gridColumnStart: 1, gridColumnEnd: -1 }}>
+                                  <div style={{ fontSize: 13, color: '#111827', whiteSpace: 'pre-line' }}>{apl.observacion}</div>
+                                </div>
+                              )}
+                              {apl.observacion && tieneCampos && (
                               <div style={{ gridColumnStart: 1, gridColumnEnd: -1 }}>
                                   <span style={{ color: '#6b7280', fontSize: 12 }}>Observación:</span>
-                                  <div style={{ fontSize: 13, color: '#111827' }}>{apl.observacion}</div>
+                                  <div style={{ fontSize: 13, color: '#111827', whiteSpace: 'pre-line' }}>{apl.observacion}</div>
                                 </div>
                               )}
                             </div>
-                          ))}
+                                  )
+                                })}
                         </div>
                       ) : (
                         <div className="mon-detalle-trats">
@@ -556,12 +600,12 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
                           </div>
                         </div>
                       )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                </div>
+              )
+            })}
           </div>
+          )}
+        </div>
 
           {/* Historial de versiones */}
           {historial.length > 0 && (
@@ -611,6 +655,11 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
   const [showModal,  setShowModal]  = useState(false)
   const [detalle,    setDetalle]    = useState(null)
   const [editMonitoreo, setEditMonitoreo] = useState(null)
+  const [pagina, setPagina] = useState(1)
+  const [totalPaginas, setTotalPaginas] = useState(1)
+  const ITEMS_POR_PAGINA = 10
+
+  const notificacionKey = useNotificaciones(userId)
 
   const modalAbierto = showNuevoModal || showModal || editMonitoreo
   const cerrarModal = () => {
@@ -656,14 +705,22 @@ function textoRoya(monitoreo) {
 }
 
   const fetchMonitoreos = async () => {
-    if (!cultivo?.idCultivo) return
     setLoading(true)
     try {
-      const res  = await api.get('/monitoreos', { params: { id_cultivo: cultivo.idCultivo } })
-      const data = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
-      // Los monitoreos historicos no se muestran en la lista principal,
-      // solo dentro del detalle del monitoreo vigente.
-      setMonitoreos(data.filter((m) => !esMonitoreoHistorico(m)))
+      const params = { limit: 1000 }
+      if (cultivo?.idCultivo) params.id_cultivo = cultivo.idCultivo
+      const res  = await api.get('/monitoreos', { params })
+      const body = res.data?.data ?? res.data
+      const data = Array.isArray(body) ? body : []
+      const filtrados = data
+        .filter((m) => {
+          if (!cultivo?.idCultivo) return !esMonitoreoHistorico(m)
+          const id = Number(m.idCultivo ?? m.id_cultivo)
+          return id === Number(cultivo.idCultivo) && !esMonitoreoHistorico(m)
+        })
+        .sort((a, b) => new Date(b.fechaMonitoreo ?? b.fecha_monitoreo) - new Date(a.fechaMonitoreo ?? a.fecha_monitoreo))
+      setMonitoreos(filtrados)
+      setTotalPaginas(Math.max(1, Math.ceil(filtrados.length / ITEMS_POR_PAGINA)))
     } catch (error) {
       console.error(error)
     } finally {
@@ -671,7 +728,19 @@ function textoRoya(monitoreo) {
     }
   }
 
-  useEffect(() => { fetchMonitoreos() }, [cultivo])
+  const monitoreosPagina = monitoreos.slice((pagina - 1) * ITEMS_POR_PAGINA, pagina * ITEMS_POR_PAGINA)
+
+  const irPagina = (p) => {
+    if (p < 1 || p > totalPaginas) return
+    console.log('irPagina', { p, totalPaginas, monitoreosLength: monitoreos.length, slice: monitoreos.slice((p - 1) * ITEMS_POR_PAGINA, p * ITEMS_POR_PAGINA).length })
+    setPagina(p)
+  }
+
+  useEffect(() => { fetchMonitoreos(); setPagina(1) }, [cultivo?.idCultivo, notificacionKey])
+
+  useEffect(() => {
+    if (pagina > totalPaginas) setPagina(1)
+  }, [pagina, totalPaginas])
 
   return (
     <div className="monitoreo-list-page">
@@ -685,46 +754,64 @@ function textoRoya(monitoreo) {
         <Loading type="content" text="Cargando monitoreos..." />
       ) : monitoreos.length === 0 ? (
         <div className="empty-state">No hay monitoreos registrados.</div>
+      ) : monitoreosPagina.length === 0 ? (
+        <div className="empty-state">No hay monitoreos en esta página.</div>
       ) : (
         <div className="monitor-grid-sm">
-          {monitoreos.map((m, idx) => {
-            const mid = m.idMonitoreo ?? m.id_monitoreo ?? `mon-${idx}`
-            const fotos = Array.isArray(m.imagenes) ? m.imagenes : []
-            const color = colorRoya(m)
-            return (
-              <div
-                key={mid}
-                className="monitor-card-sm"
-                style={{ borderLeft: `4px solid ${color}` }}
-              >
-                <div className="monitor-card-sm-top">
-                  <div className="monitor-card-sm-date">
-                    <BiCalendar size={14} />
-                    {fmt(m.fechaMonitoreo ?? m.fecha_monitoreo)}
+          {monitoreosPagina.map((m, idx) => {
+            try {
+              const mid = m.idMonitoreo ?? m.id_monitoreo ?? `mon-${idx}`
+              const fotos = Array.isArray(m.imagenes) ? m.imagenes : []
+              const color = colorRoya(m)
+              return (
+                <div
+                  key={mid}
+                  className="monitor-card-sm"
+                  style={{ borderLeft: `4px solid ${color}` }}
+                >
+                  <div className="monitor-card-sm-top">
+                    <div className="monitor-card-sm-date">
+                      <BiCalendar size={14} />
+                      {fmt(m.fechaMonitoreo ?? m.fecha_monitoreo)}
+                      {(m.observaciones || '').includes('HISTORIAL DE CAMBIOS') && <span className="editado-badge">Editado</span>}
+                    </div>
+                    <span
+                      className="monitor-card-sm-date"
+                      style={{ color, fontWeight: 600, fontSize: 11 }}
+                    >
+                      {textoRoya(m)}
+                    </span>
+                    <button className="monitor-card-sm-eye" onClick={() => setDetalle(m)} title="Ver detalle">
+                      <BiShow size={18} />
+                    </button>
                   </div>
-                  <span
-                    className="monitor-card-sm-date"
-                    style={{ color, fontWeight: 600, fontSize: 11 }}
-                  >
-                    {textoRoya(m)}
-                  </span>
-                  <button className="monitor-card-sm-eye" onClick={() => setDetalle(m)} title="Ver detalle">
-                    <BiShow size={18} />
-                  </button>
+                  <p className="monitor-card-sm-obs">
+                    {(() => {
+                      const obs = ultimaObservacion(m.observaciones)
+                      return obs.length > 80 ? obs.slice(0, 80) + '...' : (obs || 'Sin observaciones')
+                    })()}
+                  </p>
+                  <div className="monitor-card-sm-footer">
+                    <BiImage size={14} />
+                    {fotos.length} foto{fotos.length !== 1 ? 's' : ''}
+                  </div>
                 </div>
-                <p className="monitor-card-sm-obs">
-                  {(() => {
-                    const obs = ultimaObservacion(m.observaciones)
-                    return obs.length > 80 ? obs.slice(0, 80) + '...' : (obs || 'Sin observaciones')
-                  })()}
-                </p>
-                <div className="monitor-card-sm-footer">
-                  <BiImage size={14} />
-                  {fotos.length} foto{fotos.length !== 1 ? 's' : ''}
-                </div>
-              </div>
-            )
+              )
+            } catch (e) {
+              console.error('Error al renderizar monitoreo', m?.idMonitoreo ?? m?.id_monitoreo, e)
+              return <div key={`err-${idx}`} className="monitor-card-sm" style={{ borderLeft: '4px solid #9ca3af', opacity: 0.5 }}><p style={{ padding: 12, fontSize: 12, color: '#999' }}>Error al cargar este monitoreo</p></div>
+            }
           })}
+        </div>
+      )}
+
+      {totalPaginas > 1 && (
+        <div className="pagination">
+          <button disabled={pagina <= 1} onClick={() => irPagina(pagina - 1)}>Anterior</button>
+          {Array.from({ length: totalPaginas }, (_, i) => (
+            <button key={i + 1} className={pagina === i + 1 ? 'active' : ''} onClick={() => irPagina(i + 1)}>{i + 1}</button>
+          ))}
+          <button disabled={pagina >= totalPaginas} onClick={() => irPagina(pagina + 1)}>Siguiente</button>
         </div>
       )}
 

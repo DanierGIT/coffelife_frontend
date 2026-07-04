@@ -156,6 +156,19 @@ function CultivoOptionsMenu({ cultivo, onEditar, onCambiarFoto }) {
    🌱 COMPONENTE PRINCIPAL (CULTIVOS EXPERTO)
    ========================================================================== */
 export default function CultivosExperto({ finca, onNavigate }) {
+  const activoTrue = (v) => { if (v === null || v === undefined) return true; return v === true || v === 1 || v === '1' }
+  if (!activoTrue(finca?.activo)) {
+    return (
+      <div className="finca-bloqueada">
+        <div className="finca-bloqueada-content">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <h2>Finca desactivada</h2>
+          <p>Esta finca ha sido desactivada por el administrador. No puedes acceder a sus cultivos.</p>
+          <button className="btn-card-action-trigger" onClick={() => onNavigate?.('dashboard')}>Volver al dashboard</button>
+        </div>
+      </div>
+    )
+  }
   const [cultivos, setCultivos] = useState([])
   const [stats, setStats] = useState({})
   const [fotosPorCultivo, setFotosPorCultivo] = useState({})
@@ -388,12 +401,23 @@ export default function CultivosExperto({ finca, onNavigate }) {
         <div className="coffeelife-cards-grid">
           {cultivos.map((c) => {
             const s = stats[c.idCultivo] || { monitoreos: 0, imagenes: 0 }
-            const fotoSrc = fotosPorCultivo[c.idCultivo] || FOTO_PLACEHOLDER
+            const fotoSrc = fotosPorCultivo[c.idCultivo] || null
 
             return (
               <div key={c.idCultivo} className="coffeelife-card">
                 <div className="card-image-wrapper">
-                  <img src={fotoSrc} alt="Cultivo" />
+                  {fotoSrc ? (
+                    <img src={fotoSrc} alt="Cultivo" />
+                  ) : (
+                    <div className="card-no-foto">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <span>Sin foto</span>
+                    </div>
+                  )}
                   <CultivoOptionsMenu
                     cultivo={c}
                     onEditar={handleEditClick}

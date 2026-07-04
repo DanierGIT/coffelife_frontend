@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
+import { useNotificaciones } from '../../../hooks/useNotificaciones'
 import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight, BiCamera } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import Loading from '../../../components/Loading'
@@ -22,6 +23,11 @@ const getArrayData = (data) => {
   if (Array.isArray(data)) return data
   if (Array.isArray(data?.data)) return data.data
   return []
+}
+
+const activoEsTrue = (val) => {
+  if (val === null || val === undefined) return true
+  return val === true || val === 1 || val === '1'
 }
 
 const decodeTokenPayload = () => {
@@ -331,6 +337,7 @@ export default function DashboardExperto({ onNavigate }) {
 
   const payload = decodeTokenPayload()
   const { user } = useAuth()
+  const notificacionKey = useNotificaciones(user?.idUsuario ?? user?.id)
   const nombreExperto = payload?.nombre || 'Experto'
   const idExperto = payload?.id
 
@@ -385,8 +392,8 @@ export default function DashboardExperto({ onNavigate }) {
         return
       }
 
-      const asignacionesRes = await api.get('/asignaciones_expertos')
-
+      const asignacionesRes = await api.get('/asignaciones_expertos', { params: { limit: 1000 } })
+ 
       const asignaciones = getArrayData(asignacionesRes.data).filter(
         (a) => Number(a.idExperto) === Number(idExperto)
       )
@@ -426,7 +433,7 @@ export default function DashboardExperto({ onNavigate }) {
     }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { fetchData() }, [notificacionKey])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const openUbicacionPicker = () => { setUbicacionLat(form.latitud); setUbicacionLng(form.longitud); setShowUbicacionModal(true) }
@@ -449,15 +456,20 @@ export default function DashboardExperto({ onNavigate }) {
         longitud: form.longitud ? parseFloat(form.longitud) : undefined,
       })
       const nuevaFinca = fincaRes.data?.data || fincaRes.data
-      await api.post('/asignaciones_expertos', {
-        idExperto: idExperto,
-        idFinca: nuevaFinca.idFinca,
-        fechaAsignada: new Date().toISOString().split('T')[0],
-      })
       setForm({ nombre_finca: '', municipio: '', departamento: '', altitud_msnm: '', area_hectareas: '', latitud: '', longitud: '', id_cafetero: '' })
       setShowCrearModal(false)
       setPaginaActual(1)
       fetchData()
+      // Intentar asignar al experto, pero si falla no bloquear
+      try {
+        await api.post('/asignaciones_expertos', {
+          idExperto: idExperto,
+          idFinca: nuevaFinca.idFinca,
+          fechaAsignada: new Date().toISOString().split('T')[0],
+        })
+      } catch {
+        // Silencioso: la asignacion requiere admin, pero la finca ya se creo
+      }
     } catch (err) {
       setFormError(err?.response?.data?.message || err?.response?.data?.error || 'No se pudo registrar la finca.')
     } finally {
@@ -548,7 +560,7 @@ export default function DashboardExperto({ onNavigate }) {
 
                 const cardDelay = Math.min(idx, 5)
                 return (
-                  <div key={f.idFinca} className={`coffeelife-finca-card animate-bottom delay-${cardDelay}`}>
+                  <div key={f.idFinca} className={`coffeelife-finca-card animate-bottom delay-${cardDelay}${!activoEsTrue(f.activo) ? ' finca-inactiva' : ''}`}>
                     <div className="finca-card-img-wrapper">
                       {fotoSrc ? (
                         <img src={fotoSrc} alt={f.nombre} />
@@ -558,8 +570,8 @@ export default function DashboardExperto({ onNavigate }) {
                         </div>
                       )}
                       <div className="finca-card-floating-badge">
-                        <span className={`status-dot ${f.activo !== false ? 'active' : 'inactive'}`}></span>
-                        {f.activo !== false ? 'Activa' : 'Inactiva'}
+                        <span className={`status-dot ${activoEsTrue(f.activo) ? 'active' : 'inactive'}`}></span>
+                        {activoEsTrue(f.activo) ? 'Activa' : 'Inactiva'}
                       </div>
                       {/* Menú 3 puntos */}
                       <FincaOptionsMenu
@@ -617,7 +629,8 @@ export default function DashboardExperto({ onNavigate }) {
 
                       <button
                         className="btn-card-action-trigger"
-                        onClick={() => onNavigate?.('cultivos', { ...f, totalCultivos: cultivos.length, fotoUrl: fotosPorFinca[f.idFinca] || f.fotoUrl })}
+                        disabled={!activoEsTrue(f.activo)}
+                        onClick={!activoEsTrue(f.activo) ? undefined : () => onNavigate?.('cultivos', { ...f, totalCultivos: cultivos.length, fotoUrl: fotosPorFinca[f.idFinca] || f.fotoUrl })}
                       >
                         Ver cultivos de la finca
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

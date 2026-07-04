@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import api from "../../../services/api"
 import PasswordStrength from "../../../components/PasswordStrength"
 import { validatePassword } from "../../../utils/passwordValidator"
@@ -8,6 +8,8 @@ import "../Usuarios/Usuarios.css"
 import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 import Loading from '../../../components/Loading'
+
+const POR_PAGINA = 10
 
 function DetalleUsuarioModal({ usuario, onClose }) {
   if (!usuario) return null;
@@ -167,6 +169,15 @@ export default function Cafetero() {
   const [error,           setError]     = useState("")
   const [success,         setSuccess]   = useState("")
   const [showCrearModal,  setShowCrearModal] = useState(false)
+  const [pagina, setPagina] = useState(1)
+
+  const totalPaginas = Math.max(1, Math.ceil(cafeteros.length / POR_PAGINA))
+  const paginaActual = Math.min(pagina, totalPaginas)
+
+  const cafeterosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * POR_PAGINA
+    return cafeteros.slice(inicio, inicio + POR_PAGINA)
+  }, [cafeteros, paginaActual])
 
   const [form, setForm] = useState({
     nombre: "", apellido: "", correo: "", telefono: "",
@@ -176,8 +187,9 @@ export default function Cafetero() {
   const getCafeteros = async () => {
     setPageLoading(true)
     try {
-      const res = await api.get("/cafeteros")
+      const res = await api.get("/cafeteros", { params: { limit: 1000 } })
       setCafeteros(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
+      setPagina(1)
     } catch (err) {
       setError("No se pudieron cargar los cafeteros.")
       console.error("Error al obtener cafeteros:", err)
@@ -260,7 +272,7 @@ export default function Cafetero() {
             position: 'absolute',
             top: '16px',
             right: '16px',
-            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            background: '#097300',
             border: 'none',
             padding: '10px 22px',
             borderRadius: '8px',
@@ -279,6 +291,11 @@ export default function Cafetero() {
       </div>
 
       <div className="admin-table-card">
+        <div className="table-toolbar" style={{ justifyContent: 'flex-end' }}>
+          <span className="contador">
+            {cafeteros.length} cafetero{cafeteros.length !== 1 ? 's' : ''} registrado{cafeteros.length !== 1 ? 's' : ''}
+          </span>
+        </div>
         <table className="admin-table">
           <thead>
             <tr>
@@ -291,9 +308,9 @@ export default function Cafetero() {
                 <td colSpan={4} className="finca-empty">No hay cafeteros registrados.</td>
               </tr>
             ) : (
-              cafeteros.map((c, idx) => (
+              cafeterosPaginados.map((c, idx) => (
                 <tr key={c.idUsuario} className={c.activo ? '' : 'fila-inactiva'}>
-                  <td>{idx + 1}</td>
+                  <td>{(paginaActual - 1) * POR_PAGINA + idx + 1}</td>
                   <td>{c.nombre} {c.apellido}</td>
                   <td>
                     <span
@@ -333,6 +350,22 @@ export default function Cafetero() {
           </tbody>
         </table>
       </div>
+
+      {cafeteros.length > POR_PAGINA && (
+        <div className="pagination">
+          <button disabled={paginaActual <= 1} onClick={() => setPagina(paginaActual - 1)}>Anterior</button>
+          {Array.from({ length: totalPaginas }, (_, i) => {
+            const page = i + 1
+            return (
+              <button key={page} className={paginaActual === page ? 'active' : ''} onClick={() => setPagina(page)}>
+                {page}
+              </button>
+            )
+          })}
+          <button disabled={paginaActual >= totalPaginas} onClick={() => setPagina(paginaActual + 1)}>Siguiente</button>
+          <span className="pagination-info">{cafeteros.length} registros</span>
+        </div>
+      )}
 
       {detalleCafetero && (
         <DetalleUsuarioModal

@@ -406,6 +406,12 @@
   color: #111827;
 }
 
+.sin-registro {
+  font-style: italic;
+  opacity: 0.45;
+  font-weight: 400;
+}
+
 .detalle-actions {
   display: flex;
   justify-content: flex-end;

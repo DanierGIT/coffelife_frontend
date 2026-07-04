@@ -203,6 +203,8 @@ export default function Fincas() {
   const [selectedCafetero, setSelectedCafetero] = useState('')
   const [showDetalleModal, setShowDetalleModal] = useState(false)
   const [detalleFinca, setDetalleFinca] = useState(null)
+  const [detalleFincaFull, setDetalleFincaFull] = useState(null)
+  const [detalleLoading, setDetalleLoading] = useState(false)
 
   // Gestión de Cultivos dentro de Fincas
   const [showCultivoModal, setShowCultivoModal] = useState(false)
@@ -335,6 +337,8 @@ export default function Fincas() {
 
   useEffect(() => {
     cargarFincas()
+    cargarExpertosAsignaciones()
+    cargarCafeteros()
   }, [])
 
   // Filtros en memoria utilizando UseMemo
@@ -601,9 +605,8 @@ export default function Fincas() {
       setSelectedExperto('')
       setSelectedFinca(null)
       await cargarFincas()
-      if (expertosLoadedRef.current) {
-        await cargarExpertosAsignaciones()
-      }
+      expertosLoadedRef.current = false
+      await cargarExpertosAsignaciones()
     } catch (error) {
       alert(error.response?.data?.message || 'No se pudo asignar el experto.')
     }
@@ -731,7 +734,7 @@ export default function Fincas() {
                   <tr key={f.idFinca} className={!f.activo ? 'fila-inactiva' : ''}>
                     <td>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</td>
                     <td>
-                      <span className="finca-nombre-link" onClick={() => { setDetalleFinca(f); setShowDetalleModal(true) }}>
+                      <span className="finca-nombre-link" onClick={async () => { setDetalleFinca(f); setDetalleLoading(true); setShowDetalleModal(true); try { const r = await api.get(`/fincas/${f.idFinca}`); setDetalleFincaFull(r.data?.data ?? r.data); } catch { setDetalleFincaFull(null); } finally { setDetalleLoading(false) } }}>
                         {f.nombreFinca}
                       </span>
                     </td>
@@ -742,7 +745,7 @@ export default function Fincas() {
                       </span>
                     </td>
                     <td className="td-actions">
-                      <button className="btn-icon btn-icon-ver" onClick={() => { setDetalleFinca(f); setShowDetalleModal(true) }} title="Ver detalle de la finca">
+                      <button className="btn-icon btn-icon-ver" onClick={async () => { setDetalleFinca(f); setDetalleLoading(true); setShowDetalleModal(true); try { const r = await api.get(`/fincas/${f.idFinca}`); setDetalleFincaFull(r.data?.data ?? r.data); } catch { setDetalleFincaFull(null); } finally { setDetalleLoading(false) } }} title="Ver detalle de la finca">
                         <BiShow size={16} />
                       </button>
                       <button className="btn-icon btn-icon-experto" onClick={() => { cargarExpertosAsignaciones(); setSelectedFinca(f); setSelectedExperto(f.idExpertoAsignado ? String(f.idExpertoAsignado) : ''); setShowAsignarModal(true) }} title={f.nombreExperto ? `Experto: ${f.nombreExperto}` : 'Asignar experto'}>
@@ -918,22 +921,48 @@ export default function Fincas() {
                 <span className="badge-dot" />{detalleFinca.activo ? 'Activo' : 'Inactivo'}
               </span>
             </div>
+            {detalleLoading ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '14px' }}>Cargando detalles...</div>
+            ) : (
             <div className="detalle-grid">
               <div className="detalle-field">
+                <span className="detalle-label">Creado por</span>
+                <span className="detalle-value">
+                  {(detalleFincaFull?.usuario || detalleFinca.usuario)
+                    ? `${(detalleFincaFull?.usuario || detalleFinca.usuario).nombre} ${(detalleFincaFull?.usuario || detalleFinca.usuario).apellido || ''}`.trim()
+                    : detalleFinca.idUsuario ? `Usuario #${detalleFinca.idUsuario}` : <span className="sin-registro">(sin registro)</span>}
+                </span>
+              </div>
+              <div className="detalle-field">
+                <span className="detalle-label">Rol del creador</span>
+                <span className="detalle-value">{(() => { const u = detalleFincaFull?.usuario || detalleFinca.usuario; if (!u) return <span className="sin-registro">(sin registro)</span>; if (typeof u.rol === 'object' && u.rol?.nombreRol) return u.rol.nombreRol; if (typeof u.rol === 'string') return u.rol.charAt(0).toUpperCase() + u.rol.slice(1); const roleMap = { 1: 'Administrador', 2: 'Experto', 3: 'Cafetero' }; return roleMap[u.idRol] || <span className="sin-registro">(sin registro)</span> })()}</span>
+              </div>
+              <div className="detalle-field">
+                <span className="detalle-label">Fecha de creación</span>
+                <span className="detalle-value">
+                  {(detalleFincaFull?.fechaRegistro || detalleFinca.fechaRegistro)
+                    ? new Date(detalleFincaFull?.fechaRegistro || detalleFinca.fechaRegistro).toLocaleDateString('es-CO', {
+                        day: 'numeric', month: 'long', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })
+                    : <span className="sin-registro">(sin registro)</span>}
+                </span>
+              </div>
+              <div className="detalle-field">
                 <span className="detalle-label">Municipio</span>
-                <span className="detalle-value">{detalleFinca.municipio || '—'}</span>
+                <span className="detalle-value">{detalleFinca.municipio || <span className="sin-registro">(sin registro)</span>}</span>
               </div>
               <div className="detalle-field">
                 <span className="detalle-label">Departamento</span>
-                <span className="detalle-value">{detalleFinca.departamento || '—'}</span>
+                <span className="detalle-value">{detalleFinca.departamento || <span className="sin-registro">(sin registro)</span>}</span>
               </div>
               <div className="detalle-field">
                 <span className="detalle-label">Altitud</span>
-                <span className="detalle-value">{detalleFinca.altitudMsnm ? `${detalleFinca.altitudMsnm} m.s.n.m.` : '—'}</span>
+                <span className="detalle-value">{detalleFinca.altitudMsnm ? `${detalleFinca.altitudMsnm} m.s.n.m.` : <span className="sin-registro">(sin registro)</span>}</span>
               </div>
               <div className="detalle-field">
                 <span className="detalle-label">Área</span>
-                <span className="detalle-value">{detalleFinca.areaHectareas ? `${detalleFinca.areaHectareas} ha` : '—'}</span>
+                <span className="detalle-value">{detalleFinca.areaHectareas ? `${detalleFinca.areaHectareas} ha` : <span className="sin-registro">(sin registro)</span>}</span>
               </div>
               <div className="detalle-field">
                 <span className="detalle-label">Cultivos registrados</span>
@@ -941,7 +970,7 @@ export default function Fincas() {
               </div>
               <div className="detalle-field">
                 <span className="detalle-label">Experto asignado</span>
-                <span className="detalle-value">{detalleFinca.nombreExperto || 'Sin asignar'}</span>
+                <span className="detalle-value">{detalleFinca.nombreExperto || <span className="sin-registro">(sin registro)</span>}</span>
               </div>
               {detalleFinca.latitud && detalleFinca.longitud && (
                 <div className="detalle-field detalle-field-full">
@@ -950,6 +979,7 @@ export default function Fincas() {
                 </div>
               )}
             </div>
+            )}
             <div className="detalle-actions">
               <button className="btn-secondary" onClick={() => setShowDetalleModal(false)}>Cerrar</button>
             </div>

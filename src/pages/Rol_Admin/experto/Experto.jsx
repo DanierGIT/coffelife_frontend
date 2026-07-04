@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { getExpertos, createExperto, updateExperto } from './api'
 import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
@@ -7,6 +7,8 @@ import "../Usuarios/Usuarios.css";
 import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 import Loading from '../../../components/Loading'
+
+const POR_PAGINA = 10
 
 const EMPTY_FORM = {
   nombre: '', apellido: '', correo: '', telefono: '',
@@ -161,12 +163,22 @@ export default function Experto() {
   const [error,           setError]           = useState('')
   const [success,         setSuccess]         = useState('')
   const [showCrearModal,  setShowCrearModal]  = useState(false)
+  const [pagina, setPagina] = useState(1)
+
+  const totalPaginas = Math.max(1, Math.ceil(expertos.length / POR_PAGINA))
+  const paginaActual = Math.min(pagina, totalPaginas)
+
+  const expertosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * POR_PAGINA
+    return expertos.slice(inicio, inicio + POR_PAGINA)
+  }, [expertos, paginaActual])
 
   const obtenerExpertos = async () => {
     setPageLoading(true)
     try {
-      const data = await getExpertos()
+      const data = await getExpertos({ limit: 1000 })
       setExpertos(Array.isArray(data) ? data : (data?.data ?? []))
+      setPagina(1)
     } catch (err) {
       console.error('Error al obtener expertos', err)
     } finally {
@@ -255,7 +267,7 @@ export default function Experto() {
             position: 'absolute',
             top: '16px',
             right: '16px',
-            background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+            background: '#097300',
             border: 'none',
             padding: '10px 22px',
             borderRadius: '8px',
@@ -274,6 +286,11 @@ export default function Experto() {
       </div>
 
       <div className="admin-table-card">
+        <div className="table-toolbar" style={{ justifyContent: 'flex-end' }}>
+          <span className="contador">
+            {expertos.length} experto{expertos.length !== 1 ? 's' : ''} registrado{expertos.length !== 1 ? 's' : ''}
+          </span>
+        </div>
         <table className="admin-table">
           <thead>
             <tr>
@@ -283,9 +300,9 @@ export default function Experto() {
           <tbody>
             {expertos.length === 0 ? (
               <tr><td colSpan={4} className="finca-empty">No hay expertos registrados.</td></tr>
-            ) : expertos.map((exp, idx) => (
+            ) : expertosPaginados.map((exp, idx) => (
               <tr key={exp.idUsuario || exp.id} className={exp.activo ? '' : 'fila-inactiva'}>
-                <td>{idx + 1}</td>
+                <td>{(paginaActual - 1) * POR_PAGINA + idx + 1}</td>
                 <td>{exp.nombre} {exp.apellido}</td>
                 <td>
                   <span
@@ -324,6 +341,22 @@ export default function Experto() {
           </tbody>
         </table>
       </div>
+
+      {expertos.length > POR_PAGINA && (
+        <div className="pagination">
+          <button disabled={paginaActual <= 1} onClick={() => setPagina(paginaActual - 1)}>Anterior</button>
+          {Array.from({ length: totalPaginas }, (_, i) => {
+            const page = i + 1
+            return (
+              <button key={page} className={paginaActual === page ? 'active' : ''} onClick={() => setPagina(page)}>
+                {page}
+              </button>
+            )
+          })}
+          <button disabled={paginaActual >= totalPaginas} onClick={() => setPagina(paginaActual + 1)}>Siguiente</button>
+          <span className="pagination-info">{expertos.length} registros</span>
+        </div>
+      )}
 
       {detalleExperto && (
         <DetalleUsuarioModal
