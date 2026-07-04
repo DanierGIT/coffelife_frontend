@@ -3,7 +3,7 @@ import api from '../../../services/api'
 import './Monitoreos.css'
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
-import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
+import { BiShow, BiArrowBack, BiSearch, BiClipboard } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 
 const extraerNivelRoya = (obs = '') => {
@@ -322,21 +322,8 @@ export default function Monitoreos() {
   return (
     <>
      <div className="module-header">
-  <div className="module-header-icon">
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 21H4a2 2 0 0 1-2-2V3" />
-      <path d="M7 14l4-4 3 3 6-6" />
-      <path d="M17 7h3v3" />
-    </svg>
+     <div className="module-header-icon">
+    <BiClipboard size={28} />
   </div>
 
   <div className="module-header-content">

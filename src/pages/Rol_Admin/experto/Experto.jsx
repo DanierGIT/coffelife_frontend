@@ -4,7 +4,7 @@ import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
 import "../Administrador/Administrador.css";
 import "../Usuarios/Usuarios.css";
-import { BiPlus, BiShow, BiEdit } from 'react-icons/bi'
+import { BiPlus, BiShow, BiEdit, BiStar } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 import Loading from '../../../components/Loading'
 
@@ -234,12 +234,7 @@ export default function Experto() {
     <>
       <div className="section-header-card" style={{ position: 'relative' }}>
         <div className="section-header-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-            <path d="M16 3.5a4 4 0 0 1 0 7" />
-            <path d="M20 20c0-3-1.8-5.5-4-6.5" />
-          </svg>
+          <BiStar size={22} />
         </div>
         <div className="section-header-text">
           <span className="section-header-badge">Administrador</span>

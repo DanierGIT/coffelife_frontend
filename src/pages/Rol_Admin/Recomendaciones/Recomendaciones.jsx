@@ -3,7 +3,7 @@ import api from '../../../services/api'
 import './Recomendaciones.css'
 import '../Administrador/Administrador.css'
 import '../Usuarios/Usuarios.css'
-import { BiShow, BiArrowBack, BiSearch } from 'react-icons/bi'
+import { BiShow, BiArrowBack, BiSearch, BiChat } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
@@ -488,21 +488,7 @@ export default function Recomendaciones() {
     <>
      <div className="module-header">
   <div className="module-header-icon">
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9 12l2 2 4-4" />
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 6v6" />
-      <path d="M12 18h.01" />
-    </svg>
+    <BiChat size={28} />
   </div>
 
   <div className="module-header-content">

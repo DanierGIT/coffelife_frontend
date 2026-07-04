@@ -6,7 +6,7 @@ import { useAuth } from '../../../context/AuthContext'
 import './Fincas.css'
 import '../Administrador/Administrador.css'
 import Loading from '../../../components/Loading'
-import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiTrash, BiSearch, BiFilter } from 'react-icons/bi'
+import { BiMapPin, BiUser, BiGroup, BiLeaf, BiEdit, BiToggleLeft, BiToggleRight, BiPlus, BiInfoCircle, BiHide, BiShow, BiTrash, BiSearch, BiFilter, BiBuildings } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -630,11 +630,7 @@ export default function Fincas() {
     <>
       <div className="module-header">
         <div className="module-header-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 21h18" />
-            <path d="M5 21V7l7-4 7 4v14" />
-            <path d="M9 9h.01" /><path d="M15 9h.01" /><path d="M9 13h.01" /><path d="M15 13h.01" /><path d="M9 17h.01" /><path d="M15 17h.01" />
-          </svg>
+          <BiBuildings size={28} />
         </div>
         <div className="module-header-content">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
