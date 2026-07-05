@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import api from '../../../services/api'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import './dashboard.css'
 
 const ESTADO_COLORS = {
@@ -113,15 +114,6 @@ export default function Dashboard({ onNavigate }) {
   const totalMonitoreos = estadosRoya?.total ?? estadosArr.reduce((s, e) => s + e.count, 0)
   const hasEstados = estadosArr.length > 0
 
-  let cum = 0
-  const conicParts = estadosArr.map((e) => {
-    const pct = e.pct || (totalMonitoreos ? (e.count / totalMonitoreos) * 100 : 0)
-    const start = cum
-    cum += pct
-    return { ...e, pct, start, end: cum }
-  })
-  const conicGradient = conicParts.map((e) => `${e.color} ${e.start}% ${e.end}%`).join(', ')
-
   /* ── Procesar mapa ── */
   const hasMapa = mapa.length > 0
   const defaultPins = [
@@ -214,18 +206,47 @@ export default function Dashboard({ onNavigate }) {
         <div className="d-block">
           <h3>Monitoreo por estado</h3>
           <div className="d-dona-wrapper">
-            <div
-              className="d-dona"
-              style={{
-                background: hasEstados
-                  ? `conic-gradient(${conicGradient})`
-                  : '#e0e0e0',
-              }}
-            >
-              <div className="d-dona-center">
-                <span className="d-dona-total">{totalMonitoreos}</span>
-                <span className="d-dona-label">Total</span>
-              </div>
+            <div className="d-dona">
+              {hasEstados ? (
+                <ResponsiveContainer width={180} height={180}>
+                  <PieChart>
+                    <Pie
+                      data={estadosArr}
+                      dataKey="count"
+                      nameKey="nombre"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={80}
+                      stroke="none"
+                    >
+                      {estadosArr.map((e, i) => (
+                        <Cell key={i} fill={e.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value, name) => [`${value} monitoreos`, name]}
+                      contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div
+                  style={{
+                    width: 180,
+                    height: 180,
+                    borderRadius: '50%',
+                    background: '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <span style={{ fontSize: 28, fontWeight: 700, color: '#999' }}>0</span>
+                  <span style={{ fontSize: 12, color: '#999' }}>Total</span>
+                </div>
+              )}
             </div>
             <div className="d-dona-legend">
               {!hasEstados && (
@@ -265,7 +286,7 @@ export default function Dashboard({ onNavigate }) {
               <path d="M 20 140 Q 80 135, 140 130 T 260 132 T 380 138" fill="none" stroke="#f57c00" strokeWidth="3" />
             </svg>
             <div className="d-line-days">
-              {tendencia?.dias?.map((d, i) => <span key={i}>{d}</span>) ?? (
+              {tendencia?.dias?.map((d, i) => <span key={i}>{d?.diaSemana || d?.fecha || d}</span>) ?? (
                 <><span>Lun</span><span>Mar</span><span>Mi&eacute;</span><span>Jue</span><span>Vie</span><span>S&aacute;b</span><span>Dom</span></>
               )}
             </div>
