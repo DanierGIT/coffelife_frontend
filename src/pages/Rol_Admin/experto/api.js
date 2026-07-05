@@ -4,8 +4,8 @@
  */
 import api from '../../../services/api'
 
-export const getExpertos = async () => {
-  const res = await api.get('/expertos')
+export const getExpertos = async (params = {}) => {
+  const res = await api.get('/expertos', { params })
   return Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
 }
 

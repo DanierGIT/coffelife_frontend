@@ -16,7 +16,7 @@
 .coffeelife-dashboard-container {
   background-color: var(--bg-coffeelife);
   min-height: 100vh;
-  padding: 2.5rem 2rem;
+  padding: 1.5rem 1.5rem;
   margin: -32px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--brand-dark-text);
@@ -57,8 +57,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
-  margin-bottom: 3rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
 
@@ -94,7 +94,7 @@
 .welcome-main-title {
   font-size: 2.2rem;
   font-weight: 800;
-  margin: 0 0 0.4rem 0;
+  margin: 0;
   color: var(--brand-dark-text);
 }
 
@@ -196,7 +196,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1rem;
 }
 
 .top-bar-left-info {
@@ -243,14 +243,14 @@
    ========================================================================== */
 .coffeelife-fincas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
 }
 
 .coffeelife-finca-card {
   background: #ffffff;
-  border-radius: 28px;
-  overflow: visible;          /* visible para que el dropdown no se corte */
+  border-radius: 24px;
+  overflow: visible;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
@@ -258,9 +258,9 @@
 
 .finca-card-img-wrapper {
   position: relative;
-  height: 170px;
+  height: 150px;
   width: 100%;
-  border-radius: 28px 28px 0 0;
+  border-radius: 24px 24px 0 0;
   overflow: hidden;
 }
 
@@ -282,8 +282,8 @@
 
 .finca-card-floating-badge {
   position: absolute;
-  top: 14px;
-  left: 14px;
+  top: 10px;
+  left: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   padding: 0.3rem 0.7rem;
   border-radius: 99px;
@@ -303,7 +303,7 @@
   display: inline-block;
 }
 .status-dot.active  { background-color: #22c55e; }
-.status-dot.inactive { background-color: #ef4444; }
+.status-dot.inactive { background-color: #dc2626; }
 
 /* ── Menú 3 puntos de finca ── */
 .finca-options-menu {
@@ -372,16 +372,16 @@
 
 /* ── Cuerpo de la tarjeta ── */
 .finca-card-main-body {
-  padding: 1.4rem;
+  padding: 1.1rem;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .finca-title-text {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  margin: 0 0 0.6rem 0;
+  margin: 0 0 0.35rem 0;
   color: var(--brand-dark-text);
 }
 
@@ -391,8 +391,8 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--text-muted);
-  font-size: 0.88rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
 }
 
 .finca-owner-info strong { color: var(--brand-dark-text); }
@@ -400,16 +400,16 @@
 .finca-specs-tags {
   display: flex;
   gap: 0.4rem;
-  margin: 0.75rem 0 0.5rem 0;
+  margin: 0.4rem 0 0.3rem 0;
   flex-wrap: wrap;
 }
 
 .spec-pill {
   background-color: #f4f4f5;
   color: #71717a;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  padding: 0.2rem 0.6rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 99px;
 }
 
@@ -421,15 +421,15 @@
 .finca-assignment-date {
   font-size: 0.75rem;
   color: #9ca3af;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
 }
 
 .finca-internal-counters {
   display: flex;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 0.65rem 0;
-  margin-bottom: 1.25rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.9rem;
 }
 
 .internal-stat {
@@ -464,6 +464,27 @@
 
 .btn-card-action-trigger:hover { background-color: #e2edd9; }
 
+.btn-card-action-trigger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.finca-inactiva {
+  opacity: 0.6;
+}
+
+.finca-inactiva .finca-card-floating-badge {
+  background: #fca5a5;
+  color: #7f1d1d;
+}
+
+.finca-inactiva .btn-card-action-trigger {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ==========================================================================
    PAGINACIÓN
    ========================================================================== */
@@ -475,7 +496,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: 1.25rem;
 }
 
 .cl-pagination-controls {
@@ -736,50 +757,58 @@
 @media (max-width: 768px) {
   .coffeelife-dashboard-container {
     margin: -1rem;
-    padding: 1.25rem 1rem;
+    padding: 1rem 0.75rem;
   }
   .dashboard-header-flex {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.25rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
   }
   .welcome-main-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   .welcome-subtitle {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   .header-kpi-cards-wrapper {
     width: 100%;
   }
   .kpi-card-item {
     flex: 1;
-    min-width: 140px;
+    min-width: 130px;
+    padding: 0.75rem 1rem;
   }
   .kpi-number-val {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
   .fincas-section-top-bar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
   }
   .top-bar-left-info h2 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   .coffeelife-fincas-grid {
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 1rem;
+  }
+  .finca-card-img-wrapper {
+    height: 140px;
+  }
+  .finca-card-main-body {
+    padding: 0.9rem;
   }
   .cl-modal-box {
-    margin: 1rem;
-    padding: 1.5rem;
+    margin: 0.75rem;
+    padding: 1.25rem;
   }
   .cl-modal-form-row {
     flex-direction: column;
   }
   .cl-foto-preview {
-    height: 160px;
+    height: 140px;
   }
 }

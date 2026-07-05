@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import api from '../../../services/api'
 import PasswordStrength from '../../../components/PasswordStrength'
 import { validatePassword } from '../../../utils/passwordValidator'
@@ -7,6 +7,8 @@ import { BiPlus, BiShow, BiEdit, BiCheckShield } from 'react-icons/bi'
 import ToggleSwitch from '../../../components/ToggleSwitch'
 import './Administrador.css'
 import '../Usuarios/Usuarios.css'
+
+const POR_PAGINA = 10
 
 const normalizeRole = (role) =>
   (role ?? '').toString().toLowerCase().trim()
@@ -149,6 +151,15 @@ export default function Administrador() {
   const [error,        setError]        = useState('')
   const [success,      setSuccess]      = useState('')
   const [showCrearModal, setShowCrearModal] = useState(false)
+  const [pagina, setPagina] = useState(1)
+
+  const totalPaginas = Math.max(1, Math.ceil(admins.length / POR_PAGINA))
+  const paginaActual = Math.min(pagina, totalPaginas)
+
+  const adminsPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * POR_PAGINA
+    return admins.slice(inicio, inicio + POR_PAGINA)
+  }, [admins, paginaActual])
 
   const [form, setForm] = useState({
     nombre: '', apellido: '', correo: '', telefono: '', password: '', confirmPassword: '',
@@ -158,11 +169,10 @@ export default function Administrador() {
     setFetching(true)
     setError('')
     try {
-      const res = await api.get('/usuarios')
+      const res = await api.get('/usuarios', { params: { limit: 1000 } })
       const lista = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
-      console.log('[DEBUG] Usuarios desde API:', lista.length, 'items')
-      console.log('[DEBUG] Roles de cada usuario:', lista.map((u) => ({ nombre: u.nombre, email: u.correo, rol: u.rol, isAdmin: isAdminRole(u.rol) })))
       setAdmins(lista.filter((usuario) => isAdminRole(usuario.rol)))
+      setPagina(1)
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Error de red al cargar administradores.'
       setError(msg)
@@ -254,6 +264,11 @@ export default function Administrador() {
       </div>
 
       <div className="admin-table-card">
+        <div className="table-toolbar" style={{ justifyContent: 'flex-end' }}>
+          <span className="contador">
+            {admins.length} administrador{admins.length !== 1 ? 'es' : ''} registrado{admins.length !== 1 ? 's' : ''}
+          </span>
+        </div>
         {fetching ? (
           <Loading type="content" size="sm" text="Cargando administradores…" />
         ) : (
@@ -266,9 +281,9 @@ export default function Administrador() {
             <tbody>
               {admins.length === 0 ? (
                 <tr><td colSpan={4} className="finca-empty">No hay administradores registrados.</td></tr>
-              ) : admins.map((admin, idx) => (
+              ) : adminsPaginados.map((admin, idx) => (
                 <tr key={admin.idUsuario} className={admin.activo ? '' : 'fila-inactiva'}>
-                  <td>{idx + 1}</td>
+                  <td>{(paginaActual - 1) * POR_PAGINA + idx + 1}</td>
                   <td>{admin.nombre} {admin.apellido}</td>
                   <td>
                     <span
@@ -308,6 +323,22 @@ export default function Administrador() {
           </table>
         )}
       </div>
+
+      {admins.length > POR_PAGINA && (
+        <div className="pagination">
+          <button disabled={paginaActual <= 1} onClick={() => setPagina(paginaActual - 1)}>Anterior</button>
+          {Array.from({ length: totalPaginas }, (_, i) => {
+            const page = i + 1
+            return (
+              <button key={page} className={paginaActual === page ? 'active' : ''} onClick={() => setPagina(page)}>
+                {page}
+              </button>
+            )
+          })}
+          <button disabled={paginaActual >= totalPaginas} onClick={() => setPagina(paginaActual + 1)}>Siguiente</button>
+          <span className="pagination-info">{admins.length} registros</span>
+        </div>
+      )}
 
       {detalleAdmin && (
         <DetalleUsuarioModal

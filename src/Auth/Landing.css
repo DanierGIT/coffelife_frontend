@@ -129,7 +129,7 @@
   align-items: center;
   gap: 10px;
   padding: 14px 32px;
-  background: linear-gradient(135deg, var(--l-green-600), var(--l-green-500));
+  background: #097300;
   color: #fff;
   border: none;
   border-radius: var(--l-radius-sm);
@@ -138,25 +138,25 @@
   font-weight: 600;
   cursor: pointer;
   transition: var(--l-transition);
-  box-shadow: 0 4px 16px rgba(45, 106, 79, 0.35);
+  box-shadow: 0 4px 16px rgba(9, 115, 0, 0.35);
   letter-spacing: 0.01em;
 }
 
 .landing-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(45, 106, 79, 0.45);
-  background: linear-gradient(135deg, var(--l-green-500), var(--l-green-400));
+  box-shadow: 0 8px 28px rgba(9, 115, 0, 0.45);
+  background: #065a00;
 }
 
 .landing-btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+  box-shadow: 0 2px 8px rgba(9, 115, 0, 0.3);
 }
 
 .landing-btn-primary--sm {
   padding: 10px 22px;
   font-size: 13px;
-  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+  box-shadow: 0 4px 12px rgba(9, 115, 0, 0.3);
 }
 
 .landing-btn-primary--lg {
@@ -480,7 +480,7 @@
 .landing-feature-card:hover .landing-feature-card-bg { opacity: 1; }
 
 .landing-feature-card:hover .landing-feature-icon {
-  background: linear-gradient(135deg, var(--l-green-600), var(--l-green-400));
+  background: #097300;
   color: #fff;
   transform: scale(1.05);
 }
@@ -530,7 +530,7 @@
 
 .landing-feature-card:hover .landing-feature-card-line {
   width: 44px;
-  background: var(--l-green-500);
+  background: #097300;
 }
 
 /* ════════════════════════════════════════
@@ -627,7 +627,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: var(--l-green-300);
+  color: #097300;
   cursor: pointer;
   transition: var(--l-transition);
   padding: 0;

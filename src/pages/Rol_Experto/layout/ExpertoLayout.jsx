@@ -183,18 +183,18 @@ function FincasTable({ user, onAction }) {
 }
 
 const BACK_CONFIG = {
-  cultivos:          { page: 'dashboard',           label: 'Volver al dashboard' },
-  detalle_cultivo:   { page: 'cultivos',            label: 'Volver a cultivos' },
-  monitoreos:        { page: 'dashboard',           label: 'Volver al dashboard' },
-  tratamientos:      { page: 'dashboard',           label: 'Volver al dashboard' },
-  recomendaciones:   { page: 'dashboard',           label: 'Volver al dashboard' },
-  historial:         { page: 'dashboard',           label: 'Volver al dashboard' },
-  productores:       { page: 'dashboard',           label: 'Volver al dashboard' },
-  reportes:          { page: 'dashboard',           label: 'Volver al dashboard' },
-  escaner:           { page: 'dashboard',           label: 'Volver al dashboard' },
-  mapa:              { page: 'dashboard',           label: 'Volver al dashboard' },
-  perfil:            { page: 'dashboard',           label: 'Volver al dashboard' },
-  'configurar-experto': { page: 'perfil',           label: 'Volver al perfil' },
+  cultivos:          { page: 'dashboard',           label: 'Volver' },
+  detalle_cultivo:   { page: 'cultivos',            label: 'Volver' },
+  monitoreos:        { page: 'dashboard',           label: 'Volver' },
+  tratamientos:      { page: 'dashboard',           label: 'Volver' },
+  recomendaciones:   { page: 'dashboard',           label: 'Volver' },
+  historial:         { page: 'dashboard',           label: 'Volver' },
+  productores:       { page: 'dashboard',           label: 'Volver' },
+  reportes:          { page: 'dashboard',           label: 'Volver' },
+  escaner:           { page: 'dashboard',           label: 'Volver' },
+  mapa:              { page: 'dashboard',           label: 'Volver' },
+  perfil:            { page: 'dashboard',           label: 'Volver' },
+  'configurar-experto': { page: 'perfil',           label: 'Volver' },
 }
 
 export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, children }) {

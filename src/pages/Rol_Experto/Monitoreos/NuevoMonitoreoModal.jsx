@@ -534,7 +534,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
         const obsConHistorial = textoHistorico
           ? `\n\n${'═'.repeat(40)}\nHISTORIAL DE CAMBIOS\n${'═'.repeat(40)}\n\n${textoHistorico}` + (obsFinal || '')
           : (obsFinal || '')
-        await api.put(`/monitoreos/${editMonitoreoId}`, { ...payload, observaciones: obsConHistorial || null })
+        await api.put(`/monitoreos/${editMonitoreoId}`, { observaciones: obsConHistorial || null, fecha_monitoreo: fecha })
         idMonitoreo = editMonitoreoId
       } else {
         const resM = await api.post('/monitoreos', payload)
