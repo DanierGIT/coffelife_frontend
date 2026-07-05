@@ -196,7 +196,6 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
     ? `${user.nombre} ${user.apellido ?? ''}`.trim()
     : (user?.correo ?? 'Usuario')
 
-  const [profileOpen, setProfileOpen] = useState(false)
   const isCategoriasActive = activePage === 'categorias'
   const isUsuariosActive =
     activePage === 'administrador' ||
@@ -216,7 +215,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           </div>
         </div>
 
-      <div className={`sidebar-profile${profileOpen ? ' open' : ''}`} onClick={() => setProfileOpen(!profileOpen)}>
+      <div className="sidebar-profile" onClick={() => onNavigate('perfil')} title="Mi perfil">
         <div className="sidebar-avatar">
           {user?.fotoPerfil
             ? <img src={user.fotoPerfil} alt="Foto" className="sidebar-avatar-img" />
@@ -227,24 +226,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           <p className="sidebar-profile-name">{displayName}</p>
           <p className="sidebar-profile-role">{role}</p>
         </div>
-        <span className={`sidebar-arrow${profileOpen ? ' open' : ''}`}>▾</span>
       </div>
-
-      {profileOpen && (
-        <div className="sidebar-profile-menu">
-          <button
-            className={`sidebar-profile-menu-item${activePage === 'perfil' ? ' active' : ''}`}
-            onClick={() => { onNavigate('perfil'); setProfileOpen(false) }}
-          >
-            <BiUser size={16} />
-            <span>Perfil</span>
-          </button>
-          <button className="sidebar-profile-menu-item" onClick={logout}>
-            <BiLogOut size={16} />
-            <span>Cerrar sesión</span>
-          </button>
-        </div>
-      )}
 
       <hr className="sidebar-divider" />
 
@@ -335,6 +317,12 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
           </>
         )}
       </nav>
+
+      <hr className="sidebar-divider" />
+      <button className="sidebar-logout-btn" onClick={logout}>
+        <BiLogOut size={18} />
+        <span>Cerrar sesión</span>
+      </button>
     </aside>
   )
 }

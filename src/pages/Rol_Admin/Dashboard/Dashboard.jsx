@@ -1,341 +1,509 @@
 import { useEffect, useState } from 'react'
-import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
-import { BiBuildings, BiUser, BiGroup, BiListUl, BiCog, BiDroplet, BiCalendar } from 'react-icons/bi'
-import CoffeePriceCard from '../../../components/CoffeePriceCard'
-import Loading from '../../../components/Loading'
-import './Dashboard.css'
+import api from '../../../services/api'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import './dashboard.css'
 
-const getArrayData = (data) => {
+const ESTADO_COLORS = {
+  Sano: '#2e7d32',
+  Bajo: '#fbc02d',
+  Medio: '#f57c00',
+  Alto: '#d32f2f',
+  Critico: '#6a1b9a',
+}
+const ESTADO_ORDER = ['Sano', 'Bajo', 'Medio', 'Alto', 'Critico']
+
+const normalizeData = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.data)) return data.data
+  if (data && typeof data === 'object') {
+    const { total, ...rest } = data
+    return { total, estados: rest }
+  }
+  return []
+}
+
+const getArr = (data) => {
   if (Array.isArray(data)) return data
   if (Array.isArray(data?.data)) return data.data
   return []
 }
 
-const quickLinks = [
-  { icon: <BiListUl size={20} />, label: 'Gestión de Fincas', desc: 'Administrar fincas registradas', color: '#eef6e9', page: 'fincas' },
-  { icon: <BiDroplet size={20} />, label: 'Insumos agrícolas', desc: 'Gestiona fertilizantes y más', color: '#eef6e9', page: 'insumos' },
-  { icon: <BiCog size={20} />, label: 'Configura tus categorías', desc: 'Categorías y parámetros', color: '#eef6e9', page: 'categorias' },
-]
-
-const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-
-const safeDate = (val) => {
-  if (!val) return null
-  const d = val.includes('T') ? new Date(val) : new Date(val + 'T12:00:00')
-  return isNaN(d) ? null : d
-}
-
-const fmtFecha = (val) => {
-  const d = safeDate(val)
-  return d ? d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : '—'
-}
-
-function BarChart({ data }) {
-  const maxVal = Math.max(...data.map((d) => d.val), 1)
-  const total = data.reduce((s, d) => s + d.val, 0)
-
-  const barW = 40
-  const gap = 24
-  const chartH = 210
-  const padLeft = 38
-  const padRight = 16
-  const padTop = 32
-  const padBottom = 32
-  const w = padLeft + data.length * (barW + gap) - gap + padRight
-  const drawH = chartH - padTop - padBottom
-
-  const yTicks = []
-  const tickCount = 4
-  for (let i = 0; i <= tickCount; i++) {
-    yTicks.push(Math.round((maxVal / tickCount) * i))
-  }
-
-  return (
-    <div className="db-chart-container">
-      <div className="db-chart-total">{total} monitoreo{total !== 1 ? 's' : ''} en total</div>
-      <svg width="100%" viewBox={`0 0 ${Math.max(w, 300)} ${chartH}`} style={{ display: 'block' }}>
-        {/* Líneas de referencia horizontal y etiquetas del eje Y */}
-        {yTicks.map((tick, i) => {
-          const y = chartH - padBottom - (tick / maxVal) * drawH
-          return (
-            <g key={i}>
-              <line x1={padLeft - 6} y1={y} x2={padLeft + data.length * (barW + gap) - gap + 4} y2={y}
-                stroke={i === 0 ? '#d1d5db' : '#f0f0f0'} strokeWidth={i === 0 ? 1.5 : 1} />
-              <text x={padLeft - 10} y={y + 4} textAnchor="end" fontSize="10" fill="#9ca3af" fontFamily="Lato, sans-serif">
-                {tick}
-              </text>
-            </g>
-          )
-        })}
-        {/* Barras */}
-        {data.map((d, i) => {
-          const barH = maxVal > 0 ? (d.val / maxVal) * drawH : 0
-          const x = padLeft + i * (barW + gap)
-          const y = chartH - padBottom - barH
-          return (
-            <g key={i}>
-              <title>{d.label}: {d.val} monitoreo{d.val !== 1 ? 's' : ''}</title>
-              {/* Barra */}
-              <rect x={x} y={y} width={barW} height={Math.max(barH, 0)} rx={5} ry={5}
-                fill={barH > 0 ? '#2e7d32' : '#f3f4f6'} opacity={barH > 0 ? 0.88 : 1}
-                style={{ transition: 'opacity 0.25s' }}
-                onMouseEnter={(e) => e.target.setAttribute('opacity', '1')}
-                onMouseLeave={(e) => e.target.setAttribute('opacity', barH > 0 ? '0.88' : '1')} />
-              {/* Valor encima */}
-              {barH > 0 && (
-                <text x={x + barW / 2} y={y - 8} textAnchor="middle" fontSize="12" fontWeight="700" fill="#2e7d32" fontFamily="Lato, sans-serif">
-                  {d.val}
-                </text>
-              )}
-              {/* Etiqueta del mes */}
-              <text x={x + barW / 2} y={chartH - 8} textAnchor="middle" fontSize="11" fill="#6b7280" fontFamily="Lato, sans-serif" fontWeight="500">
-                {d.label}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
-
-function UltimosMonitoreos({ monitoreos, fincaMap }) {
-  if (!monitoreos.length) {
-    return <p className="db-empty">No hay monitoreos registrados.</p>
-  }
-  return (
-    <div className="db-table-wrap">
-      <table className="db-table">
-        <thead>
-          <tr>
-            <th>Finca</th>
-            <th>Cultivo</th>
-            <th>Fecha</th>
-            <th>Experto</th>
-          </tr>
-        </thead>
-        <tbody>
-          {monitoreos.slice(0, 5).map((m) => {
-            const finca = fincaMap[m.cultivo?.idFinca]
-            const expNombre = m.usuario ? `${m.usuario.nombre || ''} ${m.usuario.apellido || ''}`.trim() : '—'
-            return (
-              <tr key={m.idMonitoreo ?? m.id_monitoreo}>
-                <td className="db-td-finca">{finca?.nombreFinca || '—'}</td>
-                <td>{m.cultivo?.nombreCultivo || '—'}</td>
-                <td className="db-td-fecha">
-                  <BiCalendar size={12} />
-                  {fmtFecha(m.fechaMonitoreo ?? m.fecha_monitoreo)}
-                </td>
-                <td>{expNombre}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 export default function Dashboard({ onNavigate }) {
   const { user } = useAuth()
-  const [stats, setStats] = useState({
-    fincas: 0,
-    fincasConUbicacion: 0,
-    expertosActivos: 0,
-    expertosInactivos: 0,
-    cafeterosActivos: 0,
-    monEsteMes: 0,
-  })
-  const [chartData, setChartData] = useState([])
-  const [latestMonitoreos, setLatestMonitoreos] = useState([])
-  const [fincaMap, setFincaMap] = useState({})
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+
+  const [kpis, setKpis] = useState(null)
+  const [estadosRoya, setEstadosRoya] = useState(null)
+  const [tendencia, setTendencia] = useState(null)
+  const [actividad, setActividad] = useState([])
+  const [monitoreos, setMonitoreos] = useState([])
+  const [topFincas, setTopFincas] = useState([])
+  const [proximos, setProximos] = useState([])
+  const [mapa, setMapa] = useState([])
+  const [impacto, setImpacto] = useState(null)
 
   useEffect(() => {
-    const fetchAll = async () => {
-      setLoading(true)
-      setError('')
+    (async () => {
       try {
-        const [fincasRes, expertosRes, cafeterosRes, monitoreosRes] = await Promise.allSettled([
-          api.get('/fincas'),
-          api.get('/expertos'),
-          api.get('/cafeteros'),
-          api.get('/monitoreos'),
+        setLoading(true)
+        const [
+          rKpi, rEst, rTen, rAct, rMon, rTop, rProx, rMap, rImp
+        ] = await Promise.all([
+          api.get('/dashboard').catch(() => ({ data: null })),
+          api.get('/dashboard/monitoreos-por-estado').catch(() => ({ data: null })),
+          api.get('/dashboard/tendencia-roya').catch(() => ({ data: null })),
+          api.get('/dashboard/actividad-reciente').catch(() => ({ data: [] })),
+          api.get('/dashboard/monitoreos-recientes').catch(() => ({ data: [] })),
+          api.get('/dashboard/top-fincas-roya').catch(() => ({ data: [] })),
+          api.get('/dashboard/proximos-monitoreos').catch(() => ({ data: [] })),
+          api.get('/dashboard/mapa-fincas').catch(() => ({ data: [] })),
+          api.get('/dashboard/impacto').catch(() => ({ data: null })),
         ])
-
-        // Fincas
-        const fincas = fincasRes.status === 'fulfilled' ? getArrayData(fincasRes.value.data) : []
-        const fincasConUbicacion = fincas.filter((f) => f.latitud && f.longitud).length
-        const fMap = {}
-        fincas.forEach((f) => { fMap[f.idFinca] = f })
-        setFincaMap(fMap)
-
-        // Expertos
-        const expertosData = expertosRes.status === 'fulfilled' ? getArrayData(expertosRes.value.data) : []
-        const expertosActivos = expertosData.filter((e) => {
-          const a = e.activo
-          return a === undefined || a === null || a === true || a === 1 || a === '1' || a === 'true'
-        }).length
-        const expertosInactivos = expertosData.length - expertosActivos
-
-        // Cafeteros
-        const cafeterosData = cafeterosRes.status === 'fulfilled' ? getArrayData(cafeterosRes.value.data) : []
-        const cafeterosActivos = cafeterosData.filter((e) => {
-          const a = e.activo
-          return a === undefined || a === null || a === true || a === 1 || a === '1' || a === 'true'
-        }).length
-
-        // Monitoreos
-        const todosMonitoreos = monitoreosRes.status === 'fulfilled' ? getArrayData(monitoreosRes.value.data) : []
-        const ahora = new Date()
-
-        // Agrupar por mes (últimos 6)
-        const mesesArr = []
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1)
-          mesesArr.push({ label: MONTHS[d.getMonth()], year: d.getFullYear(), month: d.getMonth() })
-        }
-        const mesesMap = mesesArr.map((m) => ({
-          ...m,
-          val: todosMonitoreos.filter((mon) => {
-            const f = mon.fechaMonitoreo ?? mon.fecha_monitoreo
-            const fd = safeDate(f)
-            return fd && fd.getMonth() === m.month && fd.getFullYear() === m.year
-          }).length,
-        }))
-        setChartData(mesesMap)
-
-        // Últimos 5 monitoreos
-        const sorted = [...todosMonitoreos].sort((a, b) => {
-          const fa = safeDate(a.fechaMonitoreo ?? a.fecha_monitoreo)
-          const fb = safeDate(b.fechaMonitoreo ?? b.fecha_monitoreo)
-          if (!fa && !fb) return 0
-          if (!fa) return 1
-          if (!fb) return -1
-          return fb - fa
-        })
-        setLatestMonitoreos(sorted.slice(0, 5))
-
-        // Monitoreos este mes
-        const monEsteMes = todosMonitoreos.filter((mon) => {
-          const fd = safeDate(mon.fechaMonitoreo ?? mon.fecha_monitoreo)
-          return fd && fd.getMonth() === ahora.getMonth() && fd.getFullYear() === ahora.getFullYear()
-        }).length
-
-        setStats({
-          fincas: fincas.length,
-          fincasConUbicacion,
-          expertosActivos,
-          expertosInactivos,
-          cafeterosActivos,
-          monEsteMes,
-        })
-      } catch (err) {
-        setError('No se pudieron cargar los datos del dashboard.')
+        setKpis(rKpi.data)
+        setEstadosRoya(rEst.data)
+        setTendencia(rTen.data)
+        setActividad(getArr(rAct.data))
+        setMonitoreos(getArr(rMon.data))
+        setTopFincas(getArr(rTop.data))
+        setProximos(getArr(rProx.data))
+        setMapa(getArr(rMap.data))
+        setImpacto(rImp.data)
+      } catch (e) {
+        console.error('Error en dashboard:', e)
       } finally {
         setLoading(false)
       }
-    }
-    fetchAll()
+    })()
   }, [])
+
+  const nav = (page) => onNavigate?.(page)
+
+  const userName = user?.nombre || 'Admin'
+  const userFull = [user?.nombre, user?.apellido].filter(Boolean).join(' ') || 'Admin Coffee'
+  const rawRole = user?.rol?.nombreRol || user?.rol?.nombre_rol || 'administrador'
+  const userRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1)
+
+  /* ── Procesar estados de roya para la dona ── */
+  const estadosArr = (() => {
+    if (!estadosRoya) return []
+    const norm = normalizeData(estadosRoya)
+    if (Array.isArray(norm)) {
+      return norm
+        .filter((e) => e)
+        .map((e) => ({
+          nombre: e.nombre || Object.keys(ESTADO_COLORS).find((k) => k.toLowerCase().includes((e.nombre || '').toLowerCase())) || 'Sano',
+          count: e.count ?? e.cantidad ?? 0,
+          pct: e.pct ?? e.porcentaje ?? 0,
+          color: ESTADO_COLORS[e.nombre] || '#999',
+        }))
+    }
+    if (norm.estados) {
+      return Object.entries(norm.estados).map(([key, val]) => {
+        const nombre = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')
+        return {
+          nombre: ESTADO_ORDER.find((e) => e.toLowerCase() === key.toLowerCase()) || nombre,
+          count: val.count ?? val.cantidad ?? val ?? 0,
+          pct: val.pct ?? val.porcentaje ?? 0,
+          color: ESTADO_COLORS[ESTADO_ORDER.find((e) => e.toLowerCase() === key.toLowerCase())] || '#999',
+        }
+      })
+    }
+    return []
+  })()
+  const totalMonitoreos = estadosRoya?.total ?? estadosArr.reduce((s, e) => s + e.count, 0)
+  const hasEstados = estadosArr.length > 0
+
+  /* ── Procesar mapa ── */
+  const hasMapa = mapa.length > 0
+  const defaultPins = [
+    { top: '30%', left: '20%', tipo: 'Sano' },
+    { top: '50%', left: '45%', tipo: 'Bajo' },
+    { top: '75%', left: '60%', tipo: 'Alto' },
+    { top: '20%', left: '70%', tipo: 'Medio' },
+    { top: '60%', left: '15%', tipo: 'Critico' },
+  ]
+  const mapPins = hasMapa ? mapa : defaultPins
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="dashboard-spinner" />
+        <p>Cargando dashboard...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="dashboard">
-      {loading && <Loading type="overlay" text="Cargando dashboard..." />}
 
-      <div className="welcome-banner-text animate-left">
-        <div className="welcome-banner-row">
-          <div className="welcome-avatar-sm">
-            {user?.fotoPerfil ? (
-              <img src={user.fotoPerfil} alt="avatar" className="welcome-avatar-img-sm" />
-            ) : (
-              <BiUser size={20} />
-            )}
+      {/* ════════ A. HEADER ════════ */}
+      <header className="d-header">
+        <div className="d-header-left">
+          <div className="d-search">
+            <span className="d-search-icon">&#128269;</span>
+            <input type="text" placeholder="Buscar monitoreos, fincas, usuarios..." />
           </div>
-          <div>
-            <h1 className="welcome-main-title">¡Hola, {user?.nombre || 'Admin'}!</h1>
-            <p className="welcome-subtitle">Panel de monitoreo agrícola — CoffeeLife</p>
+          <div className="d-greeting">
+            <h1>&iexcl;Hola, {userName}! &#128075;</h1>
+            <p>Aqu&iacute; tienes un resumen completo del estado de tu sistema CoffeeLife.</p>
           </div>
         </div>
-      </div>
-
-      {/* ─── KPIs ─── */}
-      <div className="header-kpi-cards-wrapper">
-        <div className="kpi-card-item">
-          <div className="kpi-icon-container fincas-kpi">
-            <BiBuildings size={20} />
-          </div>
-          <div className="kpi-data-text">
-            <span className="kpi-number-val">{loading ? '...' : stats.fincas}</span>
-            <span className="kpi-label-name">Fincas activas</span>
-          </div>
-        </div>
-        <div className="kpi-card-item">
-          <div className="kpi-icon-container expertos-kpi">
-            <BiGroup size={20} />
-          </div>
-          <div className="kpi-data-text">
-            <span className="kpi-number-val">{loading ? '...' : stats.expertosActivos}</span>
-            <span className="kpi-label-name">Expertos activos</span>
-          </div>
-        </div>
-        <div className="kpi-card-item">
-          <div className="kpi-icon-container" style={{ background: '#fef3e2', color: '#d97706' }}>
-            <BiUser size={20} />
-          </div>
-          <div className="kpi-data-text">
-            <span className="kpi-number-val">{loading ? '...' : stats.cafeterosActivos}</span>
-            <span className="kpi-label-name">Cafeteros activos</span>
-          </div>
-        </div>
-        <div className="kpi-card-item">
-          <div className="kpi-icon-container" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-            <BiCalendar size={20} />
-          </div>
-          <div className="kpi-data-text">
-            <span className="kpi-number-val">{loading ? '...' : stats.monEsteMes ?? 0}</span>
-            <span className="kpi-label-name">Monitoreos este mes</span>
-          </div>
-        </div>
-        <CoffeePriceCard />
-      </div>
-
-      {error && <div className="dashboard-error">{error}</div>}
-
-      {/* ─── Gráfica + Últimos monitoreos ─── */}
-      <div className="db-row-duo">
-        <div className="db-chart-section">
-          <h2 className="db-section-title">Monitoreos por mes</h2>
-          <div className="db-chart-card">
-            <BarChart data={chartData} />
-          </div>
-        </div>
-
-        <div className="db-recent-section">
-          <h2 className="db-section-title">Últimos monitoreos</h2>
-          <UltimosMonitoreos monitoreos={latestMonitoreos} fincaMap={fincaMap} />
-        </div>
-      </div>
-
-      {/* ─── Accesos rápidos ─── */}
-      <div className="db-quick-section">
-        <h2 className="db-section-title">Accesos rápidos</h2>
-        <div className="db-quick-grid">
-          {quickLinks.map((link, idx) => (
-            <div key={idx} className={`db-quick-card delay-${idx + 1}`} onClick={() => onNavigate?.(link.page)} role="button" tabIndex={0}>
-              <div className="db-quick-icon" style={{ background: link.color }}>
-                {link.icon}
+        <div className="d-header-right">
+          <div className="d-header-actions">
+            <button className="d-icon-btn" onClick={() => nav('perfil')} title="Configuraci&oacute;n">&#9881;</button>
+            <button className="d-icon-btn d-notif-btn" onClick={() => nav('monitoreos')} title="Notificaciones">
+              &#128276; <span className="d-notif-badge">3</span>
+            </button>
+            <div className="d-user-profile" onClick={() => nav('perfil')}>
+              <div className="d-avatar">
+                {user?.fotoPerfil ? (
+                  <img src={user.fotoPerfil} alt="" className="d-avatar-img" />
+                ) : (
+                  userFull.charAt(0).toUpperCase()
+                )}
               </div>
-              <div>
-                <p className="db-quick-label">{link.label}</p>
-                <p className="db-quick-desc">{link.desc}</p>
+              <div className="d-user-info">
+                <span className="d-user-name">{userFull}</span>
+                <span className="d-user-role">{userRole}</span>
               </div>
             </div>
-          ))}
+          </div>
+          <div className="d-date-picker">
+            &#128197; {new Date().toLocaleDateString('es-CO', {
+              day: 'numeric', month: 'short', year: 'numeric'
+            })} <span className="d-arrow">&#9660;</span>
+          </div>
         </div>
-      </div>
+      </header>
+
+      {/* ════════ B. KPIS ════════ */}
+      <section className="d-kpis">
+        {[
+          { key: 'fincasActivas', icon: '&#127793;', label: 'Fincas activas', bg: 'kpi-green' },
+          { key: 'expertosActivos', icon: '&#128101;', label: 'Expertos activos', bg: 'kpi-orange' },
+          { key: 'caficultoresActivos', icon: '&#9749;', label: 'Caficultores activos', bg: 'kpi-brown' },
+          { key: 'monitoreosMes', icon: '&#128197;', label: 'Monitoreos este mes', bg: 'kpi-blue' },
+        ].map((k) => {
+          const d = kpis?.[k.key] || {}
+          return (
+            <div className="d-kpi-card" key={k.key}>
+              <div className={`d-kpi-icon ${k.bg}`} dangerouslySetInnerHTML={{ __html: k.icon }} />
+              <div className="d-kpi-body">
+                <span className="d-kpi-value">{d.total ?? 0}</span>
+                <span className="d-kpi-label">{k.label}</span>
+                <span className="d-kpi-trend">&uarr; {d.trend ?? '0%'}</span>
+              </div>
+            </div>
+          )
+        })}
+      </section>
+
+      {/* ════════ C. BLOQUE CENTRAL (3 COLUMNAS) ════════ */}
+      <section className="d-central">
+
+        {/* C1 ── Dona ── */}
+        <div className="d-block">
+          <h3>Monitoreo por estado</h3>
+          <div className="d-dona-wrapper">
+            <div className="d-dona">
+              {hasEstados ? (
+                <ResponsiveContainer width={180} height={180}>
+                  <PieChart>
+                    <Pie
+                      data={estadosArr}
+                      dataKey="count"
+                      nameKey="nombre"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={80}
+                      stroke="none"
+                    >
+                      {estadosArr.map((e, i) => (
+                        <Cell key={i} fill={e.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value, name) => [`${value} monitoreos`, name]}
+                      contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div
+                  style={{
+                    width: 180,
+                    height: 180,
+                    borderRadius: '50%',
+                    background: '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <span style={{ fontSize: 28, fontWeight: 700, color: '#999' }}>0</span>
+                  <span style={{ fontSize: 12, color: '#999' }}>Total</span>
+                </div>
+              )}
+            </div>
+            <div className="d-dona-legend">
+              {!hasEstados && (
+                <div className="d-legend-item">
+                  <span className="d-dot" style={{ background: '#ccc' }} />
+                  <span>Sin datos</span>
+                </div>
+              )}
+              {estadosArr.map((e) => (
+                <div key={e.nombre} className="d-legend-item">
+                  <span className="d-dot" style={{ background: e.color }} />
+                  <span>{e.nombre} <strong>{e.pct.toFixed(1)}% ({e.count})</strong></span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <button className="d-block-link" onClick={() => nav('monitoreos')}>
+            Ver reporte completo &rarr;
+          </button>
+        </div>
+
+        {/* C2 ── Líneas ── */}
+        <div className="d-block">
+          <h3>Tendencia de roya (&uacute;ltimos 7 d&iacute;as)</h3>
+          <div className="d-line-chart">
+            <div className="d-line-indicators">
+              <span className="d-line-dot" style={{ color: '#2e7d32' }}>&#9679; Sin roya</span>
+              <span className="d-line-dot" style={{ color: '#d32f2f' }}>&#9679; Con roya</span>
+              <span className="d-line-dot" style={{ color: '#f57c00' }}>&#9679; Pendientes</span>
+            </div>
+            <svg viewBox="0 0 400 150" className="d-svg">
+              <line x1="0" y1="30" x2="400" y2="30" stroke="#f0f0f0" />
+              <line x1="0" y1="70" x2="400" y2="70" stroke="#f0f0f0" />
+              <line x1="0" y1="110" x2="400" y2="110" stroke="#f0f0f0" />
+              <path d="M 20 80 Q 80 50, 140 70 T 260 40 T 380 70" fill="none" stroke="#2e7d32" strokeWidth="3" />
+              <path d="M 20 120 Q 80 110, 140 120 T 260 100 T 380 115" fill="none" stroke="#d32f2f" strokeWidth="3" />
+              <path d="M 20 140 Q 80 135, 140 130 T 260 132 T 380 138" fill="none" stroke="#f57c00" strokeWidth="3" />
+            </svg>
+            <div className="d-line-days">
+              {tendencia?.dias?.map((d, i) => <span key={i}>{d?.diaSemana || d?.fecha || d}</span>) ?? (
+                <><span>Lun</span><span>Mar</span><span>Mi&eacute;</span><span>Jue</span><span>Vie</span><span>S&aacute;b</span><span>Dom</span></>
+              )}
+            </div>
+          </div>
+          <button className="d-block-link" onClick={() => nav('monitoreos')}>
+            Ver m&aacute;s estad&iacute;sticas &rarr;
+          </button>
+        </div>
+
+        {/* C3 ── Actividad ── */}
+        <div className="d-block">
+          <h3>Actividad reciente</h3>
+          <div className="d-activity-list">
+            {actividad.length === 0 && (
+              <div className="d-activity-item">
+                <span className="d-activity-icon" style={{ background: '#f5f5f5' }}>&#128276;</span>
+                <div className="d-activity-body">
+                  <h4>Sin actividad reciente</h4>
+                  <p>Los eventos aparecer&aacute;n aqu&iacute;.</p>
+                </div>
+              </div>
+            )}
+            {actividad.map((a, i) => (
+              <div key={a.id ?? i} className="d-activity-item">
+                <span className="d-activity-icon">{a.icon ?? '&#128276;'}</span>
+                <div className="d-activity-body">
+                  <h4>{a.titulo}</h4>
+                  <p>{a.detalle}</p>
+                </div>
+                <span className="d-activity-time">{a.tiempo}</span>
+              </div>
+            ))}
+          </div>
+          <button className="d-block-link" onClick={() => nav('monitoreos')}>
+            Ver toda la actividad &rarr;
+          </button>
+        </div>
+      </section>
+
+      {/* ════════ D. BLOQUE INFERIOR (2 COLUMNAS) ════════ */}
+      <section className="d-bottom">
+
+        {/* D1 ── Tabla ── */}
+        <div className="d-block d-block-wide">
+          <h3>Monitoreos recientes</h3>
+          <div className="d-table-wrap">
+            <table className="d-table">
+              <thead>
+                <tr>
+                  <th>FINCA</th>
+                  <th>LOTE</th>
+                  <th>FECHA</th>
+                  <th>RESULTADO IA</th>
+                  <th>EXPERTO</th>
+                  <th>ESTADO</th>
+                  <th>ACCIONES</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monitoreos.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="d-table-empty">No hay monitoreos recientes</td>
+                  </tr>
+                ) : monitoreos.map((m, i) => {
+                  const resultado = m.resultado || ''
+                  const isSano = resultado.toLowerCase().includes('sin') || resultado.toLowerCase().includes('sano')
+                  return (
+                    <tr key={m.id ?? i}>
+                      <td className="d-td-finca">
+                        <span>&#127795;</span> {m.finca}
+                      </td>
+                      <td>{m.lote}</td>
+                      <td className="d-td-date">{m.fecha}</td>
+                      <td>
+                        <span className={`d-badge ${isSano ? 'd-badge-green' : 'd-badge-red'}`}>
+                          {resultado}
+                        </span>
+                      </td>
+                      <td>{m.experto}</td>
+                      <td>
+                        <span className={`d-badge ${
+                          (m.estado || '').toLowerCase().includes('revisado') ? 'd-badge-green' :
+                          (m.estado || '').toLowerCase().includes('tratamiento') ? 'd-badge-blue' : 'd-badge-orange'
+                        }`}>
+                          {m.estado}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="d-action-btn" onClick={() => nav('monitoreos')} title="Ver detalle">&#128065;</button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          <button className="d-block-link center" onClick={() => nav('monitoreos')}>
+            Ver todos los monitoreos &rarr;
+          </button>
+        </div>
+
+        {/* D2 ── Sidebar ── */}
+        <div className="d-side-stack">
+
+          {/* Top 5 */}
+          <div className="d-block">
+            <h3>Top 5 fincas con m&aacute;s roya</h3>
+            <div className="d-top-list">
+              {topFincas.length === 0 ? (
+                <div className="d-top-row"><span style={{ color: '#999' }}>Sin datos</span></div>
+              ) : topFincas.map((f, i) => (
+                <div key={i} className="d-top-row">
+                  <span className="d-top-name">{f.nombre}</span>
+                  <div className="d-progress-track">
+                    <div className="d-progress-fill" style={{ width: `${f.porcentaje ?? (f.cantidad * 5)}%` }} />
+                  </div>
+                  <span className="d-top-count">{f.cantidad}</span>
+                </div>
+              ))}
+            </div>
+            <button className="d-block-link" onClick={() => nav('fincas')}>
+              Ver reporte completo &rarr;
+            </button>
+          </div>
+
+          {/* Próximos */}
+          <div className="d-block">
+            <h3>Pr&oacute;ximos monitoreos programados</h3>
+            <div className="d-prox-list">
+              {proximos.length === 0 ? (
+                <div className="d-prox-item">
+                  <span>&#128197;</span>
+                  <span style={{ color: '#999' }}>Sin pr&oacute;ximos monitoreos</span>
+                </div>
+              ) : proximos.map((p, i) => {
+                const etiq = (p.etiqueta || '').toLowerCase()
+                return (
+                  <div key={i} className="d-prox-item">
+                    <div className="d-prox-left">
+                      <span>&#128197;</span>
+                      <div className="d-prox-info">
+                        <h4>{p.finca}</h4>
+                        <p>{p.fecha}</p>
+                      </div>
+                    </div>
+                    <span className={`d-tag ${etiq === 'hoy' ? 'd-tag-green' : etiq === 'mañana' || etiq === 'manana' ? 'd-tag-orange' : 'd-tag-gray'}`}>
+                      {p.etiqueta}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+            <button className="d-block-link" onClick={() => nav('monitoreos')}>
+              Ver calendario completo &rarr;
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ════════ E. BLOQUE DE CIERRE ════════ */}
+      <section className="d-footer">
+
+        {/* E1 ── Mapa ── */}
+        <div className="d-block">
+          <h3>Mapa de fincas</h3>
+          <div className="d-map-container">
+            <div className="d-map">
+              {mapPins.map((pin, i) => {
+                const tipo = pin.tipo || pin.estado || 'Sano'
+                const pinColor = ESTADO_COLORS[tipo] || '#999'
+                return (
+                  <div
+                    key={i}
+                    className="d-map-pin"
+                    style={{ top: pin.top, left: pin.left, color: pinColor }}
+                    title={pin.nombreFinca || pin.nombre || tipo}
+                  >
+                    &#128205;
+                  </div>
+                )
+              })}
+            </div>
+            <div className="d-map-legend">
+              {ESTADO_ORDER.map((e) => (
+                <div key={e} className="d-map-legend-item">
+                  <span className="d-map-dot" style={{ background: ESTADO_COLORS[e] }} />
+                  {e}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* E2 ── Impacto ── */}
+        <div className="d-block">
+          <h3>Impacto del sistema</h3>
+          <div className="d-impact-grid">
+            {[
+              { icon: '&#127811;', value: impacto?.reduccionPerdida ?? '0%', desc: 'Reducci&oacute;n de p&eacute;rdida en cultivos' },
+              { icon: '&#128167;', value: impacto?.ahorroFungicidas ?? '0%', desc: 'Ahorro en uso de fungicidas' },
+              { icon: '&#128200;', value: impacto?.incrementoProductividad ?? '0%', desc: 'Incremento en la productividad' },
+              { icon: '&#127794;', value: impacto?.hectareasProtegidas ?? 0, desc: 'Hect&aacute;reas protegidas este mes' },
+            ].map((item, i) => (
+              <div key={i} className="d-impact-item">
+                <span className="d-impact-icon" dangerouslySetInnerHTML={{ __html: item.icon }} />
+                <div className="d-impact-body">
+                  <span className="d-impact-value">{item.value}</span>
+                  <span className="d-impact-desc" dangerouslySetInnerHTML={{ __html: item.desc }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </section>
+
     </div>
   )
 }

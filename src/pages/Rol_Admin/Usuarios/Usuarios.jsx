@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
-import { BiShow, BiEdit, BiCheckCircle, BiXCircle } from "react-icons/bi";
+import { BiShow, BiEdit, BiCheckCircle, BiXCircle, BiUserPlus } from "react-icons/bi";
 import PasswordStrength from "../../../components/PasswordStrength";
 import { validatePassword, PASSWORD_RULES } from "../../../utils/passwordValidator";
 import Loading from "../../../components/Loading";
@@ -301,8 +301,13 @@ export default function Usuarios() {
   return (
     <>
       <div className="page-header">
-        <h1>Usuarios</h1>
-        <p>Gestión de usuarios del sistema</p>
+        <div className="page-header-icon">
+          <BiUserPlus size={22} />
+        </div>
+        <div className="page-header-text">
+          <h1>Usuarios</h1>
+          <p>Gestión de usuarios del sistema</p>
+        </div>
       </div>
 
       <div className="admin-form-card">

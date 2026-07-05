@@ -3,6 +3,7 @@ import "./cultivos.css";
 import api from "../../../services/api";
 import "../Administrador/Administrador.css";
 import Loading from "../../../components/Loading";
+import { BiLeaf } from "react-icons/bi";
 
 export default function Cultivos() {
 
@@ -90,8 +91,13 @@ export default function Cultivos() {
   return (
     <div className="rl-container">
       <div className="page-header">
-        <h1>Gestión de Cultivos</h1>
-        <p>Administración de cultivos registrados</p>
+        <div className="page-header-icon">
+          <BiLeaf size={22} />
+        </div>
+        <div className="page-header-text">
+          <h1>Gestión de Cultivos</h1>
+          <p>Administración de cultivos registrados</p>
+        </div>
       </div>
 
       {/* ── FORMULARIO ── */}

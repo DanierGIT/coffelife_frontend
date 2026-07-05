@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import AdminLayout from './layouts/AdminLayout'
+import ErrorBoundary from './components/ErrorBoundary'
 import 'leaflet/dist/leaflet.css'
 
 // ── Auth ──
@@ -93,9 +94,11 @@ function AdminApp() {
   }
 
   return (
-    <AdminLayout activePage={activePage} onNavigate={handleNavigate}>
-      {renderPage()}
-    </AdminLayout>
+    <ErrorBoundary>
+      <AdminLayout activePage={activePage} onNavigate={handleNavigate}>
+        <ErrorBoundary>{renderPage()}</ErrorBoundary>
+      </AdminLayout>
+    </ErrorBoundary>
   )
 }
 

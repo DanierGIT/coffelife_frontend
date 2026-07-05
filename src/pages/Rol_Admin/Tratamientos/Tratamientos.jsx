@@ -5,7 +5,7 @@ import "./styles/formulario.css";
 import "./styles/tabla.css";
 import "../Administrador/Administrador.css";
 import "../Usuarios/Usuarios.css";
-import { BiPlus, BiEdit, BiTrash } from 'react-icons/bi';
+import { BiPlus, BiEdit, BiTrash, BiHealth } from 'react-icons/bi';
 import Loading from '../../../components/Loading';
 
 // ─── Servicio inline (usa el api centralizado del proyecto) ───
@@ -242,21 +242,7 @@ function Tratamientos() {
     <div className="contenedor-tratamientos">
       <div className="module-header" style={{ position: 'relative' }}>
   <div className="module-header-icon">
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M10 2v7.31" />
-      <path d="M14 9.3V1.99" />
-      <path d="M8.5 2h7" />
-      <path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
-    </svg>
+    <BiHealth size={28} />
   </div>
 
   <div className="module-header-content">
