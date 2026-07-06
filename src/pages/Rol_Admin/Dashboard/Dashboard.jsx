@@ -6,7 +6,7 @@ import { useAuth } from '../../../context/AuthContext'
 import api from '../../../services/api'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts'
 import { useNotificaciones, useRefetchGlobal } from '../../../hooks/useNotificaciones'
-import './dashboard.css'
+import './Dashboard.css'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
