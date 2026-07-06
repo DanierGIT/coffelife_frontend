@@ -6,7 +6,12 @@ import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch, BiChat } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 
-const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
+const _date = (r) => { const d = r.fechaRegistro || r.fecha_registro || r.fechaLimite || r.fecha_limite; return d ? new Date(d).getTime() : -Infinity }
+const fmt = (val) => {
+  if (!val) return '—'
+  const d = new Date(val)
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-CO')
+}
 const fmtDatetime = (val) => {
   if (!val) return '—'
   const d = new Date(val)
@@ -166,8 +171,8 @@ function ExpertoFincasModal({ recomendaciones, fincaMap, monitoreoMap, onBack, o
       map[fincaId].push(r)
     })
     return Object.entries(map).sort((a, b) => {
-      const lastA = Math.max(...a[1].map((r) => new Date(r.fechaRegistro || r.fecha_registro || 0)))
-      const lastB = Math.max(...b[1].map((r) => new Date(r.fechaRegistro || r.fecha_registro || 0)))
+      const lastA = Math.max(...a[1].map((r) => _date(r)))
+      const lastB = Math.max(...b[1].map((r) => _date(r)))
       return lastB - lastA
     })
   }, [recomendaciones])
@@ -184,7 +189,7 @@ function ExpertoFincasModal({ recomendaciones, fincaMap, monitoreoMap, onBack, o
             <p className="rec-list-empty">No hay recomendaciones para este experto.</p>
           ) : fincaGroups.map(([fincaId, recs]) => {
             const finca = fincaMap[String(fincaId)]
-            const lastDate = Math.max(...recs.map((r) => new Date(r.fechaRegistro || r.fecha_registro || 0)))
+            const lastDate = Math.max(...recs.map((r) => _date(r)))
             return (
               <div key={fincaId} className="rec-finca-item">
                 <div className="rec-finca-info">
@@ -209,6 +214,9 @@ function ExpertoFincasModal({ recomendaciones, fincaMap, monitoreoMap, onBack, o
 
 // ── Modal: recomendaciones de una finca (por un experto) ──────────────────────
 function FincaRecsModal({ recomendaciones, finca, onBack, onVerDetalle }) {
+  const sorted = useMemo(() =>
+    [...recomendaciones].sort((a, b) => _date(b) - _date(a))
+  , [recomendaciones])
   return (
     <div className="modal-overlay" onClick={onBack}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -219,12 +227,13 @@ function FincaRecsModal({ recomendaciones, finca, onBack, onVerDetalle }) {
           <button className="modal-close" onClick={onBack}>✕</button>
         </div>
         <div className="rec-list">
-          {recomendaciones.length === 0 ? (
+          {sorted.length === 0 ? (
             <p className="rec-list-empty">No hay recomendaciones para esta finca.</p>
-          ) : recomendaciones.map((r) => (
-            <div key={r.idRecomendacion} className="rec-list-item">
+          ) : sorted.map((r) => (
+              <div key={r.idRecomendacion} className="rec-list-item">
                 <div className="rec-list-header">
-                  <span className="rec-list-tipo">{r.tipo?.nombreTipo || <span className="rec-list-placeholder">(Sin tipo)</span>}</span>
+                  <span className="rec-list-prioridad">Prioridad: {typeof r.prioridad === 'string' ? r.prioridad : r.prioridad?.nombre || '—'}</span>
+                  <span className="rec-list-fecha">{fmt(_date(r))}</span>
                   <button className="btn-icon btn-icon-ver" onClick={() => onVerDetalle(r)} title="Ver detalle">
                     <BiShow size={16} />
                   </button>
@@ -246,9 +255,10 @@ function FincaRecsModal({ recomendaciones, finca, onBack, onVerDetalle }) {
 
 // ── Modal: detalle de una recomendación ───────────────────────────────────────
 function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
-  const getPrioridadNombre = (id) => {
+  const getPrioridadNombre = () => {
+    if (typeof recomendacion.prioridad === 'string') return recomendacion.prioridad
     if (recomendacion.prioridad?.nombre) return recomendacion.prioridad.nombre
-    const found = prioridades?.find((p) => Number(p.idPrioridad || p.id) === Number(id))
+    const found = prioridades?.find((p) => Number(p.idPrioridad || p.id) === Number(recomendacion.idPrioridad))
     return found?.nombre || null
   }
 
@@ -272,23 +282,15 @@ function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
             <span className="detalle-label">Experto</span>
             <span className="detalle-value">
               {recomendacion.experto
-                ? <span>{`${recomendacion.experto.nombre || ''} ${recomendacion.experto.apellido || ''}`.trim()}</span>
+                ? <span>{typeof recomendacion.experto === 'string' ? recomendacion.experto : `${recomendacion.experto.nombre || ''} ${recomendacion.experto.apellido || ''}`.trim()}</span>
                 : <span className="rec-list-placeholder">(Sin experto)</span>}
-            </span>
-          </div>
-          <div className="detalle-item">
-            <span className="detalle-label">Tipo</span>
-            <span className="detalle-value">
-              {recomendacion.tipo?.nombreTipo
-                ? <span>{recomendacion.tipo.nombreTipo}</span>
-                : <span className="rec-list-placeholder">(Sin tipo)</span>}
             </span>
           </div>
           <div className="detalle-item">
             <span className="detalle-label">Prioridad</span>
             <span className="detalle-value">
-              {getPrioridadNombre(recomendacion.idPrioridad)
-                ? <span>{getPrioridadNombre(recomendacion.idPrioridad)}</span>
+              {getPrioridadNombre()
+                ? <span>{getPrioridadNombre()}</span>
                 : <span className="rec-list-placeholder">(Sin prioridad)</span>}
             </span>
           </div>
@@ -301,16 +303,12 @@ function RecDetalleModal({ recomendacion, monitoreoMap, prioridades, onBack }) {
             </span>
           </div>
           <div className="detalle-item">
-            <span className="detalle-label">Fecha de la recomendación</span>
+            <span className="detalle-label">Fecha límite</span>
             <span className="detalle-value">
               {(recomendacion.fechaLimite || recomendacion.fecha_limite)
                 ? <span>{fmt(recomendacion.fechaLimite || recomendacion.fecha_limite)}</span>
                 : <span className="rec-list-placeholder">(Sin fecha límite)</span>}
             </span>
-          </div>
-          <div className="detalle-item">
-            <span className="detalle-label">Registrado</span>
-            <span className="detalle-value">{fmtDatetime(recomendacion.fechaRegistro || recomendacion.fecha_registro)}</span>
           </div>
 
         </div>
@@ -361,9 +359,13 @@ export default function Recomendaciones() {
   const expertoRecs = useMemo(() => {
     const map = {}
     recomendaciones.forEach((r) => {
-      const id = r.experto?.idUsuario || r.idExpertoEmisor
-      if (!id) return
-      if (!map[id]) map[id] = { experto: r.experto, recs: [] }
+      let id = r.id_experto_emisor ?? r.idExpertoEmisor
+      let nombre = typeof r.experto === 'string' ? r.experto : (r.experto ? `${r.experto.nombre || ''} ${r.experto.apellido || ''}`.trim() : '')
+      if (!id) id = 'sin-experto-' + (nombre || 'anónimo')
+      if (!map[id]) {
+        const [n, a = ''] = (nombre || 'Sin asignar').split(/\s+(.+)/)
+        map[id] = { _id: id, experto: { nombre: n, apellido: a }, recs: [] }
+      }
       map[id].recs.push(r)
     })
     return Object.values(map)
@@ -389,10 +391,7 @@ export default function Recomendaciones() {
 
   const fincaRecs = useMemo(() => {
     if (!selectedExperto || !selectedFincaId) return []
-    const entry = expertoRecs.find((e) => {
-      const id = e.experto?.idUsuario || e.recs[0]?.idExpertoEmisor
-      return id === (selectedExperto?.idUsuario || selectedExperto?.idExpertoEmisor)
-    })
+    const entry = expertoRecs.find((e) => e._id === selectedExperto?._id)
     if (!entry) return []
     return entry.recs.filter((r) => {
       const mono = monitoreoMap[r.idMonitoreo]
@@ -404,7 +403,18 @@ export default function Recomendaciones() {
     setLoading(true)
     try {
       const res = await api.get('/recomendaciones?limit=1000')
-      setRecomendaciones(getArrayData(res.data))
+      const raw = getArrayData(res.data)
+      const norm = raw.map((r) => ({
+        ...r,
+        idRecomendacion: r.idRecomendacion ?? r.id_recomendacion,
+        idMonitoreo: r.idMonitoreo ?? r.id_monitoreo,
+        idExpertoEmisor: r.idExpertoEmisor ?? r.id_experto_emisor,
+        fechaRegistro: r.fechaRegistro ?? r.fecha_registro,
+        fechaLimite: r.fechaLimite ?? r.fecha_limite,
+        idTipo: r.idTipo ?? r.id_tipo,
+        idPrioridad: r.idPrioridad ?? r.id_prioridad,
+      }))
+      setRecomendaciones(norm)
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudieron cargar las recomendaciones.')
     } finally {
@@ -423,10 +433,23 @@ export default function Recomendaciones() {
         api.get('/fincas?limit=1000'),
       ])
 
-      setMonitoreos(getArrayData(monitoreosRes.data))
+      setMonitoreos(getArrayData(monitoreosRes.data).map((m) => ({
+        ...m,
+        idMonitoreo: m.idMonitoreo ?? m.id_monitoreo,
+        fechaMonitoreo: m.fechaMonitoreo ?? m.fecha_monitoreo,
+        cultivo: m.cultivo ? {
+          ...m.cultivo,
+          idFinca: m.cultivo.idFinca ?? m.cultivo.id_finca,
+          nombreCultivo: m.cultivo.nombreCultivo ?? m.cultivo.nombre_cultivo,
+        } : undefined,
+      })))
       setTipos(getArrayData(tiposRes.data))
       setExpertos(getArrayData(expertosRes.data))
-      setFincas(getArrayData(fincasRes.data))
+      setFincas(getArrayData(fincasRes.data).map((f) => ({
+        ...f,
+        idFinca: f.idFinca ?? f.id_finca,
+        nombreFinca: f.nombreFinca ?? f.nombre_finca,
+      })))
 
       try {
         const prioridadesRes = await api.get('/categorias/prioridades')
@@ -542,10 +565,10 @@ export default function Recomendaciones() {
                   {searchTerm ? 'No se encontraron expertos con ese criterio' : 'No hay recomendaciones registradas aun.'}
                 </td>
               </tr>
-            ) : paginatedExpertos.map(({ experto, recs }) => {
-              const id = experto?.idUsuario || recs[0]?.idExpertoEmisor
-              const nombre = experto ? `${experto.nombre || ''} ${experto.apellido || ''}`.trim() : '—'
-              const ultima = Math.max(...recs.map((r) => new Date(r.fechaRegistro || r.fecha_registro || 0)))
+            ) : paginatedExpertos.map(({ _id, experto, recs }) => {
+              const id = _id
+              const nombre = experto ? `${experto.nombre || ''} ${experto.apellido || ''}`.trim() : 'Sin asignar'
+              const ultima = Math.max(...recs.map((r) => _date(r)))
               return (
                 <tr key={id}>
                   <td>
@@ -561,7 +584,7 @@ export default function Recomendaciones() {
                       onClick={async () => {
                         setLoadingCatalogs(true)
                         await loadCatalogos()
-                        setSelectedExperto(experto || { idUsuario: id })
+                        setSelectedExperto({ ...experto, _id })
                         setSelectedFincaId(null)
                         setDetailRecomendacion(null)
                         setLoadingCatalogs(false)
@@ -600,10 +623,7 @@ export default function Recomendaciones() {
       {selectedExperto && !selectedFincaId && !detailRecomendacion && (
         <ExpertoFincasModal
           recomendaciones={
-            expertoRecs.find((e) => {
-              const id = e.experto?.idUsuario || e.recs[0]?.idExpertoEmisor
-              return id === (selectedExperto?.idUsuario || selectedExperto?.idExpertoEmisor)
-            })?.recs || []
+            expertoRecs.find((e) => e._id === selectedExperto?._id)?.recs || []
           }
           fincaMap={fincaMap}
           monitoreoMap={monitoreoMap}

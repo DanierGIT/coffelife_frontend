@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { BiGrid, BiHome, BiGroup, BiCheckSquare, BiChat, BiBriefcase, BiX, BiLogOut, BiUser, BiListUl, BiDroplet } from 'react-icons/bi'
+import { BiGrid, BiGroup, BiChat, BiX, BiLogOut, BiListUl, BiBuildings, BiClipboard, BiTestTube, BiPackage, BiUserPlus } from 'react-icons/bi'
 import './Sidebar.css'
 import AnimatedLogo from './AnimatedLogo'
 
@@ -47,7 +47,7 @@ const ALL_ITEMS = [
     key: 'fincas',
     label: 'Fincas',
     roles: ['administrador', 'experto', 'cafetero'],
-    icon: <BiHome size={20} />,
+    icon: <BiBuildings size={20} />,
   },
   {
     key: 'roles',
@@ -59,7 +59,7 @@ const ALL_ITEMS = [
     key: 'monitoreos',
     label: 'Monitoreos',
     roles: ['administrador', 'experto', 'cafetero'],
-    icon: <BiCheckSquare size={20} />,
+    icon: <BiClipboard size={20} />,
   },
   // {
   //   key: 'usuarios',
@@ -115,13 +115,13 @@ const ALL_ITEMS = [
     key: 'tratamientos',
     label: 'Tratamientos',
     roles: ['administrador', 'experto'],
-    icon: <BiBriefcase size={20} />,
+    icon: <BiTestTube size={20} />,
   },
   {
     key: 'insumos',
     label: 'Insumos',
     roles: ['administrador', 'experto'],
-    icon: <BiDroplet size={20} />,
+    icon: <BiPackage size={20} />,
   },
   // {
   //   key: 'cultivos',
@@ -253,7 +253,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => item.roles.includes(role))
               title="Usuarios"
             >
               <span className="sidebar-nav-icon">
-                <BiUser size={20} />
+                <BiUserPlus size={20} />
               </span>
               <span className="sidebar-nav-label">Usuarios</span>
               <span className={`sidebar-arrow${usuOpen ? ' open' : ''}`}>▾</span>

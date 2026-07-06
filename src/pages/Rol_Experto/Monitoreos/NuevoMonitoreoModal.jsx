@@ -10,7 +10,28 @@ import './NuevoMonitoreoModal.css'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 
-const hoy = () => new Date().toISOString().slice(0, 10)
+const getColombiaDateTime = () => {
+  const now = new Date()
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Bogota',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false,
+  }).formatToParts(now)
+  const get = (type) => parts.find((p) => p.type === type)?.value
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${get('hour')}:${get('minute')}:${get('second')}`,
+  }
+}
+
+const hoy = () => getColombiaDateTime().date
+
+const toColombiaISO = (dateStr) => {
+  // dateStr: YYYY-MM-DD en zona Colombia
+  const { time } = getColombiaDateTime()
+  return `${dateStr}T${time}-05:00`
+}
 
 const PASOS = [
   { num: 1, label: 'Información',      icon: Info       },
@@ -522,7 +543,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
       const payload = {
         id_cultivo:      Number(cultivo.idCultivo),
         id_experto:      expertoId ? Number(expertoId) : null,
-        fecha_monitoreo: fecha,
+        fecha_monitoreo: toColombiaISO(fecha),
         observaciones:   obsFinal,
         id_nivel_roya:   tieneRoya && idNivelRoya ? Number(idNivelRoya) : null,
       }
@@ -534,7 +555,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
         const obsConHistorial = textoHistorico
           ? `\n\n${'═'.repeat(40)}\nHISTORIAL DE CAMBIOS\n${'═'.repeat(40)}\n\n${textoHistorico}` + (obsFinal || '')
           : (obsFinal || '')
-        await api.put(`/monitoreos/${editMonitoreoId}`, { observaciones: obsConHistorial || null, fecha_monitoreo: fecha })
+        await api.put(`/monitoreos/${editMonitoreoId}`, { observaciones: obsConHistorial || null, fecha_monitoreo: toColombiaISO(fecha) })
         idMonitoreo = editMonitoreoId
       } else {
         const resM = await api.post('/monitoreos', payload)
@@ -592,7 +613,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
 
         // 4 — Aplicaciones tratamiento (una por cada tratamiento)
         if (idRecomendacion && tratValidos.length > 0) {
-          const fechaApl = fecha || new Date().toISOString().slice(0, 10)
+          const fechaApl = fecha ? toColombiaISO(fecha) : toColombiaISO(hoy())
           for (const t of tratValidos) {
             const insumo = t.id_insumo ? insumos.find((i) => Number(i.idInsumo) === Number(t.id_insumo)) : null
             const dVal = t.dosis?.trim() || ''

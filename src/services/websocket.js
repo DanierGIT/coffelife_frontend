@@ -18,6 +18,7 @@ export function conectarWebSocket(idUsuario) {
   if (!idUsuario) { console.warn('[WS] No hay idUsuario'); return null }
 
   console.log('[WS] Conectando a', WS_URL, 'con usuario', idUsuario)
+  console.log('[WS] VITE_API_URL usada:', import.meta.env.VITE_API_URL || '(fallback por defecto)')
 
   socket = io(WS_URL, {
     auth: { token },

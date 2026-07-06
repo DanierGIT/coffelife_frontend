@@ -245,7 +245,8 @@
 }
 
 .rec-list-prioridad {
-  color: #9ca3af;
+  color: #111;
+  font-weight: 600;
 }
 
 .rec-list-acciones {

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { conectarWebSocket, onNotificacion, getEstadoWS } from '../services/websocket'
+import { conectarWebSocket, onNotificacion } from '../services/websocket'
 
 const listenersGlobal = new Set()
-const POLL_INTERVAL = 15000
 
 export function emitirRefetchGlobal() {
   listenersGlobal.forEach((cb) => cb())
@@ -30,18 +29,7 @@ export function useNotificaciones(idUsuario) {
       emitirRefetchGlobal()
     })
     conectarWebSocket(idUsuario)
-
-    const interval = setInterval(() => {
-      if (!getEstadoWS().conectado) {
-        setNotificacionKey((k) => k + 1)
-        emitirRefetchGlobal()
-      }
-    }, POLL_INTERVAL)
-
-    return () => {
-      limpiar()
-      clearInterval(interval)
-    }
+    return () => limpiar()
   }, [idUsuario])
 
   return notificacionKey

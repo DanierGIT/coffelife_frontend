@@ -5,7 +5,7 @@ import "./styles/formulario.css";
 import "./styles/tabla.css";
 import "../Administrador/Administrador.css";
 import "../Usuarios/Usuarios.css";
-import { BiPlus, BiEdit, BiTrash, BiHealth } from 'react-icons/bi';
+import { BiPlus, BiEdit, BiTrash, BiTestTube } from 'react-icons/bi';
 import Loading from '../../../components/Loading';
 
 // ─── Servicio inline (usa el api centralizado del proyecto) ───
@@ -242,7 +242,7 @@ function Tratamientos() {
     <div className="contenedor-tratamientos">
       <div className="module-header" style={{ position: 'relative' }}>
   <div className="module-header-icon">
-    <BiHealth size={28} />
+    <BiTestTube size={28} />
   </div>
 
   <div className="module-header-content">

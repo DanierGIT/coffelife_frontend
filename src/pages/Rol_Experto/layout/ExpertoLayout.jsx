@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import './ExpertoLayout.css'
 import AnimatedLogo from '../../../components/AnimatedLogo'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 import api from '../../../services/api'
-import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut } from 'react-icons/bi'
+import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut, BiBell } from 'react-icons/bi'
 
 const NAV_ITEMS = [
   {
@@ -219,6 +219,125 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Notificaciones
+  const idExperto = user?.idUsuario ?? user?.id
+  const [fincasAsignadas, setFincasAsignadas] = useState([])
+  const [monitoreos, setMonitoreos] = useState([])
+  const [nuevasAsignaciones, setNuevasAsignaciones] = useState([])
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false)
+  const [vistos, setVistos] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('exp_notif_vistos') || '[]')) }
+    catch { return new Set() }
+  })
+
+  useEffect(() => {
+    localStorage.setItem('exp_notif_vistos', JSON.stringify([...vistos]))
+  }, [vistos])
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.exp-notif-wrapper')) setShowNotifDropdown(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const getArrayData = (data) => {
+    if (Array.isArray(data)) return data
+    if (Array.isArray(data?.data)) return data.data
+    return []
+  }
+
+  const notifGetId = (n) => {
+    if (n.tipo === 'asignacion') return `asig-${n.idFinca}`
+    return n.id ?? n.idMonitoreo ?? n.id_monitoreo
+  }
+
+  const notifFmtFecha = (raw) => {
+    if (!raw) return ''
+    const d = new Date(raw)
+    const opts = { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }
+    const co = new Intl.DateTimeFormat('es-CO', opts).format(d)
+    const now = new Date()
+    const diffMs = now - d
+    const diffMin = Math.floor(diffMs / 60000)
+    if (diffMin < 1) return 'Ahora'
+    if (diffMin < 60) return `Hace ${diffMin} min`
+    const diffHr = Math.floor(diffMin / 60)
+    if (diffHr < 24) return `Hace ${diffHr}h`
+    return co
+  }
+
+  const fetchNotificaciones = useCallback(async () => {
+    if (!idExperto) return
+    try {
+      const [asigRes, monRes] = await Promise.all([
+        api.get('/asignaciones_expertos', { params: { limit: 1000 } }),
+        api.get('/monitoreos', { params: { limit: 50 } }),
+      ])
+
+      const asignaciones = getArrayData(asigRes.data).filter(
+        (a) => Number(a.idExperto) === Number(idExperto)
+      )
+      const fincasActuales = asignaciones.map((a) => ({
+        idFinca: Number(a.idFinca),
+        nombre: a.finca?.nombreFinca || `Finca #${a.idFinca}`,
+        fechaAsignada: a.fechaAsignada,
+      }))
+
+      // Detectar nuevas asignaciones (solo si ya teníamos un listado previo)
+      const idsPrevios = new Set(fincasAsignadas.map((f) => f.idFinca))
+      const nuevas = fincasActuales.filter((f) => !idsPrevios.has(f.idFinca))
+      if (nuevas.length > 0 && fincasAsignadas.length > 0) {
+        setNuevasAsignaciones((prev) => {
+          const existentes = new Set(prev.map((n) => n.idFinca))
+          const realmenteNuevas = nuevas.filter((n) => !existentes.has(n.idFinca))
+          return [...prev, ...realmenteNuevas]
+        })
+      }
+      setFincasAsignadas(fincasActuales)
+
+      // Filtrar monitoreos solo de fincas asignadas a este experto
+      const idsAsignadas = new Set(fincasActuales.map((f) => f.idFinca))
+      const monData = getArrayData(monRes.data)
+      const monFiltrados = monData
+        .map((m) => {
+          const finca = m.finca || m.cultivo || {}
+          return {
+            tipo: 'monitoreo',
+            id: m.idMonitoreo ?? m.id_monitoreo ?? m.id,
+            idFinca: Number(finca.idFinca ?? finca.id_finca ?? m.idFinca ?? m.id_finca),
+            finca: finca.nombreFinca || finca.nombre_finca || m.finca || `Finca #${finca.idFinca || m.idFinca || '-'}`,
+            experto: m.usuario ? `${m.usuario.nombre || ''} ${m.usuario.apellido || ''}`.trim() : (m.experto || 'Experto'),
+            fecha: m.fechaMonitoreo ?? m.fecha ?? m.fecha_monitoreo,
+            origenMovil: m.origenMovil || m.origen_movil || m.dispositivo === 'movil',
+          }
+        })
+        .filter((m) => idsAsignadas.has(m.idFinca))
+
+      setMonitoreos(monFiltrados)
+    } catch {
+      // silencioso
+    }
+  }, [idExperto, fincasAsignadas])
+
+  useEffect(() => {
+    fetchNotificaciones()
+    const id = setInterval(fetchNotificaciones, 30000)
+    return () => clearInterval(id)
+  }, [fetchNotificaciones])
+
+  const notificaciones = [
+    ...nuevasAsignaciones.map((a) => ({ ...a, tipo: 'asignacion' })),
+    ...monitoreos,
+  ]
+  const noVistos = notificaciones.filter((n) => !vistos.has(notifGetId(n)))
+  const notifCount = noVistos.length
+
+  const marcarLeida = (n) => {
+    setVistos((prev) => new Set([...prev, notifGetId(n)]))
+  }
+
   const handlePerfil = () => {
     onNavigate('perfil')
     setMenuOpen(false)
@@ -257,6 +376,58 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
               <span>{item.label}</span>
             </button>
           ))}
+        </div>
+
+        <div className="exp-notif-wrapper" style={{ position: 'relative' }}>
+          <button className="exp-notif-btn" onClick={() => setShowNotifDropdown(!showNotifDropdown)} title="Notificaciones">
+            <BiBell size={20} /> {notifCount > 0 && <span className="exp-notif-badge">{notifCount}</span>}
+          </button>
+          {showNotifDropdown && (
+            <div className="exp-notif-dropdown">
+              <div className="exp-notif-header">
+                Notificaciones
+                {notifCount > 0 && (
+                  <button className="exp-mark-read-btn" onClick={() => setVistos(new Set(notificaciones.map((n) => notifGetId(n))))}>
+                    Marcar todas leídas
+                  </button>
+                )}
+              </div>
+              {notificaciones.length === 0 ? (
+                <div className="exp-notif-empty">Sin notificaciones recientes</div>
+              ) : (
+                noVistos.slice(0, 10).map((n, i) => {
+                  const nid = notifGetId(n)
+                  const esAsignacion = n.tipo === 'asignacion'
+                  return (
+                    <div
+                      key={nid ?? i}
+                      className={`exp-notif-item${esAsignacion ? ' exp-notif-asignacion' : ''}`}
+                      onClick={() => {
+                        marcarLeida(n)
+                        onNavigate(esAsignacion ? 'dashboard' : 'monitoreos')
+                      }}
+                    >
+                      <div className="exp-notif-text">
+                        {esAsignacion ? (
+                          <><strong>Te asignaron</strong> la finca <strong>{n.nombre}</strong></>
+                        ) : (
+                          <><strong>{n.experto || 'Experto'}</strong> hizo monitoreo en la finca <strong>{n.finca}</strong></>
+                        )}
+                      </div>
+                      <div className="exp-notif-time">
+                        {esAsignacion ? 'Nueva asignación' : (n.origenMovil ? 'Desde app móvil' : 'Monitoreo')}
+                        {' · '}
+                        {notifFmtFecha(n.fecha)}
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+              {notifCount === 0 && notificaciones.length > 0 && (
+                <div className="exp-notif-empty">Todas las notificaciones vistas</div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="experto-navbar-user" ref={menuRef}>
