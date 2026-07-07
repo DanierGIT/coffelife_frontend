@@ -337,7 +337,7 @@ export default function DashboardExperto({ onNavigate }) {
 
   const payload = decodeTokenPayload()
   const { user } = useAuth()
-  const notificacionKey = useNotificaciones(user?.idUsuario ?? user?.id)
+  useNotificaciones(user?.idUsuario ?? user?.id)
   const nombreExperto = payload?.nombre || 'Experto'
   const idExperto = payload?.id
 
@@ -433,7 +433,7 @@ export default function DashboardExperto({ onNavigate }) {
     }
   }
 
-  useEffect(() => { fetchData() }, [notificacionKey])
+  useEffect(() => { fetchData() }, [])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const openUbicacionPicker = () => { setUbicacionLat(form.latitud); setUbicacionLng(form.longitud); setShowUbicacionModal(true) }

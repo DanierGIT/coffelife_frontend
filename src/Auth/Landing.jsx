@@ -57,7 +57,7 @@ export default function Landing({ onGoLogin, onGoRegister }) {
       {/* ═══════════ NAVBAR ═══════════ */}
       <nav className="landing-nav">
         <div className="landing-nav-inner">
-          <AnimatedLogo size="md" horizontal />
+          <AnimatedLogo size="md" horizontal className="landing-nav-logo" />
           <div className="landing-nav-actions">
             <button className="landing-btn-outline" onClick={() => go(onGoLogin)}>
               Iniciar sesión

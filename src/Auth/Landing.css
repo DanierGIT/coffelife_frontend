@@ -87,12 +87,14 @@
 }
 
 .landing-nav-inner {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 14px 32px;
+  padding: 14px 40px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+}
+.landing-nav-logo {
+  margin-right: auto;
 }
 
 .landing-nav-actions {

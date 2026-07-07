@@ -224,6 +224,7 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
   const [fincasAsignadas, setFincasAsignadas] = useState([])
   const [monitoreos, setMonitoreos] = useState([])
   const [nuevasAsignaciones, setNuevasAsignaciones] = useState([])
+  const [fincasMap, setFincasMap] = useState({})
   const [showNotifDropdown, setShowNotifDropdown] = useState(false)
   const [vistos, setVistos] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem('exp_notif_vistos') || '[]')) }
@@ -271,9 +272,10 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
   const fetchNotificaciones = useCallback(async () => {
     if (!idExperto) return
     try {
-      const [asigRes, monRes] = await Promise.all([
+      const [asigRes, monRes, fincasRes] = await Promise.all([
         api.get('/asignaciones_expertos', { params: { limit: 1000 } }),
         api.get('/monitoreos', { params: { limit: 50 } }),
+        api.get('/fincas').catch(() => ({ data: [] })),
       ])
 
       const asignaciones = getArrayData(asigRes.data).filter(
@@ -284,6 +286,18 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
         nombre: a.finca?.nombreFinca || `Finca #${a.idFinca}`,
         fechaAsignada: a.fechaAsignada,
       }))
+
+      // Mapa de idFinca -> nombre desde /fincas y asignaciones
+      const mapaNombres = {}
+      getArrayData(fincasRes.data).forEach((f) => {
+        const id = Number(f.idFinca ?? f.id)
+        const nombre = f.nombreFinca || f.nombre_finca || f.nombre
+        if (id && nombre) mapaNombres[id] = nombre
+      })
+      fincasActuales.forEach((f) => {
+        if (f.idFinca && f.nombre && !mapaNombres[f.idFinca]) mapaNombres[f.idFinca] = f.nombre
+      })
+      setFincasMap(mapaNombres)
 
       // Detectar nuevas asignaciones (solo si ya teníamos un listado previo)
       const idsPrevios = new Set(fincasAsignadas.map((f) => f.idFinca))
@@ -302,12 +316,20 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
       const monData = getArrayData(monRes.data)
       const monFiltrados = monData
         .map((m) => {
-          const finca = m.finca || m.cultivo || {}
+          const finca = m.finca || m.cultivo?.finca || m.cultivo || {}
+          const idFinca = Number(finca.idFinca ?? finca.id_finca ?? m.idFinca ?? m.id_finca)
+          const nombreFinca =
+            finca.nombreFinca ||
+            finca.nombre_finca ||
+            finca.nombre ||
+            (typeof m.finca === 'string' ? m.finca : null) ||
+            mapaNombres[idFinca] ||
+            `Finca #${idFinca || '-'}`
           return {
             tipo: 'monitoreo',
             id: m.idMonitoreo ?? m.id_monitoreo ?? m.id,
-            idFinca: Number(finca.idFinca ?? finca.id_finca ?? m.idFinca ?? m.id_finca),
-            finca: finca.nombreFinca || finca.nombre_finca || m.finca || `Finca #${finca.idFinca || m.idFinca || '-'}`,
+            idFinca,
+            finca: nombreFinca,
             experto: m.usuario ? `${m.usuario.nombre || ''} ${m.usuario.apellido || ''}`.trim() : (m.experto || 'Experto'),
             fecha: m.fechaMonitoreo ?? m.fecha ?? m.fecha_monitoreo,
             origenMovil: m.origenMovil || m.origen_movil || m.dispositivo === 'movil',

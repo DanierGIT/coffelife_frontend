@@ -6,15 +6,32 @@ import '../Usuarios/Usuarios.css'
 import { BiShow, BiArrowBack, BiSearch, BiClipboard } from 'react-icons/bi'
 import Loading from '../../../components/Loading'
 
-const extraerNivelRoya = (obs = '') => {
+const extraerNivelRoya = (monitoreo) => {
+  if (!monitoreo) return null
+  const obs = monitoreo.observaciones || ''
   let idx = -1, pos = -1, searchFrom = 0
-  while ((pos = obs.indexOf('[ROYA:', searchFrom)) !== -1) {
-    idx = pos
-    searchFrom = pos + 1
+  while ((pos = obs.indexOf('[ROYA:', searchFrom)) !== -1) { idx = pos; searchFrom = pos + 1 }
+  if (idx !== -1) {
+    const endIdx = obs.indexOf(']', idx + 6)
+    if (endIdx > idx) return obs.slice(idx + 6, endIdx)
   }
-  if (idx === -1) return null
-  const endIdx = obs.indexOf(']', idx + 6)
-  return endIdx > idx ? obs.slice(idx + 6, endIdx) : null
+  if (monitoreo.nivelRoya?.nombre) return monitoreo.nivelRoya.nombre
+  if (monitoreo.nivel_roya && typeof monitoreo.nivel_roya === 'string') return monitoreo.nivel_roya
+  if (monitoreo.resultadoIA) {
+    const ia = String(monitoreo.resultadoIA).toLowerCase()
+    if (ia.includes('critico')) return 'Crítico'
+    if (ia.includes('alto')) return 'Alto'
+    if (ia.includes('medio')) return 'Medio'
+    if (ia.includes('bajo')) return 'Bajo'
+  }
+  const sevMatch = obs.match(/Severidad:\s*(\w+)/i)
+  if (sevMatch) {
+    const s = sevMatch[1].toLowerCase()
+    if (s.includes('alta') || s.includes('criti')) return 'Alto'
+    if (s.includes('media') || s.includes('medio')) return 'Medio'
+    if (s.includes('baja') || s.includes('bajo')) return 'Bajo'
+  }
+  return null
 }
 const fmt = (val) => (val ? new Date(val).toLocaleDateString('es-CO') : '—')
 const fmtDatetime = (val) => {
@@ -183,7 +200,7 @@ function DetalleMonitoreoModal({ monitoreo, onBack }) {
           </div>
           <div className="detalle-item">
             <span className="detalle-label">Nivel de roya</span>
-            <span className="detalle-value">{extraerNivelRoya(monitoreo.observaciones) || '—'}</span>
+            <span className="detalle-value">{extraerNivelRoya(monitoreo) || '—'}</span>
           </div>
           <div className="detalle-item">
             <span className="detalle-label">Fecha de monitoreo</span>

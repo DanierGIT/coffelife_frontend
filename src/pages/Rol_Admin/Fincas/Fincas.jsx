@@ -171,6 +171,18 @@ export default function Fincas() {
   const cafeterosLoadedRef = useRef(false)
   const estadosCultivoLoadedRef = useRef(false)
 
+  // Filtra cafeteros por rol (backend puede devolver todos los usuarios sin filtrar)
+  const esCafetero = (u) => {
+    if (!u) return false
+    if (u.idRol === 3) return true
+    if (typeof u.rol === 'object' && u.rol?.nombreRol?.toLowerCase() === 'cafetero') return true
+    if (typeof u.rol === 'string' && u.rol.toLowerCase() === 'cafetero') return true
+    return false
+  }
+  const cafeterosFiltrados = useMemo(() => {
+    return cafeteros.filter(esCafetero)
+  }, [cafeteros])
+
   // Fincas enriquecidas con datos de asignaciones y cafeteros (carga bajo demanda)
   const fincas = useMemo(() => {
     return fincasRaw.map((finca) => {
@@ -315,7 +327,7 @@ export default function Fincas() {
     if (cafeterosLoadedRef.current) return
     cafeterosLoadedRef.current = true
     try {
-      const res = await api.get('/cafeteros')
+      const res = await api.get('/cafeteros', { params: { limit: 1000 } })
       setCafeteros(Array.isArray(res.data) ? res.data : (res.data?.data ?? []))
     } catch (err) {
       console.error("Error cargando cafeteros:", err)
@@ -693,7 +705,7 @@ export default function Fincas() {
                   </select>
                   <select value={filterCafetero} onChange={(e) => { setFilterCafetero(e.target.value); setCurrentPage(1) }}>
                     <option value="">Todos los cafeteros</option>
-                    {cafeteros.map((caf) => (
+                    {cafeterosFiltrados.map((caf) => (
                       <option key={caf.idUsuario} value={caf.idUsuario}>{caf.nombre} {caf.apellido}</option>
                     ))}
                   </select>
@@ -747,7 +759,7 @@ export default function Fincas() {
                       <button className="btn-icon btn-icon-experto" onClick={() => { cargarExpertosAsignaciones(); setSelectedFinca(f); setSelectedExperto(f.idExpertoAsignado ? String(f.idExpertoAsignado) : ''); setShowAsignarModal(true) }} title={f.nombreExperto ? `Experto: ${f.nombreExperto}` : 'Asignar experto'}>
                         <BiUser size={16} />
                       </button>
-                      <button className="btn-icon btn-icon-cafetero" onClick={() => { cargarCafeteros(); setSelectedFinca(f); setSelectedCafetero(f.idCafeteroAsignado ? String(f.idCafeteroAsignado) : ''); setShowCafeteroModal(true) }} title={f.nombreCafetero ? `Cafetero: ${f.nombreCafetero}` : 'Asignar cafetero'}>
+                      <button className="btn-icon btn-icon-cafetero" onClick={() => { cafeterosLoadedRef.current = false; cargarCafeteros(); setSelectedFinca(f); setSelectedCafetero(f.idCafeteroAsignado ? String(f.idCafeteroAsignado) : ''); setShowCafeteroModal(true) }} title={f.nombreCafetero ? `Cafetero: ${f.nombreCafetero}` : 'Asignar cafetero'}>
                         <BiGroup size={16} />
                       </button>
                       <button className="btn-icon btn-icon-cultivo" onClick={() => openCultivoModal(f)} title="Registrar cultivo">
@@ -867,7 +879,7 @@ export default function Fincas() {
             )}
             <select className="experto-select" value={selectedCafetero} onChange={(e) => setSelectedCafetero(e.target.value)}>
               <option value="">Seleccione un cafetero</option>
-              {cafeteros.map((c) => (
+              {cafeterosFiltrados.map((c) => (
                 <option key={c.idUsuario} value={c.idUsuario}>{c.nombre} {c.apellido}</option>
               ))}
             </select>

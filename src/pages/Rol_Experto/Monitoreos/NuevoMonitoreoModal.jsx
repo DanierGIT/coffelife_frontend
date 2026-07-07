@@ -540,17 +540,9 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
       // Limpiar prefijos anteriores de roya
       let obsLimpia = (obsRaw || '').replace(/\[ROYA:.+?\]\n*/g, '')
       const obsFinal = royaPrefijo ? `${royaPrefijo}${obsLimpia}` : (obsLimpia || null)
-      const payload = {
-        id_cultivo:      Number(cultivo.idCultivo),
-        id_experto:      expertoId ? Number(expertoId) : null,
-        fecha_monitoreo: toColombiaISO(fecha),
-        observaciones:   obsFinal,
-        id_nivel_roya:   tieneRoya && idNivelRoya ? Number(idNivelRoya) : null,
-      }
 
       let idMonitoreo
       if (isEditing) {
-        // Obtener el texto del historial para incrustarlo en observaciones
         const textoHistorico = await construirTextoHistorico(editMonitoreo, { idUsuario: expertoId })
         const obsConHistorial = textoHistorico
           ? `\n\n${'═'.repeat(40)}\nHISTORIAL DE CAMBIOS\n${'═'.repeat(40)}\n\n${textoHistorico}` + (obsFinal || '')
@@ -558,6 +550,13 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
         await api.put(`/monitoreos/${editMonitoreoId}`, { observaciones: obsConHistorial || null, fecha_monitoreo: toColombiaISO(fecha) })
         idMonitoreo = editMonitoreoId
       } else {
+        const payload = {
+          id_cultivo:      Number(cultivo.idCultivo),
+          id_experto:      expertoId ? Number(expertoId) : null,
+          fecha_monitoreo: toColombiaISO(fecha),
+          observaciones:   obsFinal,
+          id_nivel_roya:   tieneRoya && idNivelRoya ? Number(idNivelRoya) : null,
+        }
         const resM = await api.post('/monitoreos', payload)
         idMonitoreo = resM.data?.data?.idMonitoreo ?? resM.data?.idMonitoreo
         createdMonitoreoId = idMonitoreo

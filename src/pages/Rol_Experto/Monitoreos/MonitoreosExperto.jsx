@@ -357,6 +357,48 @@ function limpiarPrefijoRoya(obs) {
   return text
 }
 
+function obtenerNombreRoya(monitoreo) {
+  const obs = monitoreo.observaciones || ''
+  let idx = -1, pos = -1, searchFrom = 0
+  while ((pos = obs.indexOf('[ROYA:', searchFrom)) !== -1) { idx = pos; searchFrom = pos + 1 }
+  if (idx !== -1) {
+    const endIdx = obs.indexOf(']', idx + 6)
+    if (endIdx > idx) return obs.slice(idx + 6, endIdx)
+  }
+  if (monitoreo.nivelRoya?.nombre) return monitoreo.nivelRoya.nombre
+  if (monitoreo.nivel_roya && typeof monitoreo.nivel_roya === 'string') return monitoreo.nivel_roya
+  if (monitoreo.resultadoIA) {
+    const ia = String(monitoreo.resultadoIA).toLowerCase()
+    if (ia.includes('critico')) return 'Crítico'
+    if (ia.includes('alto')) return 'Alto'
+    if (ia.includes('medio')) return 'Medio'
+    if (ia.includes('bajo')) return 'Bajo'
+  }
+  const sevMatch = obs.match(/Severidad:\s*(\w+)/i)
+  if (sevMatch) {
+    const s = sevMatch[1].toLowerCase()
+    if (s.includes('alta') || s.includes('criti')) return 'Alto'
+    if (s.includes('media') || s.includes('medio')) return 'Medio'
+    if (s.includes('baja') || s.includes('bajo')) return 'Bajo'
+  }
+  return null
+}
+
+function colorRoya(monitoreo) {
+  const nombre = obtenerNombreRoya(monitoreo)
+  if (!nombre) return '#9ca3af'
+  const n = nombre.toLowerCase()
+  if (n.includes('critico')) return '#991b1b'
+  if (n.includes('alto')) return '#dc2626'
+  if (n.includes('medio')) return '#d97706'
+  if (n.includes('bajo')) return '#2e7d32'
+  return '#9ca3af'
+}
+
+function textoRoya(monitoreo) {
+  return obtenerNombreRoya(monitoreo) || 'Sin roya'
+}
+
 function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
   const fotos = Array.isArray(monitoreo.imagenes) ? monitoreo.imagenes : []
   const [recs, setRecs] = useState([])
@@ -426,6 +468,12 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
           <div className="mon-detalle-row">
             <span className="mon-detalle-label">Observaciones</span>
             <span className="mon-detalle-value" style={{ whiteSpace: 'pre-line' }}>{ultimaObservacion(monitoreo.observaciones) || '—'}</span>
+          </div>
+          <div className="mon-detalle-row">
+            <span className="mon-detalle-label">Nivel de roya</span>
+            <span className="mon-detalle-value" style={{ color: colorRoya(monitoreo), fontWeight: 600 }}>
+              {textoRoya(monitoreo)}
+            </span>
           </div>
           <div className="mon-detalle-row">
             <span className="mon-detalle-label">Registrado</span>
@@ -659,7 +707,7 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
   const [totalPaginas, setTotalPaginas] = useState(1)
   const ITEMS_POR_PAGINA = 10
 
-  const notificacionKey = useNotificaciones(userId)
+  useNotificaciones(userId)
 
   const modalAbierto = showNuevoModal || showModal || editMonitoreo
   const cerrarModal = () => {
@@ -667,42 +715,6 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
     setEditMonitoreo(null)
     onCloseNuevoModal?.()
   }
-
-function colorRoya(monitoreo) {
-  const obs = monitoreo.observaciones || ''
-  // Buscar el ULTIMO [ROYA:NIVEL] (el mas reciente)
-  let idx = -1
-  let pos = -1
-  let nombre = ''
-  let searchFrom = 0
-  while ((pos = obs.indexOf('[ROYA:', searchFrom)) !== -1) {
-    idx = pos
-    searchFrom = pos + 1
-  }
-  if (idx === -1) return '#9ca3af'
-  const endIdx = obs.indexOf(']', idx + 6)
-  nombre = (endIdx > idx ? obs.slice(idx + 6, endIdx) : '').toLowerCase()
-  if (nombre.includes('critico')) return '#991b1b'
-  if (nombre.includes('alto')) return '#dc2626'
-  if (nombre.includes('medio')) return '#d97706'
-  if (nombre.includes('bajo')) return '#2e7d32'
-  return '#9ca3af'
-}
-
-function textoRoya(monitoreo) {
-  const obs = monitoreo.observaciones || ''
-  // Buscar el ULTIMO [ROYA:NIVEL]
-  let idx = -1
-  let pos = -1
-  let searchFrom = 0
-  while ((pos = obs.indexOf('[ROYA:', searchFrom)) !== -1) {
-    idx = pos
-    searchFrom = pos + 1
-  }
-  if (idx === -1) return 'Sin roya'
-  const endIdx = obs.indexOf(']', idx + 6)
-  return endIdx > idx ? obs.slice(idx + 6, endIdx) : 'Sin roya'
-}
 
   const fetchMonitoreos = async () => {
     setLoading(true)
@@ -736,7 +748,7 @@ function textoRoya(monitoreo) {
     setPagina(p)
   }
 
-  useEffect(() => { fetchMonitoreos(); setPagina(1) }, [cultivo?.idCultivo, notificacionKey])
+    useEffect(() => { fetchMonitoreos(); setPagina(1) }, [cultivo?.idCultivo])
 
   useEffect(() => {
     if (pagina > totalPaginas) setPagina(1)

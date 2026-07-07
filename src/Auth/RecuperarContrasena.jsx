@@ -6,42 +6,22 @@ import {
 
 import PasswordStrength from "../components/PasswordStrength";
 import AnimatedLogo from "../components/AnimatedLogo";
+import api from "../services/api";
 import "./RecuperarContrasena.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend-coffe-lifee-production-191b.up.railway.app";
-
-async function apiFetch(ruta, body, options = {}) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), options.timeout || 15000);
-
+async function apiPost(ruta, body) {
   try {
-    const response = await fetch(`${API_BASE_URL}${ruta}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message ||
-          data.error ||
-          "Ocurrió un error en el servidor"
-      );
-    }
-
-    return data;
+    const res = await api.post(ruta, body, { timeout: 30000 });
+    return res.data;
   } catch (err) {
-    if (err.name === "AbortError") {
-      throw new Error("El servidor no respondió a tiempo. Intenta de nuevo.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeout);
+    console.error('[Recuperar] Error en', ruta, err.response?.status, err.response?.data, err.message)
+    const serverMsg = err.response?.data
+    const msg = typeof serverMsg === 'string' ? serverMsg
+      : serverMsg?.message || serverMsg?.error
+      || (err.code === 'ECONNABORTED' ? 'El servidor no respondió a tiempo. Intenta de nuevo.' : null)
+      || (err.message === 'Network Error' ? 'No se pudo conectar con el servidor. Verifica tu conexión.' : null)
+      || 'Ocurrió un error inesperado.'
+    throw new Error(msg)
   }
 }
 
@@ -64,7 +44,7 @@ function PasoEmail({ onSiguiente }) {
       setCargando(true);
       setError("");
 
-      await apiFetch("/recuperar-password", {
+      await apiPost("/recuperar-password", {
         correo,
       });
 
@@ -130,7 +110,7 @@ function PasoEmail({ onSiguiente }) {
    PASO 2 — INGRESAR CÓDIGO
 ========================================================= */
 
-function PasoCodigo({ onSiguiente }) {
+function PasoCodigo({ correo, onSiguiente }) {
   const [codigo, setCodigo] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
@@ -141,19 +121,7 @@ function PasoCodigo({ onSiguiente }) {
       return;
     }
 
-    try {
-      setCargando(true);
-      setError("");
-
-      // ✅ Verificar el token contra el backend antes de avanzar
-      await apiFetch("/verificar-token", { token: codigo });
-
-      onSiguiente(codigo);
-    } catch (err) {
-      setError(err.message); // Mostrará "Código inválido" o "El código ha expirado"
-    } finally {
-      setCargando(false);
-    }
+    onSiguiente(codigo);
   };
 
   return (
@@ -202,6 +170,7 @@ function PasoCodigo({ onSiguiente }) {
 ========================================================= */
 
 function PasoNuevaContrasena({
+  correo,
   token,
   onExito,
 }) {
@@ -233,7 +202,8 @@ function PasoNuevaContrasena({
       setCargando(true);
       setError("");
 
-      await apiFetch("/restablecer-password", {
+      await apiPost("/restablecer-password", {
+        correo,
         token,
         nuevaPassword,
       });
@@ -348,6 +318,7 @@ export default function RecuperarContrasena({
 }) {
   const [paso, setPaso] = useState(1);
 
+  const [correo, setCorreo] = useState("");
   const [token, setToken] = useState("");
 
   useEffect(() => {
@@ -367,12 +338,16 @@ export default function RecuperarContrasena({
     <div className="recuperar-container">
       {paso === 1 && (
         <PasoEmail
-          onSiguiente={() => setPaso(2)}
+          onSiguiente={(email) => {
+            setCorreo(email);
+            setPaso(2);
+          }}
         />
       )}
 
       {paso === 2 && (
         <PasoCodigo
+          correo={correo}
           onSiguiente={(codigo) => {
             setToken(codigo);
             setPaso(3);
@@ -382,6 +357,7 @@ export default function RecuperarContrasena({
 
       {paso === 3 && (
         <PasoNuevaContrasena
+          correo={correo}
           token={token}
           onExito={() => setPaso(4)}
         />
