@@ -1,17 +1,23 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAuth } from '../../../context/AuthContext'
+import { useNotificaciones } from '../../../hooks/useNotificaciones'
 import './ExpertoLayout.css'
 import AnimatedLogo from '../../../components/AnimatedLogo'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 import api from '../../../services/api'
-import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut, BiBell } from 'react-icons/bi'
+import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut, BiBell, BiTrendingUp } from 'react-icons/bi'
 
 const NAV_ITEMS = [
   {
     key: 'dashboard',
     label: 'Mis fincas asignadas',
     icon: <BiGrid size={18} />,
+  },
+  {
+    key: 'metricas',
+    label: 'Métricas',
+    icon: <BiTrendingUp size={18} />,
   },
 ]
 
@@ -190,6 +196,7 @@ const BACK_CONFIG = {
   recomendaciones:   { page: 'dashboard',           label: 'Volver' },
   historial:         { page: 'dashboard',           label: 'Volver' },
   productores:       { page: 'dashboard',           label: 'Volver' },
+  metricas:          { page: 'dashboard',           label: 'Volver' },
   reportes:          { page: 'dashboard',           label: 'Volver' },
   escaner:           { page: 'dashboard',           label: 'Volver' },
   mapa:              { page: 'dashboard',           label: 'Volver' },
@@ -221,6 +228,7 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
 
   // Notificaciones
   const idExperto = user?.idUsuario ?? user?.id
+  const notificacionKey = useNotificaciones(idExperto)
   const [fincasAsignadas, setFincasAsignadas] = useState([])
   const [monitoreos, setMonitoreos] = useState([])
   const [nuevasAsignaciones, setNuevasAsignaciones] = useState([])
@@ -251,7 +259,7 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
 
   const notifGetId = (n) => {
     if (n.tipo === 'asignacion') return `asig-${n.idFinca}`
-    return n.id ?? n.idMonitoreo ?? n.id_monitoreo
+    return String(n.id ?? n.idMonitoreo ?? n.id_monitoreo ?? '')
   }
 
   const notifFmtFecha = (raw) => {
@@ -347,7 +355,7 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
     fetchNotificaciones()
     const id = setInterval(fetchNotificaciones, 30000)
     return () => clearInterval(id)
-  }, [fetchNotificaciones])
+  }, [fetchNotificaciones, notificacionKey])
 
   const notificaciones = [
     ...nuevasAsignaciones.map((a) => ({ ...a, tipo: 'asignacion' })),

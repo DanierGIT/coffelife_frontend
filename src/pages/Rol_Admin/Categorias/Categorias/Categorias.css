@@ -22,7 +22,7 @@
   flex-shrink: 0;
   width: 40px;
   height: 40px;
-  background-color: #097300;
+  background-color: #1b5e20;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -30,7 +30,7 @@
 }
 .catalogo-banner-badge {
   display: inline-block;
-  background-color: #097300;
+  background-color: #1b5e20;
   color: white;
   font-size: 10px;
   font-weight: 700;

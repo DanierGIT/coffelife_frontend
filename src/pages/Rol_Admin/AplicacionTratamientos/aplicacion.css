@@ -88,7 +88,7 @@
 .rl-field textarea:focus,
 .rl-field select:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
 }
@@ -103,7 +103,7 @@
 }
 
 .rl-btn {
-  background: #097300;
+  background: #1b5e20;
   color: white;
   border: none;
   border-radius: 10px;
@@ -162,7 +162,7 @@
 }
 
 .rl-table thead {
-  background: #097300;
+  background: #1b5e20;
 }
 
 .rl-table th {
@@ -434,7 +434,7 @@
 .modal-form select:focus,
 .modal-form textarea:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
@@ -462,7 +462,7 @@
 .btn-cancelar:hover { background: #e5e7eb; }
 
 .btn-guardar {
-  background: #097300;
+  background: #1b5e20;
   color: #fff;
   border: none;
   padding: 11px 22px;

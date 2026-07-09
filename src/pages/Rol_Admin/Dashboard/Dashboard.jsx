@@ -242,7 +242,7 @@ export default function Dashboard({ onNavigate }) {
   const [loading, setLoading] = useState(true)
   const [showNotifDropdown, setShowNotifDropdown] = useState(false)
   const uid = user?.idUsuario ?? user?.id
-  useNotificaciones(uid)
+  const notificacionKey = useNotificaciones(uid)
   const [vistos, setVistos] = useState(() => {
     try {
       const saved = localStorage.getItem('dash_vistos')
@@ -319,6 +319,7 @@ export default function Dashboard({ onNavigate }) {
       const b = getArr(rMon.data)
       setMonitoreosCrudos(a)
       setMonitoreos(b.length > 0 ? b : a.map((m) => ({
+        idMonitoreo: m.idMonitoreo ?? m.id_monitoreo ?? m.id,
         finca: m.finca?.nombreFinca || m.cultivo?.nombreFinca || m.nombreFinca || '—',
         lote: m.cultivo?.nombreCultivo || m.lote || '—',
         fecha: m.fechaMonitoreo ?? m.fecha ?? m.fecha_monitoreo,
@@ -359,7 +360,7 @@ export default function Dashboard({ onNavigate }) {
     }
   }, [])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => { fetchData() }, [fetchData, notificacionKey])
 
   const nav = (page) => onNavigate?.(page)
 
@@ -500,10 +501,10 @@ export default function Dashboard({ onNavigate }) {
           { key: 'expertosActivos', icon: <BiUser size={22} />, label: 'Expertos activos', bg: 'kpi-orange' },
           { key: 'cafeterosActivos', icon: <BiCoffee size={22} />, label: 'Caficultores activos', bg: 'kpi-brown' },
           { key: 'monitoreosEsteMes', icon: <BiCalendar size={22} />, label: 'Monitoreos este mes', bg: 'kpi-blue' },
-        ].map((k) => {
+        ].map((k, idx) => {
           const d = kpis?.[k.key] || {}
           return (
-            <div className="d-kpi-card" key={k.key}>
+            <div className="d-kpi-card d-card-enter" key={k.key} style={{ animationDelay: `${idx * 0.1}s` }}>
               <div className={`d-kpi-icon ${k.bg}`}>{k.icon}</div>
               <div className="d-kpi-body">
                 <span className="d-kpi-value">{d.total ?? 0}</span>
@@ -519,7 +520,7 @@ export default function Dashboard({ onNavigate }) {
       <section className="d-central">
 
         {/* C1 ── Dona ── */}
-        <div className="d-block">
+        <div className="d-block d-card-enter" style={{ animationDelay: '0.15s' }}>
           <h3>Monitoreo por estado</h3>
           <div className="d-dona-wrapper">
             <div className="d-dona">
@@ -594,7 +595,7 @@ export default function Dashboard({ onNavigate }) {
         </div>
 
         {/* C2 ── Líneas ── */}
-        <div className="d-block">
+        <div className="d-block d-card-enter" style={{ animationDelay: '0.25s' }}>
           <h3>Tendencia de roya (&uacute;ltimos 7 d&iacute;as)</h3>
           <div className="d-line-chart">
             <div className="d-line-indicators">
@@ -622,7 +623,7 @@ export default function Dashboard({ onNavigate }) {
         </div>
 
         {/* C3 ── Actividad ── */}
-        <div className="d-block">
+        <div className="d-block d-card-enter" style={{ animationDelay: '0.35s' }}>
           <h3>Actividad reciente</h3>
           <div className="d-activity-list">
             {actividad.length === 0 && (
@@ -655,7 +656,7 @@ export default function Dashboard({ onNavigate }) {
       <section className="d-bottom">
 
         {/* D1 ── Tabla ── */}
-        <div className="d-block d-block-wide">
+        <div className="d-block d-block-wide d-card-enter" style={{ animationDelay: '0.45s' }}>
           <h3>Monitoreos recientes</h3>
           <div className="d-table-wrap">
             <table className="d-table">
@@ -717,7 +718,7 @@ export default function Dashboard({ onNavigate }) {
         <div className="d-side-stack">
 
           {/* Top 5 */}
-          <div className="d-block">
+          <div className="d-block d-card-enter" style={{ animationDelay: '0.5s' }}>
             <h3>Top 5 fincas con m&aacute;s roya</h3>
             <div className="d-top-list">
               {topFincas.length === 0 ? (
@@ -738,7 +739,7 @@ export default function Dashboard({ onNavigate }) {
           </div>
 
           {/* Próximos */}
-          <div className="d-block">
+          <div className="d-block d-card-enter" style={{ animationDelay: '0.55s' }}>
             <h3>Pr&oacute;ximos monitoreos programados</h3>
             <div className="d-prox-list">
               {proximos.length === 0 ? (
@@ -776,7 +777,7 @@ export default function Dashboard({ onNavigate }) {
       <section className="d-footer">
 
         {/* E1 ── Mapa ── */}
-        <div className="d-block">
+        <div className="d-block d-card-enter" style={{ animationDelay: '0.65s' }}>
           <h3>Mapa de fincas</h3>
           <div className="map-wrapper" style={{ height: '400px', borderRadius: '12px', overflow: 'hidden' }}>
             {mapaFiltrado.length > 0 ? (
@@ -812,7 +813,7 @@ export default function Dashboard({ onNavigate }) {
         </div>
 
         {/* E2 ── Impacto ── */}
-        <div className="d-block">
+        <div className="d-block d-card-enter" style={{ animationDelay: '0.75s' }}>
           <h3>Impacto del sistema</h3>
           {(() => {
             const items = [

@@ -4,7 +4,7 @@
 
 :root {
   --bg-coffeelife: #fdfbf7;
-  --brand-primary: #097300;
+  --brand-primary: #1b5e20;
   --brand-primary-hover: #075c00;
   --brand-light-green: #eef6e9;
   --brand-dark-text: #1c2416;
@@ -611,7 +611,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background: #097300;
+  background: #1b5e20;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -621,5 +621,5 @@
 }
 
 .finca-bloqueada-content .btn-card-action-trigger:hover {
-  background: #065a00;
+  background: #0d3d11;
 }

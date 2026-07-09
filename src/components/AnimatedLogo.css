@@ -66,6 +66,7 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  border: calc(2px * var(--al-scale)) solid rgba(255,255,255,0.25);
 }
 
 /* ── Scan line ── */

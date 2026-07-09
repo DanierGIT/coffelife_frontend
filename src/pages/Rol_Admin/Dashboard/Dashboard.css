@@ -16,6 +16,14 @@
   --d-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
+@keyframes dFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.d-card-enter {
+  animation: dFadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 /* ── Layout ── */
 .dashboard {
   max-width: 1400px;

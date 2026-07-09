@@ -45,6 +45,7 @@ import PerfilExperto         from './pages/Rol_Experto/Perfil/PerfilExperto'
 import ConfigurarExperto     from './pages/Rol_Experto/Perfil/ConfigurarExperto'
 import CultivosExperto       from './pages/Rol_Experto/Cultivos/CultivosExperto'
 import DetalleCultivoExperto from './pages/Rol_Experto/DetalleCultivo/DetalleCultivoExperto'
+import MetricasExperto       from './pages/Rol_Experto/Metricas/MetricasExperto'
 
 const normalizeRole = (role) => {
   const value = (role ?? '').toString().toLowerCase().trim()
@@ -106,16 +107,59 @@ function AdminApp() {
 // Vista Experto
 // ─────────────────────────────────────────────
 function ExpertoApp() {
-  const [activePage, setActivePage] = useState('dashboard')
-  const [selectedFinca, setSelectedFinca] = useState(null)
-  const [selectedCultivo, setSelectedCultivo] = useState(null)
+  const leerUrl = () => {
+    const hash = window.location.hash.replace('#', '') || ''
+    const parts = hash.split('/').filter(Boolean)
+    return { page: parts[0] || 'dashboard', sub: parts[1] || null }
+  }
+
+  const [activePage, setActivePage] = useState(() => {
+    try {
+      const { page } = leerUrl()
+      if (page && page !== 'dashboard') return page
+      return sessionStorage.getItem('exp_page') || 'dashboard'
+    } catch { return 'dashboard' }
+  })
+  const [selectedFinca, setSelectedFinca] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem('exp_finca')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  })
+  const [selectedCultivo, setSelectedCultivo] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem('exp_cultivo')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  })
+
+  const syncUrl = (page) => {
+    window.history.pushState(null, '', `#/${page}`)
+  }
+
+  useEffect(() => {
+    const { page } = leerUrl()
+    if (page && page !== 'dashboard' && page !== activePage) {
+      setActivePage(page)
+    }
+    const onPop = () => {
+      const { page } = leerUrl()
+      if (page) setActivePage(page)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   const handleNavigate = (page, data) => {
     setActivePage(page)
+    syncUrl(page)
+    try { sessionStorage.setItem('exp_page', page) } catch {}
     if (page === 'detalle_cultivo') {
       setSelectedCultivo(data || null)
+      try { sessionStorage.setItem('exp_cultivo', data ? JSON.stringify(data) : '') } catch {}
     } else {
       setSelectedFinca(data || null)
+      try { sessionStorage.setItem('exp_finca', data ? JSON.stringify(data) : '') } catch {}
     }
   }
 
@@ -132,6 +176,7 @@ function ExpertoApp() {
       case 'cultivos':        return <CultivosExperto {...p} />
       case 'detalle_cultivo': return <DetalleCultivoExperto {...p} />
       case 'productores':     return <ProductoresExperto />
+      case 'metricas':        return <MetricasExperto {...p} />
       case 'reportes':        return <ReportesExperto {...p} />
       case 'perfil':               return <PerfilExperto onNavigate={handleNavigate} />
       case 'configurar-experto':   return <ConfigurarExperto onNavigate={handleNavigate} />

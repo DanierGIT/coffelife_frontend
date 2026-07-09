@@ -395,7 +395,7 @@ export default function DetalleCultivoExperto({ cultivo, onNavigate, finca }) {
               height: 36,
               border: 'none',
               borderRadius: 10,
-              background: '#097300',
+              background: '#1b5e20',
               color: 'white',
               fontWeight: 700,
               padding: '0 20px',

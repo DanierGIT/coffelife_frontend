@@ -29,7 +29,7 @@
 
 .finca-form-row input:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9,115,0,0.12);
   background: #fff;
 }
@@ -107,7 +107,7 @@
 
 .modal-form select:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
@@ -456,7 +456,7 @@
 
 .experto-select:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
@@ -562,7 +562,7 @@
   text-transform: uppercase;
   letter-spacing: 0.3px;
   border-bottom: 1px solid #f0f0f0;
-  background: #097300;
+  background: #1b5e20;
 }
 
 .cultivos-tabla td {

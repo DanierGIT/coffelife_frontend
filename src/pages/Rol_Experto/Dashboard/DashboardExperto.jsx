@@ -17,7 +17,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const FINCAS_POR_PAGINA = 6
+const FINCAS_POR_PAGINA = 10
 
 const getArrayData = (data) => {
   if (Array.isArray(data)) return data
@@ -28,18 +28,6 @@ const getArrayData = (data) => {
 const activoEsTrue = (val) => {
   if (val === null || val === undefined) return true
   return val === true || val === 1 || val === '1'
-}
-
-const decodeTokenPayload = () => {
-  try {
-    const token = localStorage.getItem('cl_token')
-    if (!token) return null
-    const payload = token.split('.')[1]
-    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/')
-    return JSON.parse(window.atob(base64))
-  } catch {
-    return null
-  }
 }
 
 /* ─── Mapa para seleccionar coordenadas ──────────────────────────── */
@@ -309,6 +297,7 @@ function FincaOptionsMenu({ finca, onEditar, onCambiarFoto }) {
 export default function DashboardExperto({ onNavigate }) {
   const [fincasAsignadas, setFincasAsignadas] = useState([])
   const [cultivosPorFinca, setCultivosPorFinca] = useState({})
+  const [monitoreosPorFinca, setMonitoreosPorFinca] = useState({})
   const [fotosPorFinca, setFotosPorFinca] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -326,6 +315,12 @@ export default function DashboardExperto({ onNavigate }) {
   })
   const [cafeteros, setCafeteros] = useState([])
 
+  // Modal crear cultivo (post‑finca)
+  const [showCrearCultivoModal, setShowCrearCultivoModal] = useState(false)
+  const [nuevaFincaData, setNuevaFincaData] = useState(null)
+  const [cultivoSaving, setCultivoSaving] = useState(false)
+  const [cultivoForm, setCultivoForm] = useState({ nombre_cultivo: '', tipo_cultivo: '' })
+
   // Modal mapa
   const [showUbicacionModal, setShowUbicacionModal] = useState(false)
   const [ubicacionLat, setUbicacionLat] = useState('')
@@ -335,11 +330,10 @@ export default function DashboardExperto({ onNavigate }) {
   const [fincaParaEditar, setFincaParaEditar] = useState(null)
   const [fincaParaFoto, setFincaParaFoto] = useState(null)
 
-  const payload = decodeTokenPayload()
   const { user } = useAuth()
-  useNotificaciones(user?.idUsuario ?? user?.id)
-  const nombreExperto = payload?.nombre || 'Experto'
-  const idExperto = payload?.id
+  const notificacionKey = useNotificaciones(user?.idUsuario ?? user?.id)
+  const nombreExperto = user?.nombre || 'Experto'
+  const idExperto = user?.idUsuario ?? user?.id
 
   const totalCultivosContador = Object.values(cultivosPorFinca).reduce(
     (acc, lista) => acc + (lista?.length || 0), 0
@@ -358,9 +352,10 @@ export default function DashboardExperto({ onNavigate }) {
 
   const fetchEnrichment = async (unicas) => {
     try {
-      const [cultivosRes, cafeterosRes] = await Promise.all([
+      const [cultivosRes, cafeterosRes, monitoreosRes] = await Promise.all([
         api.get('/cultivos'),
-        api.get('/cafeteros'),
+        api.get('/cafeteros', { params: { limit: 1000 } }),
+        api.get('/monitoreos'),
       ])
 
       const cafeterosData = Array.isArray(cafeterosRes.data)
@@ -378,6 +373,20 @@ export default function DashboardExperto({ onNavigate }) {
         cultivosMap[f.idFinca] = todosCultivos.filter((c) => Number(c.idFinca) === Number(f.idFinca))
       })
       setCultivosPorFinca(cultivosMap)
+
+      // Contar monitoreos por finca
+      const todosMonitoreos = getArrayData(monitoreosRes.data)
+      const fincaIds = new Set(unicas.map((f) => Number(f.idFinca)))
+      const monCount = {}
+      todosMonitoreos.forEach((m) => {
+        const idCultivo = Number(m.idCultivo ?? m.id_cultivo)
+        const cultivo = todosCultivos.find((c) => Number(c.idCultivo) === idCultivo)
+        const idFinca = Number(cultivo?.idFinca ?? cultivo?.id_finca)
+        if (idFinca && fincaIds.has(idFinca)) {
+          monCount[idFinca] = (monCount[idFinca] || 0) + 1
+        }
+      })
+      setMonitoreosPorFinca(monCount)
     } catch {
       // silencioso
     }
@@ -433,7 +442,7 @@ export default function DashboardExperto({ onNavigate }) {
     }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { fetchData() }, [notificacionKey])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const openUbicacionPicker = () => { setUbicacionLat(form.latitud); setUbicacionLng(form.longitud); setShowUbicacionModal(true) }
@@ -442,11 +451,16 @@ export default function DashboardExperto({ onNavigate }) {
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    setSaving(true)
     setFormError('')
+    // Validar cafetero obligatorio
+    if (!form.id_cafetero) {
+      setFormError('Debes seleccionar un caficultor/propietario para la finca.')
+      return
+    }
+    setSaving(true)
     try {
       const fincaRes = await api.post('/fincas', {
-        id_usuario: form.id_cafetero ? Number(form.id_cafetero) : idExperto,
+        id_usuario: Number(form.id_cafetero),
         nombre_finca: form.nombre_finca,
         municipio: form.municipio,
         departamento: form.departamento,
@@ -457,23 +471,51 @@ export default function DashboardExperto({ onNavigate }) {
       })
       const nuevaFinca = fincaRes.data?.data || fincaRes.data
       setForm({ nombre_finca: '', municipio: '', departamento: '', altitud_msnm: '', area_hectareas: '', latitud: '', longitud: '', id_cafetero: '' })
-      setShowCrearModal(false)
-      setPaginaActual(1)
-      fetchData()
-      // Intentar asignar al experto, pero si falla no bloquear
+
+      // Asignar al experto que la creó
       try {
         await api.post('/asignaciones_expertos', {
           idExperto: idExperto,
           idFinca: nuevaFinca.idFinca,
           fechaAsignada: new Date().toISOString().split('T')[0],
         })
-      } catch {
-        // Silencioso: la asignacion requiere admin, pero la finca ya se creo
+      } catch (err) {
+        console.error('[Asignacion] Error al asignar finca al experto:', err?.response?.data || err.message)
       }
+
+      // Cerrar modal de finca y abrir modal para crear el primer cultivo
+      setShowCrearModal(false)
+      setFormError('')
+      setNuevaFincaData(nuevaFinca)
+      setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '' })
+      setShowCrearCultivoModal(true)
+      setPaginaActual(1)
+      fetchData()
     } catch (err) {
       setFormError(err?.response?.data?.message || err?.response?.data?.error || 'No se pudo registrar la finca.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleCrearCultivo = async (e) => {
+    e.preventDefault()
+    setCultivoSaving(true)
+    try {
+      await api.post('/cultivos', {
+        id_finca: nuevaFincaData.idFinca,
+        nombre_cultivo: cultivoForm.nombre_cultivo.trim(),
+        tipo_cultivo: cultivoForm.tipo_cultivo.trim(),
+      })
+      setFormError('')
+      setCultivoForm({ nombre_cultivo: '', tipo_cultivo: '' })
+      setShowCrearCultivoModal(false)
+      setNuevaFincaData(null)
+      fetchData()
+    } catch (err) {
+      setFormError(err?.response?.data?.message || 'No se pudo crear el cultivo.')
+    } finally {
+      setCultivoSaving(false)
     }
   }
 
@@ -618,7 +660,7 @@ export default function DashboardExperto({ onNavigate }) {
                           <span>Cultivos</span>
                         </div>
                         <div className="internal-stat">
-                          <strong>--</strong>
+                          <strong>{monitoreosPorFinca[f.idFinca] ?? 0}</strong>
                           <span>Monitoreos</span>
                         </div>
                         <div className="internal-stat">
@@ -644,13 +686,13 @@ export default function DashboardExperto({ onNavigate }) {
             </div>
 
             {/* ── PAGINACIÓN ──────────────────────────────────────── */}
-            {totalPaginas > 1 && (
-              <div className="cl-pagination-bar">
-                <span className="cl-pagination-info">
-                  Mostrando {(paginaActual - 1) * FINCAS_POR_PAGINA + 1} a{' '}
-                  {Math.min(paginaActual * FINCAS_POR_PAGINA, fincasAsignadas.length)} de{' '}
-                  {fincasAsignadas.length} fincas
-                </span>
+            <div className="cl-pagination-bar">
+              <span className="cl-pagination-info">
+                {fincasAsignadas.length > 0
+                  ? `Mostrando ${(paginaActual - 1) * FINCAS_POR_PAGINA + 1} a ${Math.min(paginaActual * FINCAS_POR_PAGINA, fincasAsignadas.length)} de ${fincasAsignadas.length} fincas`
+                  : '0 fincas'}
+              </span>
+              {totalPaginas > 1 && (
                 <div className="cl-pagination-controls">
                   <button className="cl-page-btn" onClick={() => irAPagina(paginaActual - 1)} disabled={paginaActual === 1} aria-label="Anterior">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -668,15 +710,15 @@ export default function DashboardExperto({ onNavigate }) {
                     </svg>
                   </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
       </div>
 
       {/* MODAL CREAR FINCA */}
       {showCrearModal && (
-        <div className="cl-modal-overlay" onClick={() => setShowCrearModal(false)}>
+        <div className="cl-modal-overlay" onClick={() => { setShowCrearModal(false); setFormError('') }}>
           <div className="cl-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
             <h2 className="cl-modal-title">Registrar nueva finca</h2>
             <form className="cl-modal-form" onSubmit={handleCreate}>
@@ -714,9 +756,9 @@ export default function DashboardExperto({ onNavigate }) {
                 </button>
               </div>
               <div className="cl-input-group">
-                <label>Caficultor / Propietario</label>
-                <select name="id_cafetero" value={form.id_cafetero} onChange={handleChange}>
-                  <option value="">Seleccione un caficultor (opcional)</option>
+                <label>Caficultor / Propietario <span style={{ color: '#ef4444' }}>*</span></label>
+                <select name="id_cafetero" value={form.id_cafetero} onChange={handleChange} required>
+                  <option value="">-- Seleccione un caficultor --</option>
                   {cafeteros.map((c) => (
                     <option key={c.idUsuario} value={c.idUsuario}>{c.nombre} {c.apellido}</option>
                   ))}
@@ -761,6 +803,46 @@ export default function DashboardExperto({ onNavigate }) {
           onClose={() => setFincaParaFoto(null)}
           onFotoActualizada={handleFotoActualizada}
         />
+      )}
+
+      {/* MODAL CREAR PRIMER CULTIVO (obligatorio tras crear finca) */}
+      {showCrearCultivoModal && nuevaFincaData && (
+        <div className="cl-modal-overlay" onClick={() => {}}>
+          <div className="cl-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <h2 className="cl-modal-title">Crear primer cultivo</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: '0 0 1.25rem 0' }}>
+              La finca <strong>{nuevaFincaData.nombreFinca || nuevaFincaData.nombre || '—'}</strong> debe tener al menos un cultivo.
+            </p>
+            <form className="cl-modal-form" onSubmit={handleCrearCultivo}>
+              <div className="cl-input-group">
+                <label>Nombre del cultivo <span style={{ color: '#ef4444' }}>*</span></label>
+                <input
+                  name="nombre_cultivo"
+                  value={cultivoForm.nombre_cultivo}
+                  onChange={(e) => setCultivoForm({ ...cultivoForm, nombre_cultivo: e.target.value })}
+                  placeholder="Ej. Lote Central - Café"
+                  required
+                />
+              </div>
+              <div className="cl-input-group">
+                <label>Variedad / Tipo de cultivo <span style={{ color: '#ef4444' }}>*</span></label>
+                <input
+                  name="tipo_cultivo"
+                  value={cultivoForm.tipo_cultivo}
+                  onChange={(e) => setCultivoForm({ ...cultivoForm, tipo_cultivo: e.target.value })}
+                  placeholder="Ej. Castillo, Bourbon, Catimor"
+                  required
+                />
+              </div>
+              {formError && <p className="cl-form-error-msg">{formError}</p>}
+              <div className="cl-modal-actions">
+                <button type="submit" className="btn-brand-primary" disabled={cultivoSaving}>
+                  {cultivoSaving ? <Loading type="inline" text="Creando..." /> : 'Crear cultivo'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   )

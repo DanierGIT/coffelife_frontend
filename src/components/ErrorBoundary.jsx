@@ -29,7 +29,7 @@ export default class ErrorBoundary extends Component {
           </details>
           <button
             onClick={() => window.location.reload()}
-            style={{ marginTop: 20, padding: '8px 24px', background: '#097300', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+            style={{ marginTop: 20, padding: '8px 24px', background: '#1b5e20', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}
           >
             Recargar página
           </button>

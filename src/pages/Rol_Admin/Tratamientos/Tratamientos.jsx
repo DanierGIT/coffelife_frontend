@@ -33,6 +33,9 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
     id_tipo_tratamiento: "",
     nombre: "",
     descripcion: "",
+    dosis: "",
+    frecuencia: "",
+    duracion: "",
   });
 
   useEffect(() => {
@@ -53,9 +56,12 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
         id_tipo_tratamiento: tratamientoEditar.idTipoTratamiento || "",
         nombre:              tratamientoEditar.nombre || "",
         descripcion:         tratamientoEditar.descripcion || "",
+        dosis:               tratamientoEditar.dosis || "",
+        frecuencia:          tratamientoEditar.frecuencia || "",
+        duracion:            tratamientoEditar.duracion || "",
       });
     } else {
-      setFormulario({ id_tipo_tratamiento: "", nombre: "", descripcion: "" });
+      setFormulario({ id_tipo_tratamiento: "", nombre: "", descripcion: "", dosis: "", frecuencia: "", duracion: "" });
     }
   }, [tratamientoEditar]);
 
@@ -82,6 +88,9 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
         id_tipo_tratamiento: Number(formulario.id_tipo_tratamiento),
         nombre:              formulario.nombre.trim(),
         descripcion:         formulario.descripcion.trim(),
+        dosis:               formulario.dosis.trim(),
+        frecuencia:          formulario.frecuencia.trim(),
+        duracion:            formulario.duracion.trim(),
       };
       if (tratamientoEditar) {
         await actualizarTratamiento(tratamientoEditar.idTratamiento, payload);
@@ -91,7 +100,7 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
       }
       await cargarDatos();
       if (!tratamientoEditar) { limpiarEdicion?.(); }
-      setFormulario({ id_tipo_tratamiento: "", nombre: "", descripcion: "" });
+      setFormulario({ id_tipo_tratamiento: "", nombre: "", descripcion: "", dosis: "", frecuencia: "", duracion: "" });
     } catch (error) {
       console.error("ERROR GUARDANDO:", error);
     }
@@ -126,6 +135,30 @@ function FormularioTratamiento({ cargarDatos, tratamientoEditar, limpiarEdicion 
         name="descripcion"
         placeholder="Descripción"
         value={formulario.descripcion}
+        onChange={handleChange}
+      />
+
+      <input
+        type="text"
+        name="dosis"
+        placeholder="Dosis (ej. 2.5 L/ha)"
+        value={formulario.dosis}
+        onChange={handleChange}
+      />
+
+      <input
+        type="text"
+        name="frecuencia"
+        placeholder="Frecuencia (ej. Cada 15 días)"
+        value={formulario.frecuencia}
+        onChange={handleChange}
+      />
+
+      <input
+        type="text"
+        name="duracion"
+        placeholder="Duración (ej. 30 días)"
+        value={formulario.duracion}
         onChange={handleChange}
       />
 

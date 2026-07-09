@@ -79,7 +79,7 @@
 
 .cult-field input:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }
@@ -103,7 +103,7 @@
 
 /* ─── Botones principales ─── */
 .btn-primary {
-  background: #097300;
+  background: #1b5e20;
   color: #fff;
   border: none;
   padding: 11px 22px;
@@ -172,7 +172,7 @@
 }
 
 .cult-table thead {
-  background: #097300;
+  background: #1b5e20;
 }
 
 .cult-table th {
@@ -365,7 +365,7 @@
 
 .modal-form input:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9, 115, 0, 0.12);
   background: #fff;
 }

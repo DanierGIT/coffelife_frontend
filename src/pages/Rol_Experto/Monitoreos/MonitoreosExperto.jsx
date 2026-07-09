@@ -707,7 +707,7 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
   const [totalPaginas, setTotalPaginas] = useState(1)
   const ITEMS_POR_PAGINA = 10
 
-  useNotificaciones(userId)
+  const notificacionKey = useNotificaciones(userId)
 
   const modalAbierto = showNuevoModal || showModal || editMonitoreo
   const cerrarModal = () => {
@@ -748,7 +748,7 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
     setPagina(p)
   }
 
-    useEffect(() => { fetchMonitoreos(); setPagina(1) }, [cultivo?.idCultivo])
+    useEffect(() => { fetchMonitoreos(); setPagina(1) }, [cultivo?.idCultivo, notificacionKey])
 
   useEffect(() => {
     if (pagina > totalPaginas) setPagina(1)

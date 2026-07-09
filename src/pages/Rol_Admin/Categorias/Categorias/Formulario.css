@@ -37,10 +37,10 @@
   transition: border-color 0.2s;
 }
 
-.crud-form input:focus { border-color: #097300; }
+.crud-form input:focus { border-color: #1b5e20; }
 
 .crud-form button {
-  background: #097300;
+  background: #1b5e20;
   color: white;
   border: none;
   border-radius: 12px;
@@ -65,14 +65,15 @@
 }
 
 .crud-table-card table { width: 100%; border-collapse: collapse; }
-.crud-table-card thead { background: #e7d6b3; }
+.crud-table-card thead { background: #1b5e20; }
 
 .crud-table-card th {
   text-align: left;
   padding: 14px 18px;
-  color: #0f5132;
-  font-weight: 700;
-  font-size: 14px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.3px;
 }
 
 .crud-table-card td {
@@ -200,7 +201,7 @@
 }
 
 .cat-modal-input:focus {
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9,115,0,0.1);
 }
 
@@ -238,7 +239,7 @@
   padding: 10px 24px;
   border-radius: 10px;
   border: none;
-  background: #097300;
+  background: #1b5e20;
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -246,5 +247,5 @@
   transition: 0.15s;
 }
 
-.cat-btn-save:hover:not(:disabled) { background: #065a00; }
+.cat-btn-save:hover:not(:disabled) { background: #0d3d11; }
 .cat-btn-save:disabled { opacity: 0.55; cursor: not-allowed; }

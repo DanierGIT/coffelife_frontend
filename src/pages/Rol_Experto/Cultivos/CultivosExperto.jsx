@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import api from '../../../services/api'
 import { BiUser, BiMapPin, BiChevronLeft, BiTime, BiCalendar, BiTimeFive, BiPlus, BiDotsVerticalRounded, BiLeaf, BiCamera, BiFile, BiLayer, BiChevronRight } from 'react-icons/bi'
+import { useAuth } from '../../../context/AuthContext'
 import './CultivosExperto.css'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
+import { useNotificaciones } from '../../../hooks/useNotificaciones'
 
 /* ==========================================================================
    📸 MODAL CAMBIAR FOTO DE CULTIVO
@@ -156,6 +158,8 @@ function CultivoOptionsMenu({ cultivo, onEditar, onCambiarFoto }) {
    🌱 COMPONENTE PRINCIPAL (CULTIVOS EXPERTO)
    ========================================================================== */
 export default function CultivosExperto({ finca, onNavigate }) {
+  const { user } = useAuth()
+  const notificacionKey = useNotificaciones(user?.idUsuario ?? user?.id)
   const activoTrue = (v) => { if (v === null || v === undefined) return true; return v === true || v === 1 || v === '1' }
   if (!activoTrue(finca?.activo)) {
     return (
@@ -238,7 +242,7 @@ export default function CultivosExperto({ finca, onNavigate }) {
       }
     }
     fetchData()
-  }, [finca])
+  }, [finca, notificacionKey])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 

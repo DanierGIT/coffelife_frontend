@@ -27,9 +27,10 @@ const getColombiaDateTime = () => {
 
 const hoy = () => getColombiaDateTime().date
 
-const toColombiaISO = (dateStr) => {
+const toColombiaISO = (dateStr, timeStr) => {
   // dateStr: YYYY-MM-DD en zona Colombia
-  const { time } = getColombiaDateTime()
+  // timeStr: HH:mm:ss opcional (si no se provee, usa la hora actual de Colombia)
+  const time = timeStr || getColombiaDateTime().time
   return `${dateStr}T${time}-05:00`
 }
 
@@ -63,7 +64,7 @@ function construirObservacionesHistorico(monitoreo, recs = [], usuario = null, c
   const lineas = []
   const idPadre = monitoreo?.idMonitoreo ?? monitoreo?.id_monitoreo
   const fechaOriginal = monitoreo?.fechaMonitoreo ?? monitoreo?.fecha_monitoreo ?? '—'
-  const fechaHora = new Date().toLocaleString('es-CO')
+  const fechaHora = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })
   const autor = usuario?.nombre
     ? `${usuario.nombre} ${usuario.apellido || ''}`.trim()
     : 'Sistema'
@@ -547,7 +548,13 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
         const obsConHistorial = textoHistorico
           ? `\n\n${'═'.repeat(40)}\nHISTORIAL DE CAMBIOS\n${'═'.repeat(40)}\n\n${textoHistorico}` + (obsFinal || '')
           : (obsFinal || '')
-        await api.put(`/monitoreos/${editMonitoreoId}`, { observaciones: obsConHistorial || null, fecha_monitoreo: toColombiaISO(fecha) })
+        // Preservar la hora original del monitoreo (no sobrescribir con la hora actual)
+        const originalTime = (editMonitoreo?.fechaMonitoreo ?? editMonitoreo?.fecha_monitoreo ?? '').slice(11, 19)
+        await api.put(`/monitoreos/${editMonitoreoId}`, {
+          observaciones: obsConHistorial || null,
+          fecha_monitoreo: toColombiaISO(fecha, originalTime),
+          id_nivel_roya: tieneRoya && idNivelRoya ? Number(idNivelRoya) : null,
+        })
         idMonitoreo = editMonitoreoId
       } else {
         const payload = {
@@ -624,6 +631,7 @@ function Paso4({ cultivo, finca, fecha, fotos, observaciones, nuevasObservacione
             const obs = obsTexto ? `${header} ${obsTexto}` : header
             await api.post('/aplicaciones_tratamientos', {
               id_tratamiento:   Number(t.id_tratamiento),
+              id_monitoreo:     Number(idMonitoreo),
               id_usuario:       userId ? Number(userId) : null,
               fecha_aplicacion: fechaApl,
               observacion:      obs,

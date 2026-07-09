@@ -267,7 +267,7 @@ export default function Cafetero() {
             position: 'absolute',
             top: '16px',
             right: '16px',
-            background: '#097300',
+            background: '#1b5e20',
             border: 'none',
             padding: '10px 22px',
             borderRadius: '8px',

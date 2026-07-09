@@ -42,14 +42,14 @@
 .form input:focus,
 .form select:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9,115,0,0.12);
   background: #fff;
 }
 
 /* BOTÓN PRINCIPAL */
 .form button {
-  background: #097300;
+  background: #1b5e20;
   color: #fff;
   border: none;
   padding: 11px 20px;
@@ -79,7 +79,7 @@ table {
 }
 
 thead {
-  background: #097300;
+  background: #1b5e20;
 }
 
 th {
@@ -204,7 +204,7 @@ tr:hover {
 .modal-body input:focus,
 .modal-body select:focus {
   outline: none;
-  border-color: #097300;
+  border-color: #1b5e20;
   box-shadow: 0 0 0 3px rgba(9,115,0,0.12);
   background: #fff;
 }
@@ -219,7 +219,7 @@ tr:hover {
 
 /* BOTONES MODAL */
 .btn-save {
-  background: #097300;
+  background: #1b5e20;
   color: #fff;
   border: none;
   padding: 10px 18px;

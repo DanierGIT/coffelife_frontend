@@ -44,7 +44,7 @@
 .formulario select:focus,
 .formulario textarea:focus {
 
-  border-color: #097300;
+  border-color: #1b5e20;
 
   background: white;
 
@@ -77,7 +77,7 @@
 
 .formulario button {
 
-  background: #097300;
+  background: #1b5e20;
 
   color: white;
 
