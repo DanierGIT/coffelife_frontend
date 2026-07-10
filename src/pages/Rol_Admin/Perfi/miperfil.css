@@ -464,15 +464,15 @@
   border-radius: 9px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #dc2626;
+  color: #6b7280;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   font-family: 'Lato', sans-serif;
 }
 
-.mp-btn-logout:hover { background: #fef2f2; border-color: #fecaca; }
+.mp-btn-logout:hover { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
 
 .mp-btn-spinner {
   width: 12px;

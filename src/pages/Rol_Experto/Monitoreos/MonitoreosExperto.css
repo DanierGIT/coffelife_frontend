@@ -448,6 +448,36 @@
   border-radius: 4px;
 }
 
+.monitor-card-sm-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 22px;
+}
+
+.mon-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.mon-badge--movil {
+  color: #1e40af;
+  background: #dbeafe;
+}
+.mon-badge--pendiente {
+  color: #b45309;
+  background: #fef3c7;
+}
+.mon-badge--hecho {
+  color: #166534;
+  background: #dcfce7;
+}
+
 .monitor-card-sm-eye {
   width: 32px;
   height: 32px;

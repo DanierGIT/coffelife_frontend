@@ -6,7 +6,16 @@ import AnimatedLogo from '../../../components/AnimatedLogo'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
 import api from '../../../services/api'
-import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut, BiBell, BiTrendingUp } from 'react-icons/bi'
+import { BiGrid, BiTargetLock, BiChevronDown, BiUser, BiLogOut, BiBell, BiTrendingUp, BiBug } from 'react-icons/bi'
+
+// ─── Evento compartido para alerta de roya ───
+const royaListeners = new Set()
+let ultimaAlertaRoya = null
+export function suscribirRoya(cb) {
+  royaListeners.add(cb)
+  if (ultimaAlertaRoya) cb(ultimaAlertaRoya)
+  return () => royaListeners.delete(cb)
+}
 
 const NAV_ITEMS = [
   {
@@ -346,6 +355,57 @@ export default function ExpertoLayout({ activePage, onNavigate, selectedFinca, c
         .filter((m) => idsAsignadas.has(m.idFinca))
 
       setMonitoreos(monFiltrados)
+
+      // Detectar si el último monitoreo tiene roya
+      const rawMon = getArrayData(monRes.data)
+      ultimaAlertaRoya = null
+      const ROYA_KEYS = { crítico: 4, critico: 4, alto: 3, high: 3, medio: 2, medium: 2, bajo: 1, low: 1 }
+      const tieneRoya = (m) => {
+        const obs = m.observaciones || ''
+        const texto = [
+          obs.match(/\[ROYA:([^\]]+)\]/)?.[1],
+          obs.match(/Nivel de roya:\s*([^\n]+)/i)?.[1],
+          obs.match(/Severidad:\s*(\w+)/i)?.[1],
+          m.nivelRoya?.nombre,
+          m.nivel_roya,
+          typeof m.nivelRoya === 'string' ? m.nivelRoya : null,
+          typeof m.nivelRoya === 'number' ? String(m.nivelRoya) : null,
+        ].find(Boolean)
+        if (!texto) return false
+        const t = texto.toLowerCase().trim()
+        if (Object.keys(ROYA_KEYS).some((k) => t.includes(k))) return true
+        if (/^[1-4]$/.test(t)) return true
+        return false
+      }
+      const conRoya = rawMon
+        .filter((m) => {
+          const f = m.finca || m.cultivo?.finca || m.cultivo || {}
+          const idF = Number(f.idFinca ?? f.id_finca ?? m.idFinca ?? m.id_finca)
+          return idF && idsAsignadas.has(idF)
+        })
+        .filter(tieneRoya)
+        .sort((a, b) => new Date(b.fechaMonitoreo ?? b.fecha_monitoreo) - new Date(a.fechaMonitoreo ?? a.fecha_monitoreo))
+
+      if (conRoya.length > 0) {
+        const ultimo = conRoya[0]
+        const idMon = ultimo.idMonitoreo ?? ultimo.id_monitoreo
+        if (!sessionStorage.getItem(`roya_alert_${idMon}`)) {
+          const fincaRaw = ultimo.finca || ultimo.cultivo?.finca || ultimo.cultivo || {}
+          const idF = Number(fincaRaw.idFinca ?? fincaRaw.id_finca ?? ultimo.idFinca ?? ultimo.id_finca)
+          royaListeners.forEach((cb) => cb({
+            idMon,
+            finca: mapaNombres[idF] || fincaRaw.nombreFinca || fincaRaw.nombre || (idF ? `Finca #${idF}` : 'Finca desconocida'),
+            idFinca: idF,
+            fincaData: fincasActuales.find((f) => f.idFinca === idF),
+          }))
+          ultimaAlertaRoya = {
+            idMon,
+            finca: mapaNombres[idF] || fincaRaw.nombreFinca || fincaRaw.nombre || (idF ? `Finca #${idF}` : 'Finca desconocida'),
+            idFinca: idF,
+            fincaData: fincasActuales.find((f) => f.idFinca === idF),
+          }
+        }
+      }
     } catch {
       // silencioso
     }

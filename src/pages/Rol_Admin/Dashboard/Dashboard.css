@@ -1012,6 +1012,10 @@
     width: 100%;
     justify-content: flex-start;
   }
+  .d-notif-dropdown {
+    right: auto;
+    left: 0;
+  }
 }
 @media (max-width: 500px) {
   .d-kpis {
@@ -1020,6 +1024,10 @@
   .dona-wrapper {
     flex-direction: column;
     align-items: center;
+  }
+  .d-notif-dropdown {
+    width: calc(100vw - 32px);
+    max-width: 360px;
   }
 }
 

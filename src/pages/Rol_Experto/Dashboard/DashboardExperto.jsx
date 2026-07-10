@@ -4,7 +4,8 @@ import L from 'leaflet'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import { useNotificaciones } from '../../../hooks/useNotificaciones'
-import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight, BiCamera } from 'react-icons/bi'
+import { suscribirRoya } from '../layout/ExpertoLayout'
+import { BiHome, BiLeaf, BiCalendarCheck, BiPlus, BiDotsVerticalRounded, BiMapPin, BiUser, BiChevronRight, BiCamera, BiErrorCircle } from 'react-icons/bi'
 import CoffeePriceCard from '../../../components/CoffeePriceCard'
 import Loading from '../../../components/Loading'
 import '../../../components/cargando.css'
@@ -305,6 +306,9 @@ export default function DashboardExperto({ onNavigate }) {
   // Paginación
   const [paginaActual, setPaginaActual] = useState(1)
 
+  // Alerta de roya
+  const [royaAlert, setRoyaAlert] = useState(null)
+
   // Modal crear finca
   const [showCrearModal, setShowCrearModal] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -443,6 +447,13 @@ export default function DashboardExperto({ onNavigate }) {
   }
 
   useEffect(() => { fetchData() }, [notificacionKey])
+
+  // Escuchar alerta de roya desde el layout (notificaciones)
+  useEffect(() => {
+    return suscribirRoya((data) => {
+      setRoyaAlert(data)
+    })
+  }, [])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const openUbicacionPicker = () => { setUbicacionLat(form.latitud); setUbicacionLng(form.longitud); setShowUbicacionModal(true) }
@@ -687,30 +698,11 @@ export default function DashboardExperto({ onNavigate }) {
 
             {/* ── PAGINACIÓN ──────────────────────────────────────── */}
             <div className="cl-pagination-bar">
-              <span className="cl-pagination-info">
-                {fincasAsignadas.length > 0
-                  ? `Mostrando ${(paginaActual - 1) * FINCAS_POR_PAGINA + 1} a ${Math.min(paginaActual * FINCAS_POR_PAGINA, fincasAsignadas.length)} de ${fincasAsignadas.length} fincas`
-                  : '0 fincas'}
-              </span>
-              {totalPaginas > 1 && (
-                <div className="cl-pagination-controls">
-                  <button className="cl-page-btn" onClick={() => irAPagina(paginaActual - 1)} disabled={paginaActual === 1} aria-label="Anterior">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="15 18 9 12 15 6"/>
-                    </svg>
-                  </button>
-                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
-                    <button key={n} className={`cl-page-btn cl-page-number${n === paginaActual ? ' active' : ''}`} onClick={() => irAPagina(n)}>
-                      {n}
-                    </button>
-                  ))}
-                  <button className="cl-page-btn" onClick={() => irAPagina(paginaActual + 1)} disabled={paginaActual === totalPaginas} aria-label="Siguiente">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 18 15 12 9 6"/>
-                    </svg>
-                  </button>
-                </div>
-              )}
+              <button disabled={paginaActual <= 1} onClick={() => irAPagina(paginaActual - 1)}>Anterior</button>
+              {Array.from({ length: Math.max(1, totalPaginas) }, (_, i) => (
+                <button key={i + 1} className={paginaActual === i + 1 ? 'active' : ''} onClick={() => irAPagina(i + 1)}>{i + 1}</button>
+              ))}
+              <button disabled={paginaActual >= totalPaginas} onClick={() => irAPagina(paginaActual + 1)}>Siguiente</button>
             </div>
           </>
         )}
@@ -841,6 +833,39 @@ export default function DashboardExperto({ onNavigate }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL ALERTA ROYA */}
+      {royaAlert && (
+        <div className="cl-modal-overlay" onClick={() => {
+          if (royaAlert.idMon) sessionStorage.setItem(`roya_alert_${royaAlert.idMon}`, '1')
+          setRoyaAlert(null)
+        }}>
+          <div className="cl-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <BiErrorCircle size={28} />
+              <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>Roya detectada</h2>
+            </div>
+            <p style={{ color: '#334155', fontSize: '0.9rem', lineHeight: 1.6, margin: '0 0 20px 0' }}>
+              Se detectó roya en el último monitoreo de la finca{' '}
+              <strong>{royaAlert.finca || '—'}</strong>.
+              Ve a realizar el tratamiento correspondiente.
+            </p>
+            <div className="cl-modal-actions">
+              <button type="button" className="btn-cl-secondary" onClick={() => {
+                if (royaAlert.idMon) sessionStorage.setItem(`roya_alert_${royaAlert.idMon}`, '1')
+                setRoyaAlert(null)
+              }}>Cerrar</button>
+              <button type="button" className="btn-brand-primary" onClick={() => {
+                if (royaAlert.idMon) sessionStorage.setItem(`roya_alert_${royaAlert.idMon}`, '1')
+                setRoyaAlert(null)
+                onNavigate?.('monitoreos', royaAlert.fincaData || { idFinca: royaAlert.idFinca, nombre: royaAlert.finca })
+              }}>
+                Ir al monitoreo
+              </button>
+            </div>
           </div>
         </div>
       )}

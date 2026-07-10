@@ -399,6 +399,10 @@ function textoRoya(monitoreo) {
   return obtenerNombreRoya(monitoreo) || 'Sin roya'
 }
 
+function esWeb(usuario) {
+  return usuario && (usuario.idUsuario ?? usuario.id_usuario ?? usuario.id)
+}
+
 function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
   const fotos = Array.isArray(monitoreo.imagenes) ? monitoreo.imagenes : []
   const [recs, setRecs] = useState([])
@@ -460,9 +464,13 @@ function DetalleMonitoreoModal({ monitoreo, onBack, onEditar, cultivo }) {
             {(monitoreo.observaciones || '').includes('HISTORIAL DE CAMBIOS') && <span className="editado-badge">Editado</span>}
           </div>
           <div className="mon-detalle-row">
-            <span className="mon-detalle-label">Experto</span>
+            <span className="mon-detalle-label">Registrado por</span>
             <span className="mon-detalle-value">
-              {monitoreo.usuario ? `${monitoreo.usuario.nombre || ''} ${monitoreo.usuario.apellido || ''}`.trim() : '—'}
+              {esWeb(monitoreo.usuario) ? (
+                `${monitoreo.usuario.nombre || ''} ${monitoreo.usuario.apellido || ''}`.trim()
+              ) : (
+                <>IA Coffe Life</>
+              )}
             </span>
           </div>
           <div className="mon-detalle-row">
@@ -721,7 +729,7 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
     try {
       const params = { limit: 1000 }
       if (cultivo?.idCultivo) params.id_cultivo = cultivo.idCultivo
-      const res  = await api.get('/monitoreos', { params })
+      const res = await api.get('/monitoreos', { params })
       const body = res.data?.data ?? res.data
       const data = Array.isArray(body) ? body : []
       const filtrados = data
@@ -776,38 +784,44 @@ export default function MonitoreosExperto({ cultivo, finca, showNuevoModal, onCl
               const fotos = Array.isArray(m.imagenes) ? m.imagenes : []
               const color = colorRoya(m)
               return (
-                <div
-                  key={mid}
-                  className="monitor-card-sm"
-                  style={{ borderLeft: `4px solid ${color}` }}
-                >
-                  <div className="monitor-card-sm-top">
-                    <div className="monitor-card-sm-date">
-                      <BiCalendar size={14} />
-                      {fmt(m.fechaMonitoreo ?? m.fecha_monitoreo)}
-                      {(m.observaciones || '').includes('HISTORIAL DE CAMBIOS') && <span className="editado-badge">Editado</span>}
+                  <div
+                    key={mid}
+                    className="monitor-card-sm"
+                    style={{ borderLeft: `4px solid ${color}` }}
+                  >
+                    <div className="monitor-card-sm-top">
+                      <div className="monitor-card-sm-date">
+                        <BiCalendar size={14} />
+                        {fmt(m.fechaMonitoreo ?? m.fecha_monitoreo)}
+                        {(m.observaciones || '').includes('HISTORIAL DE CAMBIOS') && <span className="editado-badge">Editado</span>}
+                      </div>
+                      <span
+                        className="monitor-card-sm-date"
+                        style={{ color, fontWeight: 600, fontSize: 11 }}
+                      >
+                        {textoRoya(m)}
+                      </span>
+                      <button className="monitor-card-sm-eye" onClick={() => setDetalle(m)} title="Ver detalle">
+                        <BiShow size={18} />
+                      </button>
                     </div>
-                    <span
-                      className="monitor-card-sm-date"
-                      style={{ color, fontWeight: 600, fontSize: 11 }}
-                    >
-                      {textoRoya(m)}
-                    </span>
-                    <button className="monitor-card-sm-eye" onClick={() => setDetalle(m)} title="Ver detalle">
-                      <BiShow size={18} />
-                    </button>
+                    <div className="monitor-card-sm-badges">
+                      {!esWeb(m.usuario) && <span className="mon-badge mon-badge--movil">App móvil</span>}
+                      <span className={`mon-badge ${Array.isArray(m.recomendaciones) && m.recomendaciones.length > 0 ? 'mon-badge--hecho' : 'mon-badge--pendiente'}`}>
+                        {Array.isArray(m.recomendaciones) && m.recomendaciones.length > 0 ? 'Tratamiento hecho' : 'Pendiente de tratamiento'}
+                      </span>
+                    </div>
+                    <p className="monitor-card-sm-obs">
+                      {(() => {
+                        const obs = ultimaObservacion(m.observaciones)
+                        return obs.length > 80 ? obs.slice(0, 80) + '...' : (obs || 'Sin observaciones')
+                      })()}
+                    </p>
+                    <div className="monitor-card-sm-footer">
+                      <BiImage size={14} />
+                      {fotos.length} foto{fotos.length !== 1 ? 's' : ''}
+                    </div>
                   </div>
-                  <p className="monitor-card-sm-obs">
-                    {(() => {
-                      const obs = ultimaObservacion(m.observaciones)
-                      return obs.length > 80 ? obs.slice(0, 80) + '...' : (obs || 'Sin observaciones')
-                    })()}
-                  </p>
-                  <div className="monitor-card-sm-footer">
-                    <BiImage size={14} />
-                    {fotos.length} foto{fotos.length !== 1 ? 's' : ''}
-                  </div>
-                </div>
               )
             } catch (e) {
               console.error('Error al renderizar monitoreo', m?.idMonitoreo ?? m?.id_monitoreo, e)

@@ -34,6 +34,9 @@
 }
 
 @media (max-width: 768px) {
+  .admin-layout {
+    overflow-x: hidden;
+  }
   .admin-content {
     margin-left: 0;
     padding: 64px 14px 20px;

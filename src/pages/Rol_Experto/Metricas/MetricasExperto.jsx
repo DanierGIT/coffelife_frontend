@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import api from '../../../services/api'
 import { useAuth } from '../../../context/AuthContext'
 import { BiDroplet, BiPackage, BiMessageDetail, BiTime, BiCheckCircle, BiTrendingUp, BiBarChart, BiLineChart } from 'react-icons/bi'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import Loading from '../../../components/Loading'
 import './MetricasExperto.css'
 
@@ -15,6 +15,13 @@ const getArr = (d) => {
 const ROYA_LEVELS = { crítico: 4, alto: 3, medio: 2, bajo: 1, sin: 0, sano: 0, low: 1, medium: 2, high: 3, critico: 4 }
 const ROYA_COLORS = { crítico: '#dc2626', alto: '#f59e0b', medio: '#f97316', bajo: '#22c55e', sin: '#6b7280' }
 const ROYA_LABELS = { 0: 'Sin roya', 1: 'Bajo', 2: 'Medio', 3: 'Alto', 4: 'Crítico' }
+const FINCA_COLORS = ['#1b5e20', '#2563eb', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#be185d', '#65a30d', '#f97316', '#6366f1']
+const SEVERITY_BANDS = [
+  { min: 0, max: 1, color: '#22c55e', label: 'Bajo' },
+  { min: 1, max: 2, color: '#f59e0b', label: 'Medio' },
+  { min: 2, max: 3, color: '#f97316', label: 'Alto' },
+  { min: 3, max: 4, color: '#dc2626', label: 'Crítico' },
+]
 
 const normalizeRoya = (nivel) => {
   if (!nivel) return { value: 0, label: 'Sin roya', color: '#6b7280' }
@@ -63,6 +70,24 @@ const timeAgo = (raw) => {
   return fmtFecha(raw)
 }
 
+const RoyaTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null
+  return (
+    <div className="roya-tooltip">
+      <div className="roya-tooltip-header">{label}</div>
+      <div className="roya-tooltip-body">
+        {payload.map((entry, i) => (
+          <div key={i} className="roya-tooltip-row">
+            <span className="roya-tooltip-dot" style={{ background: entry.color }} />
+            <span className="roya-tooltip-name">{entry.name}</span>
+            <span className="roya-tooltip-value" style={{ color: entry.color }}>{ROYA_LABELS[entry.value] || entry.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function MetricasExperto({ finca, onNavigate }) {
   const { user } = useAuth()
   const [fincasDisponibles, setFincasDisponibles] = useState([])
@@ -82,6 +107,7 @@ export default function MetricasExperto({ finca, onNavigate }) {
   const [tratamientos, setTratamientos] = useState([])
   const [tiposRec, setTiposRec] = useState([])
   const [prioridades, setPrioridades] = useState([])
+  const [todosCultivos, setTodosCultivos] = useState([])
 
   const fincaActual = fincasDisponibles.find((f) => Number(f.idFinca) === Number(selectedFincaId)) || finca
   const idFinca = fincaActual?.idFinca
@@ -111,9 +137,6 @@ export default function MetricasExperto({ finca, onNavigate }) {
           }
         }).filter((f) => f.idFinca)
         setFincasDisponibles(fincas)
-        if (fincas.length > 0 && !selectedFincaId) {
-          setSelectedFincaId(fincas[0].idFinca)
-        }
       } catch (e) {
         console.error('Error cargando fincas:', e)
       } finally {
@@ -123,50 +146,59 @@ export default function MetricasExperto({ finca, onNavigate }) {
     cargar()
   }, [])
 
-  // Cargar catálogos y cultivos
+  // Cargar catálogos globales y todos los cultivos (una sola vez)
   useEffect(() => {
-    if (!idFinca) return
-    const init = async () => {
-      try {
-        const [cultivosRes, nivRes, insRes, tratRes, tipRes, priRes] = await Promise.all([
-          api.get('/cultivos'),
-          api.get('/cat_niveles_roya').catch(() => ({ data: [] })),
-          api.get('/insumos').catch(() => ({ data: [] })),
-          api.get('/tratamientos').catch(() => ({ data: [] })),
-          api.get('/cat_tipos_recomendaciones').catch(() => ({ data: [] })),
-          api.get('/cat_prioridades').catch(() => ({ data: [] })),
-        ])
-        const todos = getArr(cultivosRes.data).filter((c) => Number(c.idFinca) === Number(idFinca))
-        setCultivos(todos)
-        setNivelesRoya(getArr(nivRes.data))
-        setInsumos(getArr(insRes.data))
-        setTratamientos(getArr(tratRes.data))
-        setTiposRec(getArr(tipRes.data))
-        setPrioridades(getArr(priRes.data))
+    Promise.all([
+      api.get('/cat_niveles_roya').catch(() => ({ data: [] })),
+      api.get('/insumos').catch(() => ({ data: [] })),
+      api.get('/tratamientos').catch(() => ({ data: [] })),
+      api.get('/cat_tipos_recomendaciones').catch(() => ({ data: [] })),
+      api.get('/cat_prioridades').catch(() => ({ data: [] })),
+      api.get('/cultivos').catch(() => ({ data: [] })),
+    ]).then(([nivRes, insRes, tratRes, tipRes, priRes, cultRes]) => {
+      setNivelesRoya(getArr(nivRes.data))
+      setInsumos(getArr(insRes.data))
+      setTratamientos(getArr(tratRes.data))
+      setTiposRec(getArr(tipRes.data))
+      setPrioridades(getArr(priRes.data))
+      setTodosCultivos(getArr(cultRes.data))
+    }).catch((e) => console.error('Error cargando catálogos:', e))
+  }, [])
 
-        const sigueSiendoValido = todos.some((c) => Number(c.idCultivo) === Number(selectedCultivo))
-        if (todos.length > 0 && (!selectedCultivo || !sigueSiendoValido)) {
-          setSelectedCultivo(String(todos[0].idCultivo))
-        }
-      } catch (e) {
-        console.error('Error cargando catálogos:', e)
-      }
+  // Cargar cultivos según finca seleccionada
+  useEffect(() => {
+    if (!idFinca) {
+      setCultivos([])
+      setSelectedCultivo('')
+      return
     }
-    init()
-  }, [selectedFincaId])
+    if (todosCultivos.length === 0) return
+    const filtrados = todosCultivos.filter((c) => Number(c.idFinca) === Number(idFinca))
+    setCultivos(filtrados)
+    const sigueSiendoValido = filtrados.some((c) => Number(c.idCultivo) === Number(selectedCultivo))
+    if (filtrados.length > 0 && (!selectedCultivo || !sigueSiendoValido)) {
+      setSelectedCultivo(String(filtrados[0].idCultivo))
+    }
+  }, [selectedFincaId, todosCultivos])
 
   // Cargar datos cuando cambian filtros
   useEffect(() => {
-    if (!idFinca) return
-    if (cultivos.length === 0) return
     setLoading(true)
     setError('')
 
     const fetchData = async () => {
       try {
-        const idsCultivo = selectedCultivo && selectedCultivo !== ''
-          ? [Number(selectedCultivo)]
-          : cultivos.map((c) => Number(c.idCultivo))
+        let idsCultivo
+        if (idFinca) {
+          if (cultivos.length === 0) { setLoading(false); return }
+          idsCultivo = selectedCultivo && selectedCultivo !== ''
+            ? [Number(selectedCultivo)]
+            : cultivos.map((c) => Number(c.idCultivo))
+        } else {
+          idsCultivo = todosCultivos
+            .filter((c) => fincasDisponibles.some((f) => Number(f.idFinca) === Number(c.idFinca)))
+            .map((c) => Number(c.idCultivo))
+        }
 
         const [monRes, aplRes, recRes] = await Promise.all([
           api.get('/monitoreos', { params: { limit: 500 } }),
@@ -174,20 +206,17 @@ export default function MetricasExperto({ finca, onNavigate }) {
           api.get('/recomendaciones', { params: { limit: 500 } }),
         ])
 
-        // Filtrar monitoreos por cultivos de esta finca
         const todosMon = getArr(monRes.data).filter((m) =>
           idsCultivo.includes(Number(m.idCultivo ?? m.id_cultivo))
         )
         setMonitoreos(todosMon)
 
-        // Recomendaciones de esos monitoreos
         const idsMon = new Set(todosMon.map((m) => Number(m.idMonitoreo ?? m.id_monitoreo)))
         const todasRecs = getArr(recRes.data).filter((r) =>
           idsMon.has(Number(r.idMonitoreo ?? r.id_monitoreo))
         )
         setRecomendaciones(todasRecs)
 
-        // Aplicaciones: filtrar por ids de tratamiento de las recomendaciones + todas
         const todasApl = getArr(aplRes.data)
         setAplicaciones(todasApl)
       } catch (e) {
@@ -198,7 +227,7 @@ export default function MetricasExperto({ finca, onNavigate }) {
       }
     }
     fetchData()
-  }, [idFinca, selectedCultivo, cultivos])
+  }, [idFinca, selectedCultivo, cultivos, fincasDisponibles])
 
   // ─── Datos derivados ──────────────────────────────
 
@@ -210,15 +239,31 @@ export default function MetricasExperto({ finca, onNavigate }) {
       .map((m) => {
         const nivel = extractRoyaFromObs(m.observaciones || '')
         const { value, label } = normalizeRoya(nivel || m.nivelRoya?.nombre || m.nivel_roya)
+        const cult = todosCultivos.find((c) => Number(c.idCultivo) === Number(m.idCultivo ?? m.id_cultivo))
+        const finca = fincasDisponibles.find((f) => Number(f.idFinca) === Number(cult?.idFinca))
         return {
           fecha: fmtFechaShort(m.fechaMonitoreo ?? m.fecha_monitoreo),
           fechaRaw: m.fechaMonitoreo ?? m.fecha_monitoreo,
           nivel: value,
           nivelLabel: label,
           id: m.idMonitoreo ?? m.id_monitoreo,
+          fincaId: finca?.idFinca,
+          fincaNombre: finca?.nombre || 'Desconocida',
         }
       })
-  }, [monitoreos])
+  }, [monitoreos, todosCultivos, fincasDisponibles])
+
+  // Datos para small multiples (un mini-chart por finca)
+  const royaPorFincaArray = useMemo(() => {
+    return fincasDisponibles
+      .map((f) => ({
+        id: f.idFinca,
+        nombre: f.nombre,
+        color: FINCA_COLORS[fincasDisponibles.indexOf(f) % FINCA_COLORS.length],
+        data: royaEvolucion.filter((r) => Number(r.fincaId) === Number(f.idFinca)),
+      }))
+      .filter((f) => f.data.length > 0)
+  }, [royaEvolucion, fincasDisponibles])
 
   // Seguimiento de tratamientos
   const seguimientoTrat = useMemo(() => {
@@ -331,7 +376,7 @@ export default function MetricasExperto({ finca, onNavigate }) {
         <div className="metricas-header-left">
           <BiTrendingUp size={22} />
           <div>
-            <h1>Métricas{idFinca ? ` de ${fincaActual?.nombre || 'la finca'}` : ''}</h1>
+            <h1>Métricas{idFinca ? ` de ${fincaActual?.nombre || 'la finca'}` : ' generales'}</h1>
             <p>Evolución, tratamientos y cumplimiento</p>
           </div>
         </div>
@@ -361,37 +406,71 @@ export default function MetricasExperto({ finca, onNavigate }) {
         )}
       </div>
 
-      {!idFinca ? (
-        fincasDisponibles.length === 0 ? (
-          <div className="metrica-empty">No tenés fincas asignadas.</div>
-        ) : (
-          <div className="metrica-empty">Seleccioná una finca para ver sus métricas.</div>
-        )
+      {fincasDisponibles.length === 0 ? (
+        <div className="metrica-empty">No tenés fincas asignadas.</div>
       ) : loading ? (
         <Loading type="content" text="Calculando métricas..." />
       ) : error ? (
         <div className="metrica-error">{error}</div>
       ) : (
         <>
-          {/* KPIs rápidos */}
-          <div className="metricas-kpis">
-            <div className="metrica-kpi">
-              <BiDroplet size={20} />
-              <div><strong>{totalMonitoreos}</strong><span>Monitoreos</span></div>
+          {/* Resumen del experto (solo vista general) */}
+          {!idFinca && (
+            <div className="metrica-resumen-experto">
+              <div className="metrica-re-header">
+                <BiTrendingUp size={20} />
+                <h3>Resumen del Experto</h3>
+              </div>
+              <div className="metrica-re-grid">
+                <div className="metrica-re-item">
+                  <span className="metrica-re-num">{fincasDisponibles.length}</span>
+                  <span className="metrica-re-label">Fincas asignadas</span>
+                </div>
+                <div className="metrica-re-item">
+                  <span className="metrica-re-num">{totalMonitoreos}</span>
+                  <span className="metrica-re-label">Monitoreos realizados</span>
+                </div>
+                <div className="metrica-re-item">
+                  <span className="metrica-re-num">{totalAplicaciones}</span>
+                  <span className="metrica-re-label">Tratamientos aplicados</span>
+                </div>
+                <div className="metrica-re-item">
+                  <span className="metrica-re-num">{cumplimiento.total}</span>
+                  <span className="metrica-re-label">Recomendaciones generadas</span>
+                </div>
+                <div className="metrica-re-item">
+                  <span className="metrica-re-num">{cumplimiento.cumplidas}</span>
+                  <span className="metrica-re-label">Recomendaciones cumplidas</span>
+                </div>
+                <div className="metrica-re-item">
+                  <span className="metrica-re-num">{cumplimiento.total > 0 ? Math.round((cumplimiento.cumplidas / cumplimiento.total) * 100) : 0}%</span>
+                  <span className="metrica-re-label">Tasa de cumplimiento</span>
+                </div>
+              </div>
             </div>
-            <div className="metrica-kpi">
-              <BiPackage size={20} />
-              <div><strong>{totalAplicaciones}</strong><span>Aplicaciones</span></div>
+          )}
+
+          {/* KPIs rápidos (solo cuando hay finca seleccionada) */}
+          {idFinca && (
+            <div className="metricas-kpis">
+              <div className="metrica-kpi">
+                <BiDroplet size={20} />
+                <div><strong>{totalMonitoreos}</strong><span>Monitoreos</span></div>
+              </div>
+              <div className="metrica-kpi">
+                <BiPackage size={20} />
+                <div><strong>{totalAplicaciones}</strong><span>Aplicaciones</span></div>
+              </div>
+              <div className="metrica-kpi">
+                <BiMessageDetail size={20} />
+                <div><strong>{cumplimiento.total}</strong><span>Recomendaciones</span></div>
+              </div>
+              <div className="metrica-kpi">
+                <BiCheckCircle size={20} />
+                <div><strong>{cumplimiento.cumplidas}</strong><span>Cumplidas</span></div>
+              </div>
             </div>
-            <div className="metrica-kpi">
-              <BiMessageDetail size={20} />
-              <div><strong>{cumplimiento.total}</strong><span>Recomendaciones</span></div>
-            </div>
-            <div className="metrica-kpi">
-              <BiCheckCircle size={20} />
-              <div><strong>{cumplimiento.cumplidas}</strong><span>Cumplidas</span></div>
-            </div>
-          </div>
+          )}
 
           <div className="metricas-grid">
             {/* Evolución de Roya */}
@@ -403,6 +482,27 @@ export default function MetricasExperto({ finca, onNavigate }) {
               <div className="metrica-card-body">
                 {royaEvolucion.length === 0 ? (
                   <div className="metrica-empty-chart">Sin monitoreos en el período</div>
+                ) : !idFinca ? (
+                  <div className="roya-mini-grid">
+                    {royaPorFincaArray.map((f) => (
+                      <div key={f.id} className="roya-mini-card">
+                        <div className="roya-mini-header">
+                          <span className="roya-mini-dot" style={{ background: f.color }} />
+                          <span className="roya-mini-name">{f.nombre}</span>
+                          <span className="roya-mini-count">{f.data.length} monitoreos</span>
+                        </div>
+                        <ResponsiveContainer width="100%" height={130}>
+                          <LineChart data={f.data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                            <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
+                            <XAxis dataKey="fecha" tick={{ fontSize: 9, fill: '#94a3b8' }} stroke="#e2e8f0" tickLine={false} axisLine={false} />
+                            <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} tick={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} tickLine={false} axisLine={false} width={48} tickFormatter={(v) => (ROYA_LABELS[v] || '').substring(0, 4)} />
+                            <Tooltip content={<RoyaTooltip />} cursor={{ stroke: '#94a3b8', strokeDasharray: '2 2' }} />
+                            <Line type="monotone" dataKey="nivel" stroke={f.color} strokeWidth={2} dot={{ r: 2.5, strokeWidth: 1, stroke: '#fff' }} activeDot={{ r: 5, strokeWidth: 1.5, stroke: '#fff' }} connectNulls />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <ResponsiveContainer width="100%" height={240}>
                     <LineChart data={royaEvolucion}>
